@@ -131,7 +131,6 @@ public class Scanner {
                         } else if (currentChar == '\'') {
                             findStringLiteral('\'', iColPos);
                             break;
-
                         }
                     }
 
@@ -295,7 +294,8 @@ public class Scanner {
     private int validateNumber(String number){
         int counter=0;
         for(int i = 0; i < number.length(); i++){
-            if(digits.indexOf(number.charAt(i)) < 0){
+            //TODO: This breaks for decimals
+            if(digits.indexOf(number.charAt(i)) < 0 && number.charAt(i) != '.'){
                 counter = -1;
                 break;
             }
