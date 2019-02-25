@@ -7,11 +7,8 @@ public class STIdentifier extends STEntry{
     public String parm;
     public int nonLocal;
 
-    public STIdentifier(String string, Classif classification, SubClassif declare, String struct, String params, int nonLocalBase) {
+    public STIdentifier(String string, Classif classification, SubClassif declare){
         super(string, classification);
         dclType = declare;
-        structure = struct;
-        parm = params;
-        nonLocal = nonLocalBase;
     }
 }

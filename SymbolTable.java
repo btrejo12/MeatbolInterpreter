@@ -9,8 +9,21 @@ public class SymbolTable {
         initGlobal();
     }
 
+    /**
+     * Scanner calls getSymbol to return the primary and sub classification for specified token using the token's
+     * instance of STEntry. If the token is not saved in the hashmap, it is inserted.
+     * @param symbol the tokenStr to be looked up in the hashmap
+     * @return the tokenStr's STEntry instance
+     */
     public STEntry getSymbol(String symbol){
-        return ht.get(symbol);
+        if (ht.containsKey(symbol))
+            return ht.get(symbol);
+        else{
+            //Create STEntry object, STIdentifier for now
+            STEntry newEntry = new STIdentifier(symbol, Classif.OPERAND, SubClassif.IDENTIFIER);
+            putSymbol(symbol, newEntry);
+            return newEntry;
+        }
     }
 
     public void putSymbol(String symbol, STEntry entry){

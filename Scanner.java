@@ -65,28 +65,11 @@ public class Scanner{
         textCharM = sourceLineM.get(0).toCharArray();
         iSourceLineNr = 1;
 
-        //System.out.println(iSourceLineNr + " " + sourceLineM.get(iSourceLineNr-1));
         System.out.println(sourceLineM.get(0));
-        /*for(int k = 0; k <= textCharM.length; k++ ){
-
-            char currentChar = textCharM[k];
-
-            if(delimiters.contains(Character.toString(currentChar)) || currentChar == ' '){
-
-                if(k!=0){
-                    String variableName = sourceLineM.get(iSourceLineNr-1).substring(0, k);
-                    System.out.println(variableName);
-                    if(variableName.equals("Int") || variableName.equals("Float") || variableName.equals("String")){
-                        assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
-                        incrementColumnPosition(k);
-                        break;
-                    }
-                }
-            }
-        }*/
         try{
             getNext();
         }catch(Exception e){
+            //TODO: Handle this exception
         }
 	
     }
@@ -135,23 +118,6 @@ public class Scanner{
                         else if (operators.indexOf(currentChar) >= 0) {
 	                        checkOperator(index);
 	                         break;
-                    /* if(operators.indexOf(currentchar) < 4){
-                        assignNextToken(Character.toString(currentChar), Classif.OPERATOR, SubClassif.EMPTY);
-                        incrementColumnPosition(i);
-                        break;
-                                } else {
-                        int index2
-                        for(int index2 = index; n<textCharM.length-1; n++){
-                            if(textcharM[index2] == ' ')
-                                continue;
-                            if(operators.indexOf(textCharM[index2]) >=0){
-                                //String multiOperator = Character.toString(currentchar) + Character.toString(textcharM[n]);
-                                //assignNexttoken(multiOperator);
-                                //incrementcolumnPosition(n);
-                                //break;
-                            }
-                        }
-                        }*/
                         } //This is a separator token, assign it and update iCol
                         else if (separators.indexOf(currentChar) >= 0) {
                             assignNextToken(Character.toString(currentChar), Classif.SEPARATOR, SubClassif.EMPTY);
@@ -166,36 +132,10 @@ public class Scanner{
                             break;
 
                         }
-                        
-                        
                     }
-
                     //Observe what came before, and we will leave this character for the next iteration
                     if (i != 0) {
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
-
-                        //identifier?
-                        if (variableName.equals("Int") || variableName.equals("Float") || variableName.equals("String")) {
-                            assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
-                            incrementColumnPosition(i);
-                            break;
-                        }
-                        /* //if statement?
-                        else if(variableName.equals("if")){
-                            assignNextToken(variableName, Classif.CONTROL, SubClassif.FLOW);
-                            incrementColumnPosition(i);
-                            break;
-                        } //end if?
-                        else if (variableName.equals("end if")){
-                            assignNextToken(variableName, Classif.CONTROL, SubClassif.END);
-                            incrementColumnPosition(i);
-                            break;
-                        } //built in function?
-                        else if (variableName.equals("print")){
-                            assignNextToken(variableName, Classif.FUNCTION, SubClassif.BUILTIN);
-                            incrementColumnPosition(i);
-                            break;
-                        }*/
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
                             //TODO: This number validation needs to be moved to a Numeric class
@@ -215,17 +155,6 @@ public class Scanner{
                                 throw new Exception("Line " + iSourceLineNr + ": Invalid number format, File: " + sourceFileNm);
                             }
                         }
-                    /*
-                    if(operators.indexOf(currentChar) >= 0){
-                        assignNextToken(variableName, Classif.OPERATOR, SubClassif.EMPTY);
-                        incrementColumnPosition(i-1);
-                        break;
-                    } else if (separators.indexOf(currentChar) >= 0){
-                        assignNextToken(variableName, Classif.SEPARATOR, SubClassif.EMPTY);
-                        incrementColumnPosition(i-1);
-                        break;
-                    }*/
-
                         //TODO: This conditional needs to call SymbolTable.getSymbol(variableName) in order to get this
                         // variable's STEntry.
                         //variable identifier
@@ -241,6 +170,7 @@ public class Scanner{
         return currentToken.tokenStr;
     }
 
+    //TODO: This function also needs to set the token's line number
     /**
      *<p>Assign next token helps reduce code redundancy by assigning the specific parameters to nextToken.</p>
      * @param tokenStr is the String to be assigned to nextToken
@@ -248,7 +178,6 @@ public class Scanner{
      * @param secondary is the secondary classification of nextToken
      */
     private void assignNextToken(String tokenStr, Classif primary, SubClassif secondary){
-    
         nextToken.tokenStr = tokenStr;
         nextToken.primClassif = primary;
         nextToken.subClassif = secondary;
@@ -259,8 +188,6 @@ public class Scanner{
      *<p>shiftTokens is a helper method user to move the nextToken into the currentToken position.</p>
      */
     private void shiftTokens(){
-    //currentToken = nextToken;
-
         currentToken.primClassif = nextToken.primClassif;
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
@@ -275,8 +202,6 @@ public class Scanner{
      */
     private void findStringLiteral(char endingDelimiter, int startingIndex) throws Exception{
         for(int i=startingIndex+1; i<textCharM.length; i++){
-
-            //System.out.println("Finding " + endingDelimiter+ " at position: " + i);
             char currentChar = textCharM[i];
 
             //Ending delimiter found and it is not escaped
@@ -286,16 +211,18 @@ public class Scanner{
                 if(escapedName == "")
                     throw new Exception("Line " + iSourceLineNr + ": Unrecognized escape character, File: " + sourceFileNm);
                 assignNextToken(escapedName, Classif.OPERAND, SubClassif.STRING);
-                //iColPos = i+1;
                 incrementColumnPosition(i-startingIndex);
-	//System.out.print(iColPos);
-	//System.out.println(" "+escapedName);
                 return;
             }
         }
         throw new Exception("Line " + iSourceLineNr + ": String literal must terminate on same line, File: " + sourceFileNm);
     }
 
+    /**
+     * <p>This function correctly converts escaped characters within a String literal.</p>
+     * @param variableName is the String to be converted
+     * @return the converted string
+     */
     private String convertEscaped(String variableName){
         char[] escapedArr = new char[variableName.length()];
         char[] variableArr = variableName.toCharArray();
@@ -391,11 +318,21 @@ public class Scanner{
         nextToken.subClassif = SubClassif.EMPTY;
         nextToken.iColPos = -1;
     }
+
+    /**
+     * <p>This method is responsible for printing the current line when Scanner increments to the next line.</p>
+     */
     private void printNextLine(){
         iSourceLineNr++;
         skipEmptyLines();
         System.out.println(sourceLineM.get(iSourceLineNr-1));
     }
+
+    /**
+     * <p>checkOperator checks to see if there are two subsequent operators that can be combined. This function updates iCol
+     * accordingly and populates nextToken.
+     * @param index the index of the first operator</p>
+     */
     private void checkOperator(int index){
         int i = index;
         char op = textCharM[index];
@@ -422,7 +359,6 @@ public class Scanner{
                 } else if(next == '=' || next == '<' || next == '>' || next == '!'){
                     String multi = Character.toString(op) + Character.toString(next);
                     assignNextToken(multi, Classif.OPERATOR, SubClassif.EMPTY);
-                    //System.out.println(sourceLineM.get(iSourceLineNr));
                     iColPos=i+1;
                     return;
                 } else{
