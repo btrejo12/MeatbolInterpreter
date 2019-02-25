@@ -106,6 +106,7 @@ public class Scanner{
             skipEmptyLines();
             for (int i = 0; i <= textCharM.length; i++) {
                 int index = iColPos + i;
+
                 if(index >= textCharM.length){
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                     assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
@@ -195,9 +196,9 @@ public class Scanner{
                             incrementColumnPosition(i);
                             break;
                         }*/
-
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
+                            //TODO: This number validation needs to be moved to a Numeric class
                             int numOfDecimals = countDecimals(variableName);
 
                             //No decimals present
@@ -214,7 +215,6 @@ public class Scanner{
                                 throw new Exception("Line " + iSourceLineNr + ": Invalid number format, File: " + sourceFileNm);
                             }
                         }
-
                     /*
                     if(operators.indexOf(currentChar) >= 0){
                         assignNextToken(variableName, Classif.OPERATOR, SubClassif.EMPTY);
@@ -226,6 +226,8 @@ public class Scanner{
                         break;
                     }*/
 
+                        //TODO: This conditional needs to call SymbolTable.getSymbol(variableName) in order to get this
+                        // variable's STEntry.
                         //variable identifier
                         else {
                             assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
@@ -364,6 +366,7 @@ public class Scanner{
         }
     }
 
+    //TODO: This function needs to be moved to a Numeric class
     /**
      *<p>countDecimals is a helper method used to limit the regex use in the program in order to find the number of decimals within a string</p>
      * @param number is the String number to be analyzed
@@ -403,25 +406,23 @@ public class Scanner{
             return;
         } else{
             while(true){
-	char next = textCharM[i];
-	if(Character.isWhitespace(next)){
-	    i++;
-	} else if(next == '=' || next == '<' || next == '>' || next == '!'){
-	    String multi = Character.toString(op) + Character.toString(next);
-	    assignNextToken(multi, Classif.OPERATOR, SubClassif.EMPTY);
-	    //System.out.println(sourceLineM.get(iSourceLineNr));
-	    incrementColumnPosition(i-index);
-	    return;
-	} else{
-	    assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
-	    incrementColumnPosition(1);
-	    return;
-	}
+                char next = textCharM[i];
+                if(Character.isWhitespace(next)){
+                    i++;
+                } else if(next == '=' || next == '<' || next == '>' || next == '!'){
+                    String multi = Character.toString(op) + Character.toString(next);
+                    assignNextToken(multi, Classif.OPERATOR, SubClassif.EMPTY);
+                    //System.out.println(sourceLineM.get(iSourceLineNr));
+                    incrementColumnPosition(i-index);
+                    return;
+                } else{
+                    assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
+                    incrementColumnPosition(1);
+                    return;
+                }
             }
         }
     }
-
-
 }
 
 
