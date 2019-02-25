@@ -6,7 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Scanner {
+public class Scanner{
 
     public String sourceFileNm;
     public ArrayList<String> sourceLineM;
@@ -66,8 +66,8 @@ public class Scanner {
         iSourceLineNr = 1;
 
         //System.out.println(iSourceLineNr + " " + sourceLineM.get(iSourceLineNr-1));
-
-        for(int k = 0; k <= textCharM.length; k++ ){
+        System.out.println(sourceLineM.get(0));
+        /*for(int k = 0; k <= textCharM.length; k++ ){
 
             char currentChar = textCharM[k];
 
@@ -75,7 +75,7 @@ public class Scanner {
 
                 if(k!=0){
                     String variableName = sourceLineM.get(iSourceLineNr-1).substring(0, k);
-                    //System.out.println(variableName);
+                    System.out.println(variableName);
                     if(variableName.equals("Int") || variableName.equals("Float") || variableName.equals("String")){
                         assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                         incrementColumnPosition(k);
@@ -83,7 +83,12 @@ public class Scanner {
                     }
                 }
             }
+        }*/
+        try{
+            getNext();
+        }catch(Exception e){
         }
+	
     }
 
     /**
@@ -101,6 +106,12 @@ public class Scanner {
             skipEmptyLines();
             for (int i = 0; i <= textCharM.length; i++) {
                 int index = iColPos + i;
+                if(index >= textCharM.length){
+                    String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
+                    assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                    incrementColumnPosition(i - 1);
+                    break;
+                }
                 char currentChar = textCharM[index];
 
                 //We've hit a space or delimiter
@@ -115,6 +126,11 @@ public class Scanner {
                             i = i - 1;
                             continue;
                         } //This is a operator token, assign it and update iCol
+                        else if (currentChar == '/' && textCharM.length > index && textCharM[index+1] == '/'){
+                            incrementColumnPosition(textCharM.length);
+                            i=0;
+                            continue;
+                        }
                         else if (operators.indexOf(currentChar) >= 0) {
                             assignNextToken(Character.toString(currentChar), Classif.OPERATOR, SubClassif.EMPTY);
                             incrementColumnPosition(i);
@@ -133,6 +149,8 @@ public class Scanner {
                             break;
 
                         }
+                        
+                        
                     }
 
                     //Observe what came before, and we will leave this character for the next iteration
@@ -212,6 +230,7 @@ public class Scanner {
      * @param secondary is the secondary classification of nextToken
      */
     private void assignNextToken(String tokenStr, Classif primary, SubClassif secondary){
+    
         nextToken.tokenStr = tokenStr;
         nextToken.primClassif = primary;
         nextToken.subClassif = secondary;
@@ -222,6 +241,8 @@ public class Scanner {
      *<p>shiftTokens is a helper method user to move the nextToken into the currentToken position.</p>
      */
     private void shiftTokens(){
+    //currentToken = nextToken;
+
         currentToken.primClassif = nextToken.primClassif;
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
@@ -243,12 +264,51 @@ public class Scanner {
             //Ending delimiter found and it is not escaped
             if(currentChar == endingDelimiter && textCharM[i-1] != '\\'){
                 String variableName = sourceLineM.get(iSourceLineNr-1).substring(startingIndex+1, i);
-                assignNextToken(variableName, Classif.OPERAND, SubClassif.STRING);
-                iColPos = i+1;
+                String escapedName = convertEscaped(variableName);
+                if(escapedName == "")
+                    throw new Exception("Line " + iSourceLineNr + ": Unrecognized escape character, File: " + sourceFileNm);
+                assignNextToken(escapedName, Classif.OPERAND, SubClassif.STRING);
+                //iColPos = i+1;
+                incrementColumnPosition(i);
                 return;
             }
         }
         throw new Exception("Line " + iSourceLineNr + ": Sting literal must terminate on same line, File: " + sourceFileNm);
+    }
+
+    private String convertEscaped(String variableName){
+        char[] escapedArr = new char[variableName.length()];
+        char[] variableArr = variableName.toCharArray();
+        int index=0;
+            for(int c = 0;c<variableArr.length;c++){
+                if(variableArr[c] == '\\'){
+                    c++;
+                    char next = variableArr[c];
+                    if(next == 'n')
+                        escapedArr[index] = '\n';
+                    else if(next == '\\')
+                        escapedArr[index] = '\\';
+                    else if(next == '\'')
+                        escapedArr[index] = '\'';
+                    else if(next == '\"')
+                        escapedArr[index] = '\"';
+                    else if(next == 't')
+                        escapedArr[index] = '\t';
+                    else if(next == 'a')
+                        escapedArr[index] = '\007';
+                    else
+                        return "";
+                }
+                else{
+                    escapedArr[index] = variableArr[c];
+                }
+                index++;
+
+
+            }
+            
+        return String.valueOf(escapedArr);
+
     }
 
     /**
@@ -258,13 +318,14 @@ public class Scanner {
     private void incrementColumnPosition(int relativeIndex){
         iColPos += (relativeIndex+1);
         //System.out.print(" ColPos: " + iColPos);
-        if(iColPos == textCharM.length){
+        if(iColPos >= textCharM.length){
             //System.out.print(" Reset iCol\n");
             iColPos = 0;
             if (iSourceLineNr != sourceLineM.size()) {
                 //System.out.println(iSourceLineNr+1 + " " + sourceLineM.get(iSourceLineNr));
                 textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
-                iSourceLineNr++;
+                //iSourceLineNr++;
+                printNextLine();
             } else {
                 setNextToEmpty();
             }
@@ -280,6 +341,7 @@ public class Scanner {
             if (sourceLineM.get(i).toCharArray().length == 0){
                 textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
                 iSourceLineNr++;
+                //System.out.println(sourceLineM.get(iSourceLineNr-1));
                 iColPos = 0;
             } else{
                 break;
@@ -311,4 +373,15 @@ public class Scanner {
         nextToken.subClassif = SubClassif.EMPTY;
         nextToken.iColPos = -1;
     }
+    private void printNextLine(){
+        iSourceLineNr++;
+        skipEmptyLines();
+        System.out.println(sourceLineM.get(iSourceLineNr-1));
+    }
+
+
+
 }
+
+
+

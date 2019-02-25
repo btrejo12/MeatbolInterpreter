@@ -31,7 +31,6 @@ public class Meatbol
                     , "primClassif"
                     , "subClassif"
                     , "tokenStr");
-            
             Scanner scan = new Scanner(args[0], symbolTable);
             while (! scan.getNext().isEmpty())
             {
