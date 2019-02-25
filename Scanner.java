@@ -397,6 +397,11 @@ public class Scanner{
         int i = index;
         char op = textCharM[index];
         i++;
+        if(i>=textCharM.length){
+            textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
+            printNextLine();
+            i = 0;
+        }
         if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
             assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
             incrementColumnPosition(1);
@@ -406,15 +411,20 @@ public class Scanner{
 	char next = textCharM[i];
 	if(Character.isWhitespace(next)){
 	    i++;
+	    if(i>=textCharM.length){
+            textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
+	        printNextLine();
+	        i=0;
+        }
 	} else if(next == '=' || next == '<' || next == '>' || next == '!'){
 	    String multi = Character.toString(op) + Character.toString(next);
 	    assignNextToken(multi, Classif.OPERATOR, SubClassif.EMPTY);
 	    //System.out.println(sourceLineM.get(iSourceLineNr));
-	    incrementColumnPosition(i-index);
+	    iColPos = i;
 	    return;
 	} else{
 	    assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
-	    incrementColumnPosition(1);
+	    iColPos = i;
 	    return;
 	}
             }
