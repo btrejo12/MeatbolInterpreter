@@ -400,6 +400,11 @@ public class Scanner{
         int i = index;
         char op = textCharM[index];
         i++;
+        if(i>=textCharM.length){
+            textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
+            printNextLine();
+            i = 0;
+        }
         if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
             assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
             incrementColumnPosition(1);
@@ -420,6 +425,7 @@ public class Scanner{
                     incrementColumnPosition(1);
                     return;
                 }
+
             }
         }
     }
