@@ -125,32 +125,32 @@ public class Scanner{
                             incrementColumnPosition(i);
                             i = i - 1;
                             continue;
-                        } //This is a operator token, assign it and update iCol
+                        } //This character and the next are the start of a comment, go to the next line
                         else if (currentChar == '/' && textCharM.length > index && textCharM[index+1] == '/'){
                             incrementColumnPosition(textCharM.length);
                             i=0;
                             continue;
-                        }
+                        }//This is a operator token, assign it and update iCol
                         else if (operators.indexOf(currentChar) >= 0) {
-	            checkOperator(index);
-	            break;
-	            /* if(operators.indexOf(currentchar) < 4){
-		assignNextToken(Character.toString(currentChar), Classif.OPERATOR, SubClassif.EMPTY);
-		incrementColumnPosition(i);
-		break;
-	            } else {
-		int index2
-		for(int index2 = index; n<textCharM.length-1; n++){
-		    if(textcharM[index2] == ' ')
-		        continue;
-		    if(operators.indexOf(textCharM[index2]) >=0){
-		        //String multiOperator = Character.toString(currentchar) + Character.toString(textcharM[n]);
-		        //assignNexttoken(multiOperator);
-		        //incrementcolumnPosition(n);
-		        //break;
-		    }
-		}
-		}*/
+	                        checkOperator(index);
+	                         break;
+                    /* if(operators.indexOf(currentchar) < 4){
+                        assignNextToken(Character.toString(currentChar), Classif.OPERATOR, SubClassif.EMPTY);
+                        incrementColumnPosition(i);
+                        break;
+                                } else {
+                        int index2
+                        for(int index2 = index; n<textCharM.length-1; n++){
+                            if(textcharM[index2] == ' ')
+                                continue;
+                            if(operators.indexOf(textCharM[index2]) >=0){
+                                //String multiOperator = Character.toString(currentchar) + Character.toString(textcharM[n]);
+                                //assignNexttoken(multiOperator);
+                                //incrementcolumnPosition(n);
+                                //break;
+                            }
+                        }
+                        }*/
                         } //This is a separator token, assign it and update iCol
                         else if (separators.indexOf(currentChar) >= 0) {
                             assignNextToken(Character.toString(currentChar), Classif.SEPARATOR, SubClassif.EMPTY);
@@ -321,10 +321,7 @@ public class Scanner{
                     escapedArr[index] = variableArr[c];
                 }
                 index++;
-
-
             }
-            
         return String.valueOf(escapedArr);
 
     }
