@@ -150,23 +150,27 @@ public class Scanner{
                             break;
 
                         }
-                        //TODO: This conditional needs to call SymbolTable.getSymbol(variableName) in order to get this
-                        // variable's STEntry.
+
                         //variable identifier
                         else {
                             STEntry sEntry = symbolTable.getSymbol(variableName);
-                            Classif primary = null;
-                            SubClassif secondary = null;
+                            Classif primary = sEntry.primClassif;
+                            SubClassif secondary;
 
+                            //Secondary classification is dependant on type of STEntry
                             if (sEntry instanceof STControl) {
-                                sControl = (STControl) sEntry;
-                                primary = sControl.primClassif;
+                                STControl sControl = (STControl) sEntry;
                                 secondary = sControl.subClassif;
-                            } else if (sEntry instanceof STEntry) {
-                                sControl = (STControl) sEntry;
-                                primary = sControl.primClassif;
-                                secondary = sControl.subClassif;
-                            } else if (sEntry instanceof STIdentifier)
+                            } else if (sEntry instanceof STFunction) {
+                                STFunction sFunc = (STFunction) sEntry;
+                                secondary = sFunc.definedBy;
+                            } else if (sEntry instanceof STIdentifier){
+                                STIdentifier stIdentifier = (STIdentifier) sEntry;
+                                secondary = stIdentifier.dclType;
+                            } else { //Other instance should have been caught
+                                System.err.println("Woah woah woah whats going on here, variable: " + variableName);
+                                secondary = SubClassif.EMPTY;
+                            }
                             assignNextToken(variableName, primary, secondary);
                             incrementColumnPosition(i - 1);
                             break;
