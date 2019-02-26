@@ -22,6 +22,7 @@ public class Scanner{
     private final static String operators = "+-*/<>=!#^";
     private final static String digits = "0123456789";
     private final static String separators = "(),:;[]";
+    private Numeric numeric;
 
     /**
      * <p>The constructor for the Scanner class initializes local variables from the file passed in.
@@ -34,6 +35,7 @@ public class Scanner{
         BufferedReader reader;
         sourceFileNm = fileName;
         this.symbolTable = symbolTable;
+        this.numeric = new Numeric();
 
         sourceLineM = new ArrayList<>();
         try {
@@ -69,7 +71,7 @@ public class Scanner{
         try{
             getNext();
         }catch(Exception e){
-            //TODO: Handle this exception
+            e.printStackTrace();
         }
     }
 
@@ -137,28 +139,35 @@ public class Scanner{
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
-                            //TODO: This number validation needs to be moved to a Numeric class
-                            int numOfDecimals = countDecimals(variableName);
-
-                            //No decimals present
-                            if (numOfDecimals == 0) {
-                                assignNextToken(variableName, Classif.OPERAND, SubClassif.INTEGER);
-                                incrementColumnPosition(i - 1);
-                                break;
-                            } //One decimal
-                            else if (numOfDecimals == 1) {
-                                assignNextToken(variableName, Classif.OPERAND, SubClassif.FLOAT);
-                                incrementColumnPosition(i - 1);
-                                break;
-                            } else {
+                            SubClassif sClassif = null;
+                            try {
+                                sClassif = numeric.checkNumType(variableName);
+                            } catch (Exception e) {
                                 throw new Exception("Line " + iSourceLineNr + ": Invalid number format, File: " + sourceFileNm);
                             }
+                            assignNextToken(variableName, Classif.OPERAND, sClassif);
+                            incrementColumnPosition(i - 1);
+                            break;
+
                         }
                         //TODO: This conditional needs to call SymbolTable.getSymbol(variableName) in order to get this
                         // variable's STEntry.
                         //variable identifier
                         else {
-                            assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                            STEntry sEntry = symbolTable.getSymbol(variableName);
+                            Classif primary = null;
+                            SubClassif secondary = null;
+
+                            if (sEntry instanceof STControl) {
+                                sControl = (STControl) sEntry;
+                                primary = sControl.primClassif;
+                                secondary = sControl.subClassif;
+                            } else if (sEntry instanceof STEntry) {
+                                sControl = (STControl) sEntry;
+                                primary = sControl.primClassif;
+                                secondary = sControl.subClassif;
+                            } else if (sEntry instanceof STIdentifier)
+                            assignNextToken(variableName, primary, secondary);
                             incrementColumnPosition(i - 1);
                             break;
                         }
@@ -169,7 +178,6 @@ public class Scanner{
         return currentToken.tokenStr;
     }
 
-    //TODO: This function also needs to set the token's line number
     /**
      *<p>Assign next token helps reduce code redundancy by assigning the specific parameters to nextToken.</p>
      * @param tokenStr is the String to be assigned to nextToken
@@ -181,6 +189,7 @@ public class Scanner{
         nextToken.primClassif = primary;
         nextToken.subClassif = secondary;
         nextToken.iColPos = iColPos;
+        nextToken.iSourceLineNr = iSourceLineNr;
     }
 
     /**
@@ -292,12 +301,15 @@ public class Scanner{
         }
     }
 
-    //TODO: This function needs to be moved to a Numeric class
     /**
+     * @deprecated Use Numeric checkNumType instead.
+     *
+     *
      *<p>countDecimals is a helper method used to limit the regex use in the program in order to find the number of decimals within a string</p>
      * @param number is the String number to be analyzed
      * @return the number of decimals within the string
      */
+    @Deprecated
     private int countDecimals(String number){
         int counter=0;
         for(int i = 0; i < number.length(); i++){
