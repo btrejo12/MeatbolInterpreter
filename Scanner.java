@@ -71,7 +71,6 @@ public class Scanner{
         }catch(Exception e){
             //TODO: Handle this exception
         }
-	
     }
 
     /**
