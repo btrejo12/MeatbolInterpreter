@@ -18,6 +18,9 @@ public class Numeric {
         for (int i = 0; i < var.length(); i++) {
             if (var.charAt(i) == '.')
                 decCounter++;
+            else if (Character.isLetter(var.charAt(i))) {
+                throw new Exception("Letter instead of number");
+            }
         }
         if (decCounter > 1) {
             throw new Exception("Incorrect number formatting");
