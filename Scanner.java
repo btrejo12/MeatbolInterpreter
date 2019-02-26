@@ -140,7 +140,6 @@ public class Scanner{
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
-                            //TODO: This number validation needs to be moved to a Numeric class
                             SubClassif sClassif = null;
                             try {
                                 sClassif = numeric.checkNumType(variableName);
@@ -150,30 +149,26 @@ public class Scanner{
                             assignNextToken(variableName, Classif.OPERAND, sClassif);
                             incrementColumnPosition(i - 1);
                             break;
-                            /*
-                            int numOfDecimals = countDecimals(variableName);
 
-                            //No decimals present
-                            if (numOfDecimals == 0) {
-                                assignNextToken(variableName, Classif.OPERAND, SubClassif.INTEGER);
-                                incrementColumnPosition(i - 1);
-                                break;
-                            } //One decimal
-                            else if (numOfDecimals == 1) {
-                                assignNextToken(variableName, Classif.OPERAND, SubClassif.FLOAT);
-                                incrementColumnPosition(i - 1);
-                                break;
-                            } else {
-                                throw new Exception("Line " + iSourceLineNr + ": Invalid number format, File: " + sourceFileNm);
-                            }
-                            */
                         }
                         //TODO: This conditional needs to call SymbolTable.getSymbol(variableName) in order to get this
                         // variable's STEntry.
                         //variable identifier
                         else {
                             STEntry sEntry = symbolTable.getSymbol(variableName);
-                            assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                            Classif primary = null;
+                            SubClassif secondary = null;
+
+                            if (sEntry instanceof STControl) {
+                                sControl = (STControl) sEntry;
+                                primary = sControl.primClassif;
+                                secondary = sControl.subClassif;
+                            } else if (sEntry instanceof STEntry) {
+                                sControl = (STControl) sEntry;
+                                primary = sControl.primClassif;
+                                secondary = sControl.subClassif;
+                            } else if (sEntry instanceof STIdentifier)
+                            assignNextToken(variableName, primary, secondary);
                             incrementColumnPosition(i - 1);
                             break;
                         }
