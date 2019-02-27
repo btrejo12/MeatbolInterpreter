@@ -21,9 +21,10 @@ public class DateValidator {
         }
 
         for (int i = 0; i < strTok.length(); i++) {
-            if (strTok.charAt(i) == "-") {
+            if (strTok.charAt(i) == '-') {
 
             }
         }
+        return true;
     }
 }
