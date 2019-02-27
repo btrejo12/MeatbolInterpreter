@@ -1,6 +1,10 @@
 package meatbol;
 
 public class Numeric {
+
+    /**
+     * <p>Numberic constructor that doesn't need to be used right now.</p>
+     */
     public Numeric(){}
 
     /**
@@ -30,7 +34,6 @@ public class Numeric {
         } else {
             sClassif = SubClassif.FLOAT;
         }
-
         return sClassif;
     }
 }

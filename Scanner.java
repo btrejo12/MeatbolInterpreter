@@ -67,7 +67,7 @@ public class Scanner{
         textCharM = sourceLineM.get(0).toCharArray();
         iSourceLineNr = 1;
 
-        System.out.println(sourceLineM.get(0));
+        System.out.println("1 " + sourceLineM.get(0));
         try{
             getNext();
         }catch(Exception e){
@@ -139,7 +139,7 @@ public class Scanner{
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
-                            SubClassif sClassif = null;
+                            SubClassif sClassif;
                             try {
                                 sClassif = numeric.checkNumType(variableName);
                             } catch (Exception e) {
@@ -207,7 +207,7 @@ public class Scanner{
     }
 
     /**
-     *<p>findStringLiteral is a helper method used to find an entire string literal and updates the position in file.</p>
+     *<p>FSindStringLiteral is a helper method used to find an entire string literal and updates the position in file.</p>
      * @param endingDelimiter is the character that ends the string literal sequence
      * @param startingIndex is the index where the string literal starts
      * @throws Exception is raised when the String Literal is not closed on the same line
@@ -268,7 +268,7 @@ public class Scanner{
     }
 
     /**
-     *<p>incrementColumnPosition updates the iColPos whenever we are moving between tokens.</p>
+     *<p>IncrementColumnPosition updates the iColPos whenever we are moving between tokens.</p>
      * @param relativeIndex is the relative index within the for loop which must be added to iColPos
      */
     private void incrementColumnPosition(int relativeIndex){
@@ -290,7 +290,7 @@ public class Scanner{
     }
 
     /**
-     *<p>skipEmptyLines updates iColPos and iSourceLineNm whenever there are blank lines</p>
+     *<p>SkipEmptyLines updates iColPos and iSourceLineNm whenever there are blank lines</p>
      */
     private void skipEmptyLines(){
         for(int i = iSourceLineNr-1; i<sourceLineM.size(); i++){
@@ -313,7 +313,7 @@ public class Scanner{
      * @param number is the String number to be analyzed
      * @return the number of decimals within the string
      */
-    @Deprecated
+    @Deprecated //ok Wang
     private int countDecimals(String number){
         int counter=0;
         for(int i = 0; i < number.length(); i++){
@@ -324,7 +324,7 @@ public class Scanner{
     }
 
     /**
-     *<p>setNextToEmpty is used when we have reached EOF</p>
+     *<p>SetNextToEmpty is used when we have reached EOF</p>
      */
     private void setNextToEmpty(){
         trigger = false;
@@ -335,16 +335,16 @@ public class Scanner{
     }
 
     /**
-     * <p>This method is responsible for printing the current line when Scanner increments to the next line.</p>
+     * <p>PrintNextLine is responsible for printing the current line when Scanner increments to the next line.</p>
      */
     private void printNextLine(){
         iSourceLineNr++;
         skipEmptyLines();
-        System.out.println(sourceLineM.get(iSourceLineNr-1));
+        System.out.println(iSourceLineNr + " " + sourceLineM.get(iSourceLineNr-1));
     }
 
     /**
-     * <p>checkOperator checks to see if there are two subsequent operators that can be combined. This function updates iCol
+     * <p>CheckOperator checks to see if there are two subsequent operators that can be combined. This function updates iCol
      * accordingly and populates nextToken.
      * @param index the index of the first operator</p>
      */
@@ -381,7 +381,6 @@ public class Scanner{
                     iColPos = i;
                     return;
                 }
-
             }
         }
     }

@@ -26,10 +26,18 @@ public class SymbolTable {
         }
     }
 
+    /**
+     * <p>PutSymbol places this token's string and STEntry instance into the global hashmap</p>
+     * @param symbol the text key for the hashmap
+     * @param entry the STEntry instance for the variable
+     */
     public void putSymbol(String symbol, STEntry entry){
         ht.put(symbol, entry);
     }
 
+    /**
+     * <p>InitGloabl populates the gloabl hashmap with system functions and identifiers.</p>
+     */
     private void initGlobal(){
         ht.put("def", new STControl("if", Classif.CONTROL, SubClassif.FLOW));
         ht.put("enddef", new STControl("enddef", Classif.CONTROL, SubClassif.END));
