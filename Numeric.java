@@ -12,7 +12,7 @@ public class Numeric {
      * is a number. Tests for integer or float. Throws an exception if the formatting of the number is
      * incorrect. Returns the subClassif for the number being tested.
      *
-     * @param variable for numeric testing
+     * @param var for numeric testing
      * @return the subClassif of the variable entered
      */
     public SubClassif checkNumType(String var) throws Exception {
