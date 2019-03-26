@@ -22,6 +22,7 @@ public class Scanner{
     private final static String operators = "+-*/<>=!#^";
     private final static String digits = "0123456789";
     private final static String separators = "(),:;[]";
+    private StorageManager sManager;
     private Numeric numeric;
 
     /**
@@ -36,7 +37,7 @@ public class Scanner{
         sourceFileNm = fileName;
         this.symbolTable = symbolTable;
         this.numeric = new Numeric();
-
+        this.sManager = new StorageManager();
         sourceLineM = new ArrayList<>();
         try {
             //Read source file and populate sourceLineM
