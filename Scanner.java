@@ -204,6 +204,7 @@ public class Scanner{
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
         currentToken.iColPos = nextToken.iColPos;
+        currentToken.iSourceLineNr = nextToken.iSourceLineNr;
     }
 
     /**
