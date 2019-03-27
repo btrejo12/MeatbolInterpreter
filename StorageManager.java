@@ -29,7 +29,7 @@ public class StorageManager {
         varValues.put(var, value);
     }
 
-    public void getVarValue(String var) {
+    public String getVarValue(String var) {
         return varValues.get(var);
     }
 }
