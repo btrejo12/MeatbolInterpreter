@@ -176,7 +176,8 @@ public class Scanner{
 
                                     ResultValue rv = new ResultValue();
                                     rv.structure = "primitive";
-                                    rv.type = currentToken.tokenStr;
+                                    rv.type = getType(currentToken.tokenStr);
+                                    //rv.type = currentToken.tokenStr;
                                     rv.value = null;
 
                                     try {
@@ -421,6 +422,44 @@ public class Scanner{
                 }
             }
         }
+    }
+
+    /**
+     * <p>setPosition is used to go back to a specific position when looping.
+     * @param lineNumber is the named line number of the start of the loop.
+     *            The method will use it to derive the actual line needed for use
+     * @param columnNumber is the first position of the first token to be read.
+     *                     A position with whitespace is acceptable. The whitespace
+     *                     will be ignored and read to the first token when getNext
+     *                     is called</p>
+     */
+    public void setPosition(int lineNumber, int columnNumber){
+        textCharM = sourceLineM.get(lineNumber-1).toCharArray();
+        iSourceLineNr = lineNumber;
+        iColPos = columnNumber;
+        nextToken = new Token();
+        currentToken = new Token();
+    }
+
+    /**
+     * <p> getType is used to find the SubClassifier through the given string for use in creating
+     * a resultValue
+     * @param type is a string that is used to find the data type of the result value being tested
+     * @return SubClassif
+     * </p>
+     */
+    public SubClassif getType(String type) throws Exception {
+        if(type.equals("Int"))
+            return SubClassif.INTEGER;
+        if(type.equals("Float"))
+            return SubClassif.FLOAT;
+        if(type.equals("Bool"))
+            return SubClassif.BOOLEAN;
+        if(type.equals("String"))
+            return SubClassif.STRING;
+        if(type.equals("Date"))
+            return SubClassif.DATE;
+        throw new Exception();
     }
 }
 
