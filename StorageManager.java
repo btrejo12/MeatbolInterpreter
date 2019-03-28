@@ -28,7 +28,7 @@ public class StorageManager {
         variables.put(variable, value);
     }
 
-    public ResultValue getVariableResultValue(String variable) throws Exception {
+    public ResultValue getVariableValue(String variable) throws Exception {
         if (!variables.containsKey(variable)) {
             throw new Exception("Error: Variable '" + variable + "' does not exist");
         }

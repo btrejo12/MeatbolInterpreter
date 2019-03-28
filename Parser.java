@@ -39,6 +39,7 @@ public class Parser {
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         ResultValue assignmentResult = assignmentStmt(true);
+                        //TODO: Assign the return value to the currentToken using Storage Manager
                     } else {
                         //Not sure here
                         scan.nextToken.printToken();
@@ -74,6 +75,10 @@ public class Parser {
     private ResultValue expr(String endingDelimiter){
         ResultValue res = new ResultValue();
 
+        while(!scan.currentToken.tokenStr.equals(endingDelimiter)){
+
+        }
+
         return res;
     }
 
@@ -83,11 +88,49 @@ public class Parser {
      *              therefore we should not run it in this case)
      * @return the ResultValue of this assignment
      */
-    private ResultValue assignmentStmt(Boolean bExec){
+    private ResultValue assignmentStmt(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
         if(!bExec){
             skipTo(';');
-            res.type = "empty";
+            return res;
+        }
+        if(scan.currentToken.subClassif != SubClassif.IDENTIFIER){
+            error("Expected a variable for assignment");
+        }
+        String targetVariable = scan.currentToken.tokenStr;
+        scan.getNext(); //Move current token to be on the operator
+        if(scan.currentToken.primClassif != Classif.OPERATOR){
+            error("Expected an assignment operator token after variable.");
+        }
+
+        //Declare variables that might need to be used
+        ResultValue res1;
+        ResultValue res2;
+        Numeric num1;
+        Numeric num2;
+
+        switch(scan.currentToken.tokenStr){
+            case "=":
+                res2 = expr(";");
+                res = assign(targetVariable, res2);
+                break;
+            case "-=":
+                res2 = expr(";");
+                num2 = new Numeric(this, res2, "-=", "2nd operator");
+                res1 = storageMgr.getVariableValue(targetVariable);
+                num1 = new Numeric(this, res1, "-=", "1st operator");
+                res = assign(targetVariable, util.subtract(this, num1, num2));
+                break;
+            case "+=":
+                res2 = expr(";");
+                num2 = new Numeric(this, res2, "+=", "2nd operator");
+                res1 = storageMgr.getVariableValue(targetVariable);
+                num1 = new Numeric(this, res1, "+=", "1st operator");
+                res = assign(targetVariable, util.add(this, num1, num2));
+                break;
+            default:
+                error("Expected an assignment operator token after variable");
+
         }
 
         return res;
@@ -170,6 +213,7 @@ public class Parser {
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 ResultValue variableEval = expr(","); //only evaluate this expression
                 System.out.print(variableEval.value);
+                scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){
                 System.out.print(" ");
@@ -195,7 +239,8 @@ public class Parser {
      * @throws Exception
      */
     public void error(String fmt, Object...varArgs) throws Exception{
-
+        String diagnosticTxt = String.format(fmt, varArgs);
+        throw new ParserException(scan.currentToken.iSourceLineNr, diagnosticTxt, scan.sourceFileNm);
     }
 
 }

@@ -2,10 +2,23 @@ package meatbol;
 
 public class Numeric {
 
+    public int integerValue;
+    public float floatValue;
+    public double doubleValue;
+    public String strValue;
+    public SubClassif type;
     /**
      * <p>Numberic constructor that doesn't need to be used right now.</p>
      */
     public Numeric(){}
+
+    public Numeric(Parser parse, ResultValue res, String operand, String title){
+        Numeric num = new Numeric();
+        num.strValue = res.value;
+
+        //TODO: Update the type whenever RV is complete
+
+    }
 
     /**
      * Scanner calls checkNumType through a Numeric object to validate if the passed-in variable
