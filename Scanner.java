@@ -161,7 +161,8 @@ public class Scanner{
                             //Variable doesn't exist in SymbolTable
                             if (sEntry == null){
                                 if (currentToken.subClassif != SubClassif.DECLARE){
-                                    //TODO: Throw error (ParserException)
+                                    //TODO: Add an actual error message
+                                    throw new Exception("");
                                 } else {
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                                     primary = newEntry.primClassif;
