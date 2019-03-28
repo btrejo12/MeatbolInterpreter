@@ -162,6 +162,17 @@ public class Scanner{
                             if (sEntry == null){
                                 if (currentToken.subClassif != SubClassif.DECLARE){
                                     //TODO: Add an actual error message
+                                    ResultValue rv = new ResultValue();
+                                    rv.structure = "primitive";
+                                    rv.type = currentToken.tokenStr;
+                                    rv.value = null;
+
+                                    try {
+                                        sManager.addVariable(variableName, rv);
+                                    } catch (Exception e){
+                                        // Variable already exists
+                                        System.out.println(e.getMessage());
+                                    }
                                     throw new Exception("");
                                 } else {
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
@@ -172,17 +183,6 @@ public class Scanner{
                             } else {
                                 primary = sEntry.primClassif;
                                 //Secondary classification is dependant on type of STEntry
-                                ResultValue rv = new ResultValue();
-                                rv.structure = "primitive";
-                                rv.type = currentToken.tokenStr;
-                                rv.value = null;
-
-                                try {
-                                    sManager.addVariable(variableName, rv);
-                                } catch (Exception e){
-                                    // Variable already exists
-                                    System.out.println(e.getMessage());
-                                }
                                 if (sEntry instanceof STControl) {
                                     STControl sControl = (STControl) sEntry;
                                     secondary = sControl.subClassif;
