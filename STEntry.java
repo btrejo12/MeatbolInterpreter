@@ -2,7 +2,7 @@ package meatbol;
 
 public class STEntry {
 
-    private String symbol;
+    public String symbol;
     Classif primClassif;
 
     /**

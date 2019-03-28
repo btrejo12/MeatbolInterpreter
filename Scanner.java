@@ -16,8 +16,9 @@ public class Scanner{
     public int iColPos;
     public Token currentToken;
     public Token nextToken;
+    public boolean bPrintLines = false;
 
-    private boolean trigger = true;
+    public boolean trigger = true;
     private final static String delimiters = "\t;:()\'\"=!<>+-*/[]#,^\n";
     private final static String operators = "+-*/<>=!#^";
     private final static String digits = "0123456789";
@@ -66,9 +67,9 @@ public class Scanner{
 
         //Set first token to nextToken, look at first line of file
         textCharM = sourceLineM.get(0).toCharArray();
-        iSourceLineNr = 1;
+        iSourceLineNr = 0;
 
-        System.out.println("1 " + sourceLineM.get(0));
+        printNextLine();
         try{
             getNext();
         }catch(Exception e){
@@ -93,6 +94,7 @@ public class Scanner{
                 int index = iColPos + i;
 
                 if(index >= textCharM.length){
+                    System.out.println(" ****** Why are we here ************");
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                     assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                     incrementColumnPosition(i - 1);
@@ -157,6 +159,7 @@ public class Scanner{
                             STEntry sEntry = symbolTable.getSymbol(variableName);
                             Classif primary;
                             SubClassif secondary;
+
 
                             //Variable doesn't exist in SymbolTable
                             if (sEntry == null){
@@ -226,6 +229,7 @@ public class Scanner{
      *<p>shiftTokens is a helper method user to move the nextToken into the currentToken position.</p>
      */
     private void shiftTokens(){
+        System.out.println("Shift tokens from " + currentToken.tokenStr + " to " + nextToken.tokenStr);
         currentToken.primClassif = nextToken.primClassif;
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
@@ -354,6 +358,7 @@ public class Scanner{
      *<p>SetNextToEmpty is used when we have reached EOF</p>
      */
     private void setNextToEmpty(){
+        System.out.println("********TRIGGER**********");
         trigger = false;
         nextToken.tokenStr = "";
         nextToken.primClassif = Classif.EOF;
@@ -367,7 +372,9 @@ public class Scanner{
     private void printNextLine(){
         iSourceLineNr++;
         skipEmptyLines();
-        System.out.println(iSourceLineNr + " " + sourceLineM.get(iSourceLineNr-1));
+        if (bPrintLines) {
+            System.out.println(iSourceLineNr + " " + sourceLineM.get(iSourceLineNr - 1));
+        }
     }
 
     /**

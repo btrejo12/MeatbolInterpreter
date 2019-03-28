@@ -26,8 +26,7 @@ public class Meatbol
         
         try
         {
-            Scanner scan = new Scanner(args[0], symbolTable);
-            Parser parser = new Parser(scan);
+            Parser parser = new Parser(args[0], symbolTable);
 
             // Print a column heading 
             //System.out.printf("%-11s %-12s %s\n"

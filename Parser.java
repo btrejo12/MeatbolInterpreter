@@ -3,16 +3,23 @@ package meatbol;
 import javax.xml.transform.Result;
 
 public class Parser {
-    private Scanner scanner;
+    private Scanner scan;
     private StorageManager storageMgr;
+    private SymbolTable st;
 
-    public Parser(Scanner scan){
+    public Parser(String filename, SymbolTable st){
+        System.out.println("Parser entry");
         storageMgr = new StorageManager();
-        this.scanner = scan;
+        this.st = st;
+        scan = new Scanner(filename, st);
         scan.sManager = storageMgr;
-
         try {
-            while (!scan.getNext().isEmpty()){
+            while (scan.trigger){
+                scan.getNext();
+                System.out.print("Parse while entry, current: ");
+                scan.currentToken.printToken();
+                System.out.print("Parse while entry, next: ");
+                scan.nextToken.printToken();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
                     if (scan.currentToken.tokenStr.equals("if")){
@@ -28,6 +35,7 @@ public class Parser {
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
+                        System.out.println("Continue on seperator,");
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         ResultValue assignmentResult = assignmentStmt(true);
@@ -36,11 +44,14 @@ public class Parser {
                         scan.nextToken.printToken();
                     }
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
-
+                        handleFunction();
+                } else {
+                    System.err.println("Weve hit an unknown token");
                 }
             }
         } catch(Exception e){
             //TODO: Call error method to create a ParserException
+            e.printStackTrace();
         }
     }
 
@@ -51,7 +62,17 @@ public class Parser {
      * @return The ResultValue of...something
      */
     private ResultValue executeStatements(Boolean bExec){
-        ResultValue res;
+        ResultValue res = new ResultValue();
+
+        if(bExec){
+
+        }
+
+        return res;
+    }
+
+    private ResultValue expr(String endingDelimiter){
+        ResultValue res = new ResultValue();
 
         return res;
     }
@@ -98,7 +119,7 @@ public class Parser {
      * @return The ResultValue that was assigned
      */
     private ResultValue assign(String variableString, ResultValue res2){
-        ResultValue res;
+        ResultValue res= new ResultValue();
 
         return res;
     }
@@ -109,7 +130,7 @@ public class Parser {
      * @return The boolean value of whether this condition is true or false.
      */
     private ResultValue evalCond(){
-        ResultValue res;
+        ResultValue res = new ResultValue();
 
         return res;
     }
@@ -122,9 +143,50 @@ public class Parser {
     private void skipTo(Character endingDelimiter){
         //TODO: Move the tokens over until you reach the endingDelimiter
     }
-    //RV products
-    //RV expr(String endSeperator)
-    //RV operand
+
+    /**
+     * When Scanner returns a built in function or user-defined function, it should be handled here.
+     */
+    private void handleFunction() throws Exception{
+        if(scan.currentToken.tokenStr.equals("print")){
+            printFunction();
+        }
+    }
+
+    private void printFunction() throws Exception{
+        scan.getNext();
+        //Next token should be an open parenthesis
+        if(!scan.currentToken.tokenStr.equals("(")){
+            //TODO: Throw parser exception, open parenthesis was expected for print function
+            System.err.println("Open parenthesis expected in print function");
+            return;
+        }
+        scan.getNext();
+        while(true) {
+            if (scan.currentToken.subClassif == SubClassif.STRING) {
+                //This is a string literal, we should print it
+                System.out.print(scan.currentToken.tokenStr);
+                scan.getNext();
+            } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                ResultValue variableEval = expr(","); //only evaluate this expression
+                System.out.print(variableEval.value);
+            }
+            if(scan.currentToken.tokenStr.equals(",")){
+                System.out.print(" ");
+                continue;
+            }
+            if(scan.currentToken.tokenStr.equals(")")){
+                System.out.println();
+                scan.getNext();
+                break;
+            }
+            if (scan.currentToken.tokenStr.equals(";")){
+                //TODO: Throw error, expected ')' instead got ';'
+                System.err.println("Never recieved ending ')' in print statement");
+                return;
+            }
+        }
+    }
 
     /**
      * Clark's notes specify how to set up this error function, although the lineNumber and sourcefile part are confusing.
