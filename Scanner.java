@@ -167,6 +167,7 @@ public class Scanner{
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                                     primary = newEntry.primClassif;
                                     secondary = newEntry.dclType;
+                                    //TODO: Add this new variable to Storage Manager and set it's type to currentToken.tokenStr
                                 }
                             } else {
                                 primary = sEntry.primClassif;
