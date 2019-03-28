@@ -14,7 +14,7 @@ public class StorageManager {
 
     public void addVariable(String variable, ResultValue value) throws Exception {
         if (variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable "' has already been instantiated");
+            throw new Exception("Error: Variable '" + variable + "' has already been instantiated");
         }
 
         variables.put(variable, value);
@@ -22,7 +22,7 @@ public class StorageManager {
 
     public void updateVariable(String variable, ResultValue value) throws Exception {
         if (!variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable "' has not already been instantiated");
+            throw new Exception("Error: Variable '" + variable + "' has not already been instantiated");
         }
 
         variables.put(variable, value);
@@ -30,7 +30,7 @@ public class StorageManager {
 
     public ResultValue getVariableResultValue(String variable) throws Exception {
         if (!variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable "' does not exist");
+            throw new Exception("Error: Variable '" + variable + "' does not exist");
         }
 
         ResultValue rv = variables.get(variable);

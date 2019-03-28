@@ -172,6 +172,17 @@ public class Scanner{
                             } else {
                                 primary = sEntry.primClassif;
                                 //Secondary classification is dependant on type of STEntry
+                                ResultValue rv = new ResultValue();
+                                rv.structure = "primitive";
+                                rv.type = currentToken.tokenStr;
+                                rv.value = null;
+
+                                try {
+                                    sManager.addVariable(variableName, rv);
+                                } catch (Exception e){
+                                    // Variable already exists
+                                    System.out.println(e.getMessage());
+                                }
                                 if (sEntry instanceof STControl) {
                                     STControl sControl = (STControl) sEntry;
                                     secondary = sControl.subClassif;
