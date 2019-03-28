@@ -96,6 +96,7 @@ public class Scanner{
                 if(index >= textCharM.length){
                     System.out.println(" ****** Why are we here ************");
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
+                    System.out.println(variableName);
                     assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                     incrementColumnPosition(i - 1);
                     break;
@@ -166,9 +167,12 @@ public class Scanner{
                                 if (currentToken.subClassif != SubClassif.DECLARE){
                                     throw new Exception("Variable '" + variableName + "' has not been initialized.");
                                 } else {
+                                    //TODO: Throw all this into a method call to use above in "Why are we here"
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                                     primary = newEntry.primClassif;
                                     secondary = newEntry.dclType;
+
+                                    symbolTable.putSymbol(variableName, newEntry);
 
                                     ResultValue rv = new ResultValue();
                                     rv.structure = "primitive";
