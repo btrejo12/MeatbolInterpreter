@@ -9,8 +9,9 @@ public class Parser {
 
     //TODO: Initialize these functions
     //statement
-    //RV assignmentStmt end in ;
-    //ifStmt end in :
+    //statements
+    //RV assignmentStmt(Boolean bExec) end in ;
+    //ifStmt(Boolean bExec) end in :
     //whileStmt end in :
     //RV products
     //RV expr(String endSeperator)
