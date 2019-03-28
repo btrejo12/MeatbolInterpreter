@@ -155,22 +155,34 @@ public class Scanner{
                         //variable identifier
                         else {
                             STEntry sEntry = symbolTable.getSymbol(variableName);
-                            Classif primary = sEntry.primClassif;
+                            Classif primary;
                             SubClassif secondary;
 
-                            //Secondary classification is dependant on type of STEntry
-                            if (sEntry instanceof STControl) {
-                                STControl sControl = (STControl) sEntry;
-                                secondary = sControl.subClassif;
-                            } else if (sEntry instanceof STFunction) {
-                                STFunction sFunc = (STFunction) sEntry;
-                                secondary = sFunc.definedBy;
-                            } else if (sEntry instanceof STIdentifier){
-                                STIdentifier stIdentifier = (STIdentifier) sEntry;
-                                secondary = stIdentifier.dclType;
-                            } else { //Other instance should have been caught
-                                System.err.println("Woah woah woah whats going on here, variable: " + variableName);
-                                secondary = SubClassif.EMPTY;
+                            //Variable doesn't exist in SymbolTable
+                            if (sEntry == null){
+                                if (currentToken.subClassif != SubClassif.DECLARE){
+                                    //TODO: Throw error (ParserException)
+                                } else {
+                                    STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                                    primary = newEntry.primClassif;
+                                    secondary = newEntry.dclType;
+                                }
+                            } else {
+                                primary = sEntry.primClassif;
+                                //Secondary classification is dependant on type of STEntry
+                                if (sEntry instanceof STControl) {
+                                    STControl sControl = (STControl) sEntry;
+                                    secondary = sControl.subClassif;
+                                } else if (sEntry instanceof STFunction) {
+                                    STFunction sFunc = (STFunction) sEntry;
+                                    secondary = sFunc.definedBy;
+                                } else if (sEntry instanceof STIdentifier) {
+                                    STIdentifier stIdentifier = (STIdentifier) sEntry;
+                                    secondary = stIdentifier.dclType;
+                                } else { //Other instance should have been caught
+                                    System.err.println("Woah woah woah whats going on here, variable: " + variableName);
+                                    secondary = SubClassif.EMPTY;
+                                }
                             }
                             assignNextToken(variableName, primary, secondary);
                             incrementColumnPosition(i - 1);
