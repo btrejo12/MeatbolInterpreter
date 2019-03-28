@@ -19,12 +19,11 @@ public class SymbolTable {
         if (ht.containsKey(symbol))
             return ht.get(symbol);
         else{
-            //Create STEntry object, STIdentifier for now
-            STEntry newEntry = new STIdentifier(symbol, Classif.OPERAND, SubClassif.IDENTIFIER);
-            putSymbol(symbol, newEntry);
-            return newEntry;
+            return null;
         }
     }
+
+    public void updateSymbol(String symbol, STEntry modifications){ ht.put(symbol, modifications);}
 
     /**
      * <p>PutSymbol places this token's string and STEntry instance into the global hashmap</p>
