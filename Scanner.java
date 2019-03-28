@@ -22,7 +22,7 @@ public class Scanner{
     private final static String operators = "+-*/<>=!#^";
     private final static String digits = "0123456789";
     private final static String separators = "(),:;[]";
-    private StorageManager sManager;
+    public StorageManager sManager;
     private Numeric numeric;
 
     /**
@@ -37,7 +37,7 @@ public class Scanner{
         sourceFileNm = fileName;
         this.symbolTable = symbolTable;
         this.numeric = new Numeric();
-        this.sManager = new StorageManager();
+        //this.sManager = new StorageManager();
         sourceLineM = new ArrayList<>();
         try {
             //Read source file and populate sourceLineM
@@ -161,13 +161,12 @@ public class Scanner{
                             //Variable doesn't exist in SymbolTable
                             if (sEntry == null){
                                 if (currentToken.subClassif != SubClassif.DECLARE){
-                                    //TODO: Add an actual error message
-                                    throw new Exception("");
+                                    throw new Exception("Variable '" + variableName + "' has not been initialized.");
                                 } else {
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                                     primary = newEntry.primClassif;
                                     secondary = newEntry.dclType;
-                                    //TODO: THIS IS WHERE IT GOES
+
                                     ResultValue rv = new ResultValue();
                                     rv.structure = "primitive";
                                     rv.type = currentToken.tokenStr;
@@ -177,7 +176,8 @@ public class Scanner{
                                         sManager.addVariable(variableName, rv);
                                     } catch (Exception e){
                                         // Variable already exists
-                                        System.out.println(e.getMessage());
+                                        throw new Exception("Variable already exists in Storage Manager.");
+                                        //System.out.println(e.getMessage());
                                     }
                                 }
                             } else {
