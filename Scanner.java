@@ -162,6 +162,12 @@ public class Scanner{
                             if (sEntry == null){
                                 if (currentToken.subClassif != SubClassif.DECLARE){
                                     //TODO: Add an actual error message
+                                    throw new Exception("");
+                                } else {
+                                    STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                                    primary = newEntry.primClassif;
+                                    secondary = newEntry.dclType;
+                                    //TODO: THIS IS WHERE IT GOES
                                     ResultValue rv = new ResultValue();
                                     rv.structure = "primitive";
                                     rv.type = currentToken.tokenStr;
@@ -173,12 +179,6 @@ public class Scanner{
                                         // Variable already exists
                                         System.out.println(e.getMessage());
                                     }
-                                    throw new Exception("");
-                                } else {
-                                    STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
-                                    primary = newEntry.primClassif;
-                                    secondary = newEntry.dclType;
-                                    //TODO: Add this new variable to Storage Manager and set it's type to currentToken.tokenStr
                                 }
                             } else {
                                 primary = sEntry.primClassif;
