@@ -2,34 +2,38 @@ package meatbol;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class StorageManager {
 
-    private ArrayList<String> varTable;
-    private HashMap<String, String> varValues;
-    private HashMap<String, String> varTypes;
+    private HashMap<String, ResultValue> variables = null;
 
     public StorageManager() {
-        this.varTable = new ArrayList<String>();
-        this.varValues = new HashMap<String, String>();
-        this.varValues = new HashMap<String, String>();
+        this.variables = new HashMap<String, ResultValue>();
     }
 
-    public void createVar(String var, String value) throws Exception {
-        if (varTable.contains(var)) {
-            throw new Exception("Variable " + var + " already exists");
+    public void addVariable(String variable, ResultValue value) throws Exception {
+        if (variables.containsKey(variable)) {
+            throw new Exception("Error: Variable '" + variable "' has already been instantiated");
         }
 
-        varTable.add(var);
-        varValues.put(var, value);
-        varValues.put(var, value);
+        variables.put(variable, value);
     }
 
-    public void updateVar(String var, String value) {
-        varValues.put(var, value);
+    public void updateVariable(String variable, ResultValue value) throws Exception {
+        if (!variables.containsKey(variable)) {
+            throw new Exception("Error: Variable '" + variable "' has not already been instantiated");
+        }
+
+        variables.put(variable, value);
     }
 
-    public String getVarValue(String var) {
-        return varValues.get(var);
+    public ResultValue getVariableResultValue(String variable) throws Exception {
+        if (!variables.containsKey(variable)) {
+            throw new Exception("Error: Variable '" + variable "' does not exist");
+        }
+
+        ResultValue rv = variables.get(variable);
+        return rv;
     }
 }
