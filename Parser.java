@@ -6,10 +6,12 @@ public class Parser {
     private Scanner scan;
     private StorageManager storageMgr;
     private SymbolTable st;
+    private Utility util;
 
     public Parser(String filename, SymbolTable st){
         System.out.println("Parser entry");
         storageMgr = new StorageManager();
+        util = new Utility();
         this.st = st;
         scan = new Scanner(filename, st);
         scan.sManager = storageMgr;
@@ -72,10 +74,17 @@ public class Parser {
         return res;
     }
 
-    private ResultValue expr(String endingDelimiter){
+    private ResultValue expr(String endingDelimiter) throws Exception{
         ResultValue res = new ResultValue();
 
-        while(!scan.currentToken.tokenStr.equals(endingDelimiter)){
+        // We are only doing simple expressions for now
+        if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.primClassif == Classif.OPERAND){
+            // Negate the operand
+        } else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
+            Token firstTok = scan.currentToken;
+            scan.getNext();
+            //TODO: Finish this ex: A-B
+        } else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.SEPARATOR){
 
         }
 
