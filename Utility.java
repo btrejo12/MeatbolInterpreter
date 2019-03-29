@@ -8,7 +8,7 @@ public class Utility {
         if(result.type == SubClassif.INTEGER)
             result.value = String.valueOf(n1.integerValue - n2.integerValue);
         else
-            result.value = String.valueOf(n1.doubleValue - n2.doubleValue);
+            result.value = String.valueOf(n1.floatValue - n2.floatValue);
        return result;
     }
     public ResultValue add(Parser parser, Numeric n1, Numeric n2) {
@@ -18,7 +18,7 @@ public class Utility {
         if(result.type == SubClassif.INTEGER)
             result.value = String.valueOf(n1.integerValue + n2.integerValue);
         else
-            result.value = String.valueOf(n1.doubleValue + n2.doubleValue);
+            result.value = String.valueOf(n1.floatValue + n2.floatValue);
         return result;
     }
     public ResultValue multiply(Parser parser, Numeric n1, Numeric n2) {
@@ -28,7 +28,7 @@ public class Utility {
         if(result.type == SubClassif.INTEGER)
             result.value = String.valueOf(n1.integerValue * n2.integerValue);
         else
-            result.value = String.valueOf(n1.doubleValue * n2.doubleValue);
+            result.value = String.valueOf(n1.floatValue * n2.floatValue);
         return result;
     }
     public ResultValue divide(Parser parser, Numeric n1, Numeric n2) {
@@ -38,7 +38,7 @@ public class Utility {
         if(result.type == SubClassif.INTEGER)
             result.value = String.valueOf(n1.integerValue / n2.integerValue);
         else
-            result.value = String.valueOf(n1.doubleValue / n2.doubleValue);
+            result.value = String.valueOf(n1.floatValue / n2.floatValue);
         return result;
     }
 
