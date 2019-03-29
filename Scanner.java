@@ -242,7 +242,7 @@ public class Scanner{
      *<p>shiftTokens is a helper method user to move the nextToken into the currentToken position.</p>
      */
     private void shiftTokens(){
-        System.out.println("Shift tokens from " + currentToken.tokenStr + " to " + nextToken.tokenStr);
+        //System.out.println("Shift tokens from " + currentToken.tokenStr + " to " + nextToken.tokenStr);
         currentToken.primClassif = nextToken.primClassif;
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
@@ -470,7 +470,7 @@ public class Scanner{
         throw new Exception();
     }
 
-    public void setVariable() throws Exception {
+    public void setVariable(String varName) throws Exception {
         //TODO: Throw all this into a method call to use above in "Why are we here"
         STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
         primary = newEntry.primClassif;

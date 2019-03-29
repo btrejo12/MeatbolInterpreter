@@ -4,9 +4,11 @@ public class Numeric {
 
     public int integerValue;
     public float floatValue;
-    public double doubleValue;
+    //public double doubleValue;
     public String strValue;
     public SubClassif type;
+    public String title;
+
     /**
      * <p>Numberic constructor that doesn't need to be used right now.</p>
      */
@@ -15,6 +17,7 @@ public class Numeric {
     public Numeric(Parser parse, ResultValue res, String operand, String title){
         Numeric num = new Numeric();
         num.strValue = res.value;
+        this.title = title;
 
         //TODO: Update the type whenever RV is complete
 
@@ -48,5 +51,24 @@ public class Numeric {
             sClassif = SubClassif.FLOAT;
         }
         return sClassif;
+    }
+
+    public Numeric ResultValueToNumeric() throws Exception{
+        Numeric num = new Numeric();
+        SubClassif checkType = this.checkNumType(res.value);
+
+        if (checkType == SubClassif.FLOAT) {
+            try {
+                num.floatValue = Float.parseFloat(res.value);
+            } catch (Exception e) {
+                throw e;
+            }
+        } else if (checkType == SubClassif.INTEGER) {
+            try {
+                num.intValue = Integer.parseInteger(res.value);
+            } catch (Exception e) {
+                throw e;
+            }
+        }
     }
 }
