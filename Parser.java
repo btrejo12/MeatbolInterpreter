@@ -18,10 +18,8 @@ public class Parser {
         try {
             while (scan.trigger){
                 scan.getNext();
-                System.out.print("Parse while entry, current: ");
-                scan.currentToken.printToken();
-                System.out.print("Parse while entry, next: ");
-                scan.nextToken.printToken();
+
+                //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
                     if (scan.currentToken.tokenStr.equals("if")){
@@ -78,12 +76,17 @@ public class Parser {
         ResultValue res = new ResultValue();
 
         // We are only doing simple expressions for now
-        if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.primClassif == Classif.OPERAND){
+        if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
-        } else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
-            Token firstTok = scan.currentToken;
-            scan.getNext();
+        } else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
+            Token firstToken = scan.currentToken;
+            scan.getNext(); //moves to operator -, +, etc
+            print("Hello from expr");
+            debug();
             //TODO: Finish this ex: A-B
+            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER && scan.nextToken.primClassif != Classif.SEPARATOR){
+                //Throw error
+            }
         } else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.SEPARATOR){
 
         }
@@ -123,7 +126,7 @@ public class Parser {
                 res2 = expr(";");
                 res = assign(targetVariable, res2);
                 break;
-            case "-=":
+            case "-=": // x -= 5+1;
                 res2 = expr(";");
                 num2 = new Numeric(this, res2, "-=", "2nd operator");
                 res1 = storageMgr.getVariableValue(targetVariable);
@@ -138,8 +141,8 @@ public class Parser {
                 res = assign(targetVariable, util.add(this, num1, num2));
                 break;
             default:
+                print(scan.currentToken.tokenStr);
                 error("Expected an assignment operator token after variable");
-
         }
 
         return res;
@@ -220,7 +223,7 @@ public class Parser {
                 System.out.print(scan.currentToken.tokenStr);
                 scan.getNext();
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                ResultValue variableEval = expr(","); //only evaluate this expression
+                ResultValue variableEval = expr(")"); //only evaluate this expression
                 System.out.print(variableEval.value);
                 scan.getNext();
             }
@@ -250,6 +253,19 @@ public class Parser {
     public void error(String fmt, Object...varArgs) throws Exception{
         String diagnosticTxt = String.format(fmt, varArgs);
         throw new ParserException(scan.currentToken.iSourceLineNr, diagnosticTxt, scan.sourceFileNm);
+    }
+
+    //TODO: delete me cause im layz
+    private void print(String printMe){
+        System.out.println(printMe);
+    }
+
+    //TODO: delete me cause im layz
+    private void debug(){
+        System.out.print("Current: ");
+        scan.currentToken.printToken();
+        System.out.print("Next: ");
+        scan.nextToken.printToken();
     }
 
 }
