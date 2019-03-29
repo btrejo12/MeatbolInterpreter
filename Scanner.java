@@ -96,8 +96,9 @@ public class Scanner{
                 if(index >= textCharM.length){
                     System.out.println(" ****** Why are we here ************");
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
+                    attemptNewSymbolSave(variableName);
                     System.out.println(variableName);
-                    assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+                    //assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                     incrementColumnPosition(i - 1);
                     break;
                 }
@@ -156,67 +157,9 @@ public class Scanner{
                         }
 
                         //variable identifier
-                        else {
-                            STEntry sEntry = symbolTable.getSymbol(variableName);
-                            Classif primary;
-                            SubClassif secondary;
-
-
-                            //Variable doesn't exist in SymbolTable
-                            if (sEntry == null){
-                                if (currentToken.subClassif != SubClassif.DECLARE){
-                                    throw new Exception("Variable '" + variableName + "' has not been initialized.");
-                                } else {
-                                    //TODO: Throw all this into a method call to use above in "Why are we here"
-                                    try {
-                                        setVariable();
-                                    } catch (Exception e) {
-                                        throw e;
-                                    }
-
-                                    /*
-                                    STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
-                                    primary = newEntry.primClassif;
-                                    secondary = newEntry.dclType;
-
-                                    symbolTable.putSymbol(variableName, newEntry);
-
-                                    ResultValue rv = new ResultValue();
-                                    rv.structure = "primitive";
-                                    rv.type = getType(currentToken.tokenStr);
-                                    //rv.type = currentToken.tokenStr;
-                                    rv.value = null;
-
-                                    try {
-                                        sManager.addVariable(variableName, rv);
-                                    } catch (Exception e){
-                                        // Variable already exists
-                                        throw new Exception("Variable already exists in Storage Manager.");
-                                        //System.out.println(e.getMessage());
-                                    }*/
-                                }
-
-                            } else {
-                                primary = sEntry.primClassif;
-                                //Secondary classification is dependant on type of STEntry
-                                if (sEntry instanceof STControl) {
-                                    STControl sControl = (STControl) sEntry;
-                                    secondary = sControl.subClassif;
-                                } else if (sEntry instanceof STFunction) {
-                                    STFunction sFunc = (STFunction) sEntry;
-                                    secondary = sFunc.definedBy;
-                                } else if (sEntry instanceof STIdentifier) {
-                                    STIdentifier stIdentifier = (STIdentifier) sEntry;
-                                    secondary = stIdentifier.dclType;
-                                } else { //Other instance should have been caught
-                                    System.err.println("Woah woah woah whats going on here, variable: " + variableName);
-                                    secondary = SubClassif.EMPTY;
-                                }
-                            }
-                            assignNextToken(variableName, primary, secondary);
-                            incrementColumnPosition(i - 1);
-                            break;
-                        }
+                        attemptNewSymbolSave(variableName);
+                        incrementColumnPosition(i - 1);
+                        break;
                     }
                 }
             }
@@ -470,27 +413,56 @@ public class Scanner{
         throw new Exception();
     }
 
-    public void setVariable(String varName) throws Exception {
-        //TODO: Throw all this into a method call to use above in "Why are we here"
-        STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
-        primary = newEntry.primClassif;
-        secondary = newEntry.dclType;
+    private void attemptNewSymbolSave(String varName) throws Exception {
+        //TODO: Check if it's in the symboltable
+        STIdentifier newEntry = new STIdentifier(varName, Classif.OPERAND, SubClassif.IDENTIFIER);
+        STEntry sEntry = symbolTable.getSymbol(varName);
+        Classif primary = null;
+        SubClassif secondary = null;
 
-        symbolTable.putSymbol(variableName, newEntry);
+        //Variable doesn't exist in SymbolTable
+        if (sEntry == null){
+            if (currentToken.subClassif != SubClassif.DECLARE){
+                throw new Exception("Variable '" + varName + "' has not been initialized.");
+            } else {
+                // add symbol to the symbol table
+                symbolTable.putSymbol(varName, newEntry);
 
-        ResultValue rv = new ResultValue();
-        rv.structure = "primitive";
-        rv.type = getType(currentToken.tokenStr);
-        //rv.type = currentToken.tokenStr;
-        rv.value = null;
+                ResultValue rv = new ResultValue();
 
-        try {
-            sManager.addVariable(variableName, rv);
-        } catch (Exception e){
-            // Variable already exists
-            throw new Exception("Variable already exists in Storage Manager.");
-            //System.out.println(e.getMessage());
+                //TODO: Change this for prg 4 ---------
+                rv.structure = "primitive";
+                //-------------------------------------
+
+                rv.type = getType(currentToken.tokenStr);
+                rv.value = null;
+
+                try {
+                    sManager.addVariable(varName, rv);
+                } catch (Exception e) {
+                    // Variable already exists
+                    throw new Exception("Variable already exists in Storage Manager.");
+                    //System.out.println(e.getMessage());
+                }
+            }
+        } else {
+            primary = sEntry.primClassif;
+            //Secondary classification is dependant on type of STEntry
+            if (sEntry instanceof STControl) {
+                STControl sControl = (STControl) sEntry;
+                secondary = sControl.subClassif;
+            } else if (sEntry instanceof STFunction) {
+                STFunction sFunc = (STFunction) sEntry;
+                secondary = sFunc.definedBy;
+            } else if (sEntry instanceof STIdentifier) {
+                STIdentifier stIdentifier = (STIdentifier) sEntry;
+                secondary = stIdentifier.dclType;
+            } else { //Other instance should have been caught
+                System.err.println("Woah woah woah whats going on here, variable: " + varName);
+                secondary = SubClassif.EMPTY;
+            }
         }
+        assignNextToken(varName, primary, secondary);
     }
 }
 

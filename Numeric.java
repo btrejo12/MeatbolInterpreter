@@ -52,23 +52,4 @@ public class Numeric {
         }
         return sClassif;
     }
-
-    public Numeric ResultValueToNumeric() throws Exception{
-        Numeric num = new Numeric();
-        SubClassif checkType = this.checkNumType(res.value);
-
-        if (checkType == SubClassif.FLOAT) {
-            try {
-                num.floatValue = Float.parseFloat(res.value);
-            } catch (Exception e) {
-                throw e;
-            }
-        } else if (checkType == SubClassif.INTEGER) {
-            try {
-                num.intValue = Integer.parseInteger(res.value);
-            } catch (Exception e) {
-                throw e;
-            }
-        }
-    }
 }
