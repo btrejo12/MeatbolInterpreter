@@ -193,8 +193,8 @@ public class Scanner{
                                         // Variable already exists
                                         throw new Exception("Variable already exists in Storage Manager.");
                                         //System.out.println(e.getMessage());
-                                    }
-                                }*/
+                                    }*/
+                                }
 
                             } else {
                                 primary = sEntry.primClassif;
