@@ -168,6 +168,13 @@ public class Scanner{
                                     throw new Exception("Variable '" + variableName + "' has not been initialized.");
                                 } else {
                                     //TODO: Throw all this into a method call to use above in "Why are we here"
+                                    try {
+                                        setVariable();
+                                    } catch (Exception e) {
+                                        throw e;
+                                    }
+
+                                    /*
                                     STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                                     primary = newEntry.primClassif;
                                     secondary = newEntry.dclType;
@@ -187,7 +194,8 @@ public class Scanner{
                                         throw new Exception("Variable already exists in Storage Manager.");
                                         //System.out.println(e.getMessage());
                                     }
-                                }
+                                }*/
+
                             } else {
                                 primary = sEntry.primClassif;
                                 //Secondary classification is dependant on type of STEntry
@@ -460,6 +468,29 @@ public class Scanner{
         if(type.equals("Date"))
             return SubClassif.DATE;
         throw new Exception();
+    }
+
+    public void setVariable() throws Exception {
+        //TODO: Throw all this into a method call to use above in "Why are we here"
+        STIdentifier newEntry = new STIdentifier(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
+        primary = newEntry.primClassif;
+        secondary = newEntry.dclType;
+
+        symbolTable.putSymbol(variableName, newEntry);
+
+        ResultValue rv = new ResultValue();
+        rv.structure = "primitive";
+        rv.type = getType(currentToken.tokenStr);
+        //rv.type = currentToken.tokenStr;
+        rv.value = null;
+
+        try {
+            sManager.addVariable(variableName, rv);
+        } catch (Exception e){
+            // Variable already exists
+            throw new Exception("Variable already exists in Storage Manager.");
+            //System.out.println(e.getMessage());
+        }
     }
 }
 
