@@ -142,6 +142,7 @@ public class Parser {
                 break;
             default:
                 print(scan.currentToken.tokenStr);
+
                 error("Expected an assignment operator token after variable");
         }
 
@@ -154,8 +155,32 @@ public class Parser {
      * only the executeStatements method, so if you're calling from Parser's constructor then bExec should be set to true.
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
-    private void ifStmt(Boolean bExec){
-
+    private void ifStmt(Boolean bExec) throws Exception {
+        System.out.println("Inside If");
+        scan.currentToken.printToken();
+            if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
+                scan.nextToken.printToken();
+                error("Invalid if Statement");
+            } else
+                scan.nextToken.printToken();
+            if(!evalCond()) {
+                System.out.print("eval was false. ");
+                while (!scan.nextToken.tokenStr.equals("endif")) {
+                    if (scan.getNext() == "")
+                        error("Reached end of file");
+                    if(scan.currentToken.tokenStr.equals("else")) {
+                        System.out.println("Found an else");
+                        scan.getNext();
+                        return;
+                    }
+                }
+            } else {
+                System.out.println("eval was true");
+                //Return from function after finding end of line
+                //while (!scan.nextToken.tokenStr.equals(":"))
+                //    scan.getNext();
+                return;
+            }
     }
 
     /**
@@ -163,7 +188,13 @@ public class Parser {
      * @param bExec
      */
     private void whileStmt(Boolean bExec){
+        int colPos, lineNum;
+        colPos = scan.iColPos;
+        lineNum = scan.iSourceLineNr;
 
+        System.out.println("Inside While");
+
+        //scan.setPosition(lineNum,colPos);
     }
 
     /**
@@ -184,10 +215,12 @@ public class Parser {
      * is true or false. This method should use getNext to be able execute the tokens and determine the boolean they result in.
      * @return The boolean value of whether this condition is true or false.
      */
-    private ResultValue evalCond(){
-        ResultValue res = new ResultValue();
-
-        return res;
+    private Boolean evalCond(){
+        if(scan.currentToken.tokenStr.equals("F"))
+            return false;
+        else if(scan.currentToken.tokenStr.equals("T"))
+            return true;
+        return false;
     }
 
     /**
