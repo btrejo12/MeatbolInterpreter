@@ -1,5 +1,7 @@
 package meatbol;
 
+import javax.xml.transform.Result;
+
 public class Utility {
     public ResultValue subtract(Parser parser, Numeric n1, Numeric n2){
        ResultValue result = new ResultValue();
@@ -40,6 +42,27 @@ public class Utility {
         else
             result.value = String.valueOf(n1.floatValue / n2.floatValue);
         return result;
+    }
+
+    public ResultValue doMath(Parser parser, Numeric n1, Numeric n2, String operand) throws Exception{
+        ResultValue res;
+        switch(operand){
+            case "+":
+               res = add(parser, n1, n2);
+                break;
+            case "-":
+                res = subtract(parser, n1, n2);
+                break;
+            case "*":
+                res = multiply(parser, n1, n2);
+                break;
+            case "/":
+                res = divide(parser, n1, n2);
+                break;
+            default:
+                throw new Exception("Unrecognizable operand!");
+        }
+        return res;
     }
 
     public SubClassif findHighestOrder(Numeric n1, Numeric n2){
