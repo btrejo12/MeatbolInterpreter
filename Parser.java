@@ -19,7 +19,7 @@ public class Parser {
             while (scan.trigger){
                 scan.getNext();
 
-                //debug();
+                debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
                     if (scan.currentToken.tokenStr.equals("if")){
@@ -46,8 +46,6 @@ public class Parser {
                     }
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
                         handleFunction();
-                } else {
-                    System.err.println("Weve hit an unknown token");
                 }
             }
         } catch(Exception e){
@@ -75,20 +73,40 @@ public class Parser {
     private ResultValue expr(String endingDelimiter) throws Exception{
         ResultValue res = new ResultValue();
 
+        /**
+         * Expression Cases:
+         *      Unary minus (-A)
+         *      Single Variable (A)
+         *      Simple expression (A + B)
+         *      Conditional?
+         */
+
         // We are only doing simple expressions for now
         if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
+            if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
+            res = storageMgr.getUnaryVariableValue(scan.currentToken.tokenStr);
+            scan.getNext();
+        } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER && endingDelimiter.contains(scan.nextToken.tokenStr)){
+            res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
+            scan.getNext();
         } else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
             Token firstToken = scan.currentToken;
             scan.getNext(); //moves to operator -, +, etc
             print("Hello from expr");
             debug();
-            //TODO: Finish this ex: A-B
-            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER && scan.nextToken.primClassif != Classif.SEPARATOR){
-                //Throw error
+            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER){
+                error("Expected second argument to be of type identifier");
             }
-        } else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.SEPARATOR){
+            ResultValue res1 = storageMgr.getVariableValue(firstToken.tokenStr);
+            ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
+            Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
+            Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
+            res = util.doMath(this, num1, num2, scan.nextToken.tokenStr);
 
+        } else {
+            debug();
+            error("Brenda you dumb hoe you shouldn't be here");
         }
 
         return res;
@@ -322,10 +340,8 @@ public class Parser {
 
     //TODO: delete me cause im layz
     private void debug(){
-        System.out.print("Current: ");
-        scan.currentToken.printToken();
-        System.out.print("Next: ");
-        scan.nextToken.printToken();
+        System.out.println("Current: " + scan.currentToken.tokenStr);
+        System.out.println("Next: " + scan.nextToken.tokenStr);
     }
 
 }
