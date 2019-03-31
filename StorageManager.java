@@ -45,8 +45,8 @@ public class StorageManager {
             //if it is just an integer, set up rv as int
             rv.type = SubClassif.INTEGER;
             rv.value = variable;
-            rv.structure = primitive;
-        } catch (ParseException e) {
+            rv.structure = "primitive";
+        } catch (Exception e) {
 
             // test to see if the variable is just a straight up float
             try {
@@ -55,9 +55,9 @@ public class StorageManager {
                 //setup float rv
                 rv.type = SubClassif.FLOAT;
                 rv.value = variable;
-                rv.structure = primitive;
+                rv.structure = "primitive";
 
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 // TODO: delete this eventually. This is for debugging
                 System.out.println("This is a potential variable");
             }
