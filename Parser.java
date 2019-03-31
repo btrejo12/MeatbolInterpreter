@@ -249,7 +249,7 @@ public class Parser {
      * @param res2 The ResultValue you're assigning to the variableString
      * @return The ResultValue that was assigned
      */
-    private ResultValue assign(String variableString, ResultValue res2) throws Exception{
+    private ResultValue assign(String variableString, ResultValue result) throws Exception{
         ResultValue res= new ResultValue();
 
         ResultValue target = storageMgr.getVariableValue(variableString);
