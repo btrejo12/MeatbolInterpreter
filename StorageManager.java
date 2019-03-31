@@ -36,4 +36,14 @@ public class StorageManager {
         ResultValue rv = variables.get(variable);
         return rv;
     }
+
+    public ResultValue getUnaryVariableValue(String variable) throws Exception {
+        if (!variables.containsKey(variable)){
+            throw new Exception("Error: Variable '" + variable + "' does not exists");
+        }
+        ResultValue rv = variables.get(variable);
+        rv.value = "-" + rv.value;
+        variables.put(variable, rv);
+        return rv;
+    }
 }
