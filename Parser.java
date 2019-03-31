@@ -9,7 +9,7 @@ public class Parser {
     private Utility util;
 
     private boolean bShowExpr = false;
-    private boolean bShowAssign = false;
+    private boolean bShowAssign = true;
 
     public Parser(String filename, SymbolTable st){
         System.out.println("Parser entry");
@@ -22,7 +22,7 @@ public class Parser {
             while (scan.trigger){
                 scan.getNext();
 
-                debug();
+                //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
                     if (scan.currentToken.tokenStr.equals("if")){
@@ -38,7 +38,6 @@ public class Parser {
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
-                        System.out.println("Continue on seperator,");
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         ResultValue assignmentResult = assignmentStmt(true);
@@ -65,62 +64,12 @@ public class Parser {
      * @param bExec the trigger to determine whether the nested block needs to be run based on the condition.
      * @return The ResultValue of...something
      */
-    private ResultValue executeStatements(boolean bExec){
+    private ResultValue executeStatements(Boolean bExec){
         ResultValue res = new ResultValue();
 
-        //if(bExec){
-            try {
-                while (scan.trigger){
-                    scan.getNext();
+        if(bExec){
 
-                    debug();
-                    if (scan.currentToken.subClassif == SubClassif.FLOW){
-
-                        //def, if, for, while,
-                        if (scan.currentToken.tokenStr.equals("if")){
-                            ifStmt(bExec);
-                            res.type = SubClassif.FLOW;
-                            res.value = "if";
-                            res.terminatingStr = "endif";
-                            return res;
-                        } else if (scan.currentToken.tokenStr.equals("def")){
-                            System.err.println("User defined functions are not being used in this programming assignment.");
-                        } else if (scan.currentToken.tokenStr.equals("for")){
-                            System.err.println("For loops are not being used in this programming assignment");
-                        } else if (scan.currentToken.tokenStr.equals("while")){
-                            whileStmt(bExec);
-                            res.type = SubClassif.FLOW;
-                            res.value = "while";
-                            res.terminatingStr = "endwhile";
-                            return res;
-                        }
-                        scan.currentToken.printToken(); //for debugging
-                    } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER && bExec == true){
-                        // This is a variable being decalred only
-                        if(scan.nextToken.primClassif == Classif.SEPARATOR){
-                            System.out.println("Continue on seperator,");
-                            continue;
-                        } else if (scan.nextToken.primClassif == Classif.OPERATOR){
-                            ResultValue assignmentResult = assignmentStmt(true);
-                            //TODO: Assign the return value to the currentToken using Storage Manager
-                        } else {
-                            //Not sure here
-                            scan.nextToken.printToken();
-                        }
-                    } else if(scan.currentToken.primClassif == Classif.FUNCTION && bExec == true){
-                        handleFunction();
-                    } else if (scan.currentToken.primClassif == Classif.DEBUG && bExec == true){
-                        handleDebug();
-
-                    } /*else { // bExec is false. Therefore, keep going
-
-                    }*/
-                }
-            } catch(Exception e){
-                //TODO: Call error method to create a ParserException
-                e.printStackTrace();
-            }
-        //}
+        }
 
         return res;
     }
@@ -147,6 +96,7 @@ public class Parser {
         // Single Variable
         else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
             //debug();
+            //print("UHM");
             if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
             } /*else if (scan.currentToken.subClassif == SubClassif.STRING){
@@ -158,34 +108,30 @@ public class Parser {
             scan.getNext();
         }
         // Simple expression
-        else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
-            print(scan.currentToken.tokenStr);
+        else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
+            //print(scan.currentToken.tokenStr);
             String firstToken = scan.currentToken.tokenStr;
             scan.getNext(); //moves to operator -, +, etc
             if(scan.nextToken.primClassif != Classif.OPERAND){
-                print(scan.nextToken.tokenStr);
+                //print(scan.nextToken.tokenStr);
                 scan.nextToken.printToken();
                 error("Expected second argument to be of type operand");
             }
-            print(firstToken);
-            print(scan.currentToken.tokenStr);
-            print(scan.nextToken.tokenStr);
+            //print(firstToken);
+            //print(scan.currentToken.tokenStr);
+            //print(scan.nextToken.tokenStr);
             ResultValue res1 = storageMgr.getVariableValue(firstToken);
             ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
             showExpr(res);
-            while(!scan.currentToken.tokenStr.equals(":")) {
-                scan.getNext();
-            }
         }
         // Who knows
         else {
             debug();
             error("Brenda you dumb hoe you shouldn't be here");
         }
-
         return res;
     }
 
@@ -244,9 +190,6 @@ public class Parser {
 
                 error("Expected an assignment operator token after variable");
         }
-
-        //TODO: Make sure this shows the variable and the value it was assigned
-        showAssign(targetVariable, res);
         return res;
     }
 
@@ -257,7 +200,6 @@ public class Parser {
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
     private void ifStmt(boolean bExec) throws Exception {
-        ResultValue res = null;
         System.out.println("Inside If");
 
         //TODO: Delete this later
@@ -269,30 +211,6 @@ public class Parser {
 
         // test the condition in the if statement and execute if the condition is correct
         boolean testIfCond = evalCond();
-
-        res = executeStatements(testIfCond);
-        while (res.terminatingStr.equals("")) {
-            res = executeStatements(testIfCond);
-        }
-        if (!res.terminatingStr.equals("endif")) {
-            error("Incorrect flow ending delimiter: " + res.terminatingStr);
-        }
-        /*
-        if (testIfCond) {
-            res = executeStatements(testIfCond);
-            while (res.terminatingStr.equals("")) {
-                res = executeStatements(testIfCond);
-            }
-
-        } else {
-            res = executeStatements(false);
-            while (res.terminatingStr.equals("")) {
-                res = executeStatements(testIfCond)
-            }
-            if (!res.terminatingStr.equals("endif")) {
-                error("Incorrect flow ending delimiter: " + res.terminatingStr);
-            }
-        }
 
         /* TODO: Delete this later
             if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
@@ -343,13 +261,10 @@ public class Parser {
      * @return The ResultValue that was assigned
      */
     private ResultValue assign(String variableString, ResultValue result) throws Exception{
-        ResultValue res= new ResultValue();
-
         ResultValue target = storageMgr.getVariableValue(variableString);
 
         if (target.type == result.type){
             target.value = result.value;
-            storageMgr.updateVariable(variableString, target);
         } else {
             if(target.type == SubClassif.INTEGER){
                 result.value = Integer.toString(Integer.parseInt(result.value));
@@ -362,8 +277,10 @@ public class Parser {
                 error("Not sure why we're here");
             }
         }
+        storageMgr.updateVariable(variableString, target);
+        showAssign(variableString, target);
 
-        return res;
+        return target;
     }
 
     /**
@@ -375,10 +292,9 @@ public class Parser {
 
         //init variables
         ResultValue rv = null;
-        String endDelim = ":";
+        String endDelim = "";
         boolean cond = true;
 
-        /* FIXME: Assumed endDelim was the ending string for if/while statement
         if (scan.currentToken.tokenStr.equals("if")) {
             endDelim = "endif";
         } else if (scan.currentToken.tokenStr.equals("while")) {
@@ -386,7 +302,6 @@ public class Parser {
         } else {
             error("Unknown flow control statement", scan.currentToken.tokenStr);
         }
-        */
 
         //move the nextToken to currentToken to make shift out the (if, while) statement
         scan.getNext();
@@ -480,9 +395,9 @@ public class Parser {
                 System.out.print(scan.currentToken.tokenStr);
                 scan.getNext();
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                ResultValue variableEval = expr(")"); //only evaluate this expression
+                ResultValue variableEval = expr(",)"); //only evaluate this expression
                 System.out.print(variableEval.value);
-                scan.getNext();
+                //scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){
                 System.out.print(" ");
@@ -494,11 +409,12 @@ public class Parser {
                 scan.getNext();
                 break;
             }
+            /*
             if (scan.currentToken.tokenStr.equals(";")){
-                //TODO: Throw error, expected ')' instead got ';'
-                System.err.println("Never recieved ending ')' in print statement");
+
+                error("Never received ending ')' in print statement");
                 return;
-            }
+            }*/
         }
     }
 
