@@ -8,6 +8,9 @@ public class Parser {
     private SymbolTable st;
     private Utility util;
 
+    private boolean bShowExpr = false;
+    private boolean bShowAssign = false;
+
     public Parser(String filename, SymbolTable st){
         System.out.println("Parser entry");
         storageMgr = new StorageManager();
@@ -47,7 +50,7 @@ public class Parser {
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
                         handleFunction();
                 } else if (scan.currentToken.primClassif == Classif.DEBUG){
-
+                        handleDebug();
                 }
             }
         } catch(Exception e){
@@ -118,6 +121,7 @@ public class Parser {
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.nextToken.tokenStr);
+            showExpr(res);
 
         }
         // Who knows
@@ -145,6 +149,7 @@ public class Parser {
         if(scan.currentToken.subClassif != SubClassif.IDENTIFIER){
             error("Expected a variable for assignment");
         }
+
         String targetVariable = scan.currentToken.tokenStr;
         scan.getNext(); //Move current token to be on the operator
         if(scan.currentToken.primClassif != Classif.OPERATOR){
@@ -184,6 +189,8 @@ public class Parser {
                 error("Expected an assignment operator token after variable");
         }
 
+        //TODO: Make sure this shows the variable and the value it was assigned
+        showAssign(targetVariable, res);
         return res;
     }
 
@@ -242,8 +249,10 @@ public class Parser {
      * @param res2 The ResultValue you're assigning to the variableString
      * @return The ResultValue that was assigned
      */
-    private ResultValue assign(String variableString, ResultValue res2){
+    private ResultValue assign(String variableString, ResultValue res2) throws Exception{
         ResultValue res= new ResultValue();
+
+        ResultValue target = storageMgr.getVariableValue(variableString);
 
         return res;
     }
@@ -351,6 +360,55 @@ public class Parser {
     public void error(String fmt, Object...varArgs) throws Exception{
         String diagnosticTxt = String.format(fmt, varArgs);
         throw new ParserException(scan.currentToken.iSourceLineNr, diagnosticTxt, scan.sourceFileNm);
+    }
+
+    public void handleDebug() throws Exception{
+        //current token is on debug
+        scan.getNext();
+
+        String command = scan.nextToken.tokenStr;
+        if (scan.currentToken.tokenStr.equals("Expr")){
+            if(command.equals("on")){
+                bShowExpr = true;
+            } else if(command.equals("off")){
+                bShowExpr = false;
+            } else {
+                error("Unknown trigger for Expr, should be 'on' or 'off'");
+            }
+            scan.getNext(); //sits on trigger
+        } else if (scan.currentToken.tokenStr.equals("Token")){
+            if (command.equals("on")){
+                scan.bShowToken = true;
+            } else if (command.equals("off")){
+                scan.bShowToken = false;
+            } else {
+                error("Unknown trigger for Token, should be 'on' or 'off'");
+            }
+            scan.getNext(); //sits on trigger
+        } else if (scan.currentToken.tokenStr.equals("Assign")){
+            if (command.equals("on")){
+                bShowAssign = true;
+            } else if (command.equals("off")){
+                bShowAssign = false;
+            } else {
+                error("Unknown trigger for Token, should be 'on' or 'off'");
+            }
+            scan.getNext(); //sits on trigger
+        } else {
+            error("Unknown Debug Command");
+        }
+        if(scan.nextToken.tokenStr.equals(";")){
+            error("Expected semicolon after debugging assignment");
+        }
+        scan.getNext(); //sits on ';'
+    }
+
+    public void showExpr(ResultValue result){
+        if (bShowExpr){ System.out.print("\t\t..." + result.value);}
+    }
+
+    public void showAssign(String variable, ResultValue result){
+        if (bShowAssign){ System.out.println("\t\t..." +variable + " = " + result.value);}
     }
 
     //TODO: delete me cause im layz
