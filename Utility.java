@@ -44,9 +44,10 @@ public class Utility {
         return result;
     }
 
-    public ResultValue doMath(Parser parser, Numeric n1, Numeric n2, String operand) throws Exception{
+    public ResultValue doMath(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception{
         ResultValue res;
-        switch(operand){
+        switch(operator){
+            //arithemetic cases
             case "+":
                res = add(parser, n1, n2);
                 break;
@@ -59,10 +60,92 @@ public class Utility {
             case "/":
                 res = divide(parser, n1, n2);
                 break;
+                // conditional cases
+            case "^":
+                res = exponentiate(parser, n1, n2);
+                break;
             default:
-                throw new Exception("Unrecognizable operand!");
+                res = compareNums(parser, n1, n2, operator);
+                break;
+                // will throw exception if there is an unrecognizable operator
+                //throw new Exception("Unrecognizable operator!");
         }
         return res;
+    }
+
+    public ResultValue compareNums(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception {
+        String[] operators = {"==", "!=", "<", "<=", ">", ">="};
+        ResultValue rv = new ResultValue();
+        boolean compare = true;
+
+        // using floats as placeholders
+        float num1 = 0;
+        float num2 = 0;
+
+        // If the operator is not recognized, it is an unknown operator
+        if (operators.indexOf(operator) < 0) {
+            throw new Exception("Unrecognizable operator: " + operator);
+        }
+
+        // cast n1's value to a num1 (float) regardless if its an int or float
+        if (n1.type == SubClassif.INTEGER) {
+            num1 = (float) n1.integerValue;
+        } else {
+            num1 = n1.floatValue;
+        }
+
+        // cast n2's value to a num2 (float) regardless if its an int or float
+        if (n2.type == SubClassif.INTEGER) {
+            num2 = (float) n2.integerValue;
+        } else {
+            num2 = n2.floatValue;
+        }
+
+        switch(operator){
+            case "==":
+                compare = (num1 == num2);
+                break;
+            case "!=":
+                compare = (num1 != num2);
+                break;
+            case "<":
+                compare = (num1 < num2);
+                break;
+            case "<=":
+                compare = (num1 <= num2);
+                break;
+            case ">":
+                compare = (num1 > num2);
+                break;
+            case ">=":
+                compare = (num1 >= num2);
+                break;
+            default:
+                throw new Exception("Error in operator identity: " + operator);
+        }
+
+        // set rv's values
+        if (compare) {
+            rv.value = "T";
+        } else {
+            rv.value = "F";
+        }
+        rv.type = SubClassif.BOOLEAN;
+        rv.structure = "primitive";
+        return rv;
+    }
+
+    public ResultValue exponentiate(Numeric n1, Numeric n2) {
+        ResultValue result = new ResultValue();
+        result.structure = "primitive";
+        result.type = findHighestOrder(n1,n2);
+
+        if(result.type == SubClassif.INTEGER)
+            result.value = String.valueOf(Math.pow(n1.integerValue, n2.integerValue));
+        else
+            result.value = String.valueOf(Math.pow(n1.floatValue / n2.floatValue));
+
+        return result;
     }
 
     public SubClassif findHighestOrder(Numeric n1, Numeric n2){
