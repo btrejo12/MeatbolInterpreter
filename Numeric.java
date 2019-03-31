@@ -18,9 +18,7 @@ public class Numeric {
         Numeric num = new Numeric();
         num.strValue = res.value;
         this.title = title;
-
-        //TODO: Update the type whenever RV is complete
-
+        this.type = res.type;
     }
 
     /**

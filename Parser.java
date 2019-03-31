@@ -46,6 +46,8 @@ public class Parser {
                     }
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
                         handleFunction();
+                } else if (scan.currentToken.primClassif == Classif.DEBUG){
+
                 }
             }
         } catch(Exception e){

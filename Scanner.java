@@ -16,7 +16,9 @@ public class Scanner{
     public int iColPos;
     public Token currentToken;
     public Token nextToken;
+
     public boolean bPrintLines = false;
+    public boolean bShowToken = false;
 
     public boolean trigger = true;
     private final static String delimiters = "\t;:()\'\"=!<>+-*/[]#,^\n";
@@ -179,6 +181,10 @@ public class Scanner{
         nextToken.subClassif = secondary;
         nextToken.iColPos = iColPos;
         nextToken.iSourceLineNr = iSourceLineNr;
+
+        if(bShowToken){
+            nextToken.printToken();
+        }
     }
 
     /**

@@ -65,5 +65,6 @@ public class SymbolTable {
         ht.put("notin", new STEntry("notin", Classif.OPERATOR));
         ht.put("T", new STIdentifier("T", Classif.OPERAND, SubClassif.BOOLEAN));
         ht.put("F", new STIdentifier("F", Classif.OPERAND, SubClassif.BOOLEAN));
+        ht.put("debug", new STIdentifier("debug", Classif.DEBUG, SubClassif.EMPTY));
     }
 }

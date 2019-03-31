@@ -7,5 +7,6 @@ public enum Classif
     SEPARATOR,  // ( ) , : ; [ ] 
     FUNCTION,   // TBD
     CONTROL,    // TBD
+    DEBUG,      // used for debug commands
     EOF         // EOF encountered
 }

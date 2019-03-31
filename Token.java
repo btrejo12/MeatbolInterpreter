@@ -63,7 +63,7 @@ public class Token
             hexPrint(25, tokenStr);
         }
         else
-            System.out.printf("%-11s %-12s %s\n"
+            System.out.printf("\t\t...%-11s %-12s %s\n"
                 , primClassifStr
                 , subClassifStr
                 , tokenStr);
