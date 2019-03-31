@@ -96,10 +96,9 @@ public class Scanner{
                 int index = iColPos + i;
 
                 if(index >= textCharM.length){
-                    System.out.println(" ****** Why are we here ************");
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                     attemptNewSymbolSave(variableName);
-                    System.out.println(variableName);
+                    //System.out.println(variableName);
                     //assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
                     incrementColumnPosition(i - 1);
                     break;

@@ -14,11 +14,18 @@ public class Numeric {
      */
     public Numeric(){}
 
-    public Numeric(Parser parse, ResultValue res, String operand, String title){
-        Numeric num = new Numeric();
-        num.strValue = res.value;
+    public Numeric(Parser parse, ResultValue res, String operand, String title) throws Exception{
+        this.strValue = res.value;
         this.title = title;
         this.type = res.type;
+
+        if(res.type == SubClassif.INTEGER){
+            this.integerValue = Integer.parseInt(this.strValue);
+        } else if (res.type == SubClassif.FLOAT) {
+            this.floatValue = Float.parseFloat(this.strValue);
+        } else {
+            throw new Exception("Cannot recognize primitive type");
+        }
     }
 
     /**

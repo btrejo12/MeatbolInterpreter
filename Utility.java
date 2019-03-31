@@ -146,10 +146,13 @@ public class Utility {
         result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
 
-        if(result.type == SubClassif.INTEGER)
-            result.value = String.valueOf(Math.pow(n1.integerValue, n2.integerValue));
-        else
+        if(result.type == SubClassif.INTEGER) {
+            System.out.print("Int!" + n1.integerValue + "^" + n2.integerValue);
+            result.value = String.valueOf((int)(Math.pow(n1.integerValue, n2.integerValue)));
+            System.out.println("=" + result.value);
+        } else {
             result.value = String.valueOf(Math.pow(n1.floatValue, n2.floatValue));
+        }
 
         return result;
     }

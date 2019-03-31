@@ -58,9 +58,6 @@ public class StorageManager {
                 rv.structure = "primitive";
 
             } catch (Exception f) {
-                // TODO: delete this eventually. This is for debugging
-                System.out.println("This is a potential variable");
-
                 // if the variable passed through "variable" is not found in the SM
                 if (!variables.containsKey(variable)) {
                     throw new Exception("Error: Variable '" + variable + "' does not exist");
