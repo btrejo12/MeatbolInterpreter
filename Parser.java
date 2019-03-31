@@ -262,7 +262,7 @@ public class Parser {
      * Once you return a result value, you should assign it to the left most variable (variableString) and return what you
      * assigned to it. This method should use StorageManager to check for data type.
      * @param variableString The variable string to be looked up in StorageManager to confirm data type and declaration.
-     * @param res2 The ResultValue you're assigning to the variableString
+     * @param result The ResultValue you're assigning to the variableString
      * @return The ResultValue that was assigned
      */
     private ResultValue assign(String variableString, ResultValue result) throws Exception{

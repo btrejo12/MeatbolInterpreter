@@ -7,40 +7,113 @@ public class Utility {
        ResultValue result = new ResultValue();
        result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
-        if(result.type == SubClassif.INTEGER)
-            result.value = String.valueOf(n1.integerValue - n2.integerValue);
-        else
-            result.value = String.valueOf(n1.floatValue - n2.floatValue);
+        // Result should be of type integer
+        // Cast to type integer
+        if(result.type == SubClassif.INTEGER) {
+            if(n1.type != n2.type){
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf((int)(n1.floatValue-n2.integerValue));
+                else
+                    result.value = String.valueOf((int)(n1.integerValue-n2.floatValue));
+            } else {
+                result.value = String.valueOf(n1.integerValue-n2.integerValue);
+            }
+        }
+        // Cast to float
+        else {
+            if(n1.type != n2.type){         // Different types, find their value
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf(n1.floatValue-n2.integerValue);
+                else
+                    result.value = String.valueOf(n1.integerValue-n2.floatValue);
+            } else {
+                result.value = String.valueOf(n1.floatValue-n2.floatValue);
+            }
+        }
        return result;
     }
     public ResultValue add(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.type = findHighestOrder(n1,n2);
         result.structure = "primitive";
-        if(result.type == SubClassif.INTEGER)
-            result.value = String.valueOf(n1.integerValue + n2.integerValue);
-        else
-            result.value = String.valueOf(n1.floatValue + n2.floatValue);
+        // Cast to type integer
+        if(result.type == SubClassif.INTEGER) {
+            if(n1.type != n2.type){
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf((int)(n1.floatValue+n2.integerValue));
+                else
+                    result.value = String.valueOf((int)(n1.integerValue+n2.floatValue));
+            } else {
+                result.value = String.valueOf(n1.integerValue+n2.integerValue);
+            }
+        }
+        // Cast to float
+        else {
+            if(n1.type != n2.type){         // Different types, find their value
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf(n1.floatValue+n2.integerValue);
+                else
+                    result.value = String.valueOf(n1.integerValue+n2.floatValue);
+            } else {
+                result.value = String.valueOf(n1.floatValue+n2.floatValue);
+            }
+        }
         return result;
     }
     public ResultValue multiply(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
-        if(result.type == SubClassif.INTEGER)
-            result.value = String.valueOf(n1.integerValue * n2.integerValue);
-        else
-            result.value = String.valueOf(n1.floatValue * n2.floatValue);
+        // Cast to type integer
+        if(result.type == SubClassif.INTEGER) {
+            if(n1.type != n2.type){
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf((int)(n1.floatValue*n2.integerValue));
+                else
+                    result.value = String.valueOf((int)(n1.integerValue*n2.floatValue));
+            } else {
+                result.value = String.valueOf(n1.integerValue*n2.integerValue);
+            }
+        }
+        // Cast to float
+        else {
+            if(n1.type != n2.type){         // Different types, find their value
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf(n1.floatValue*n2.integerValue);
+                else
+                    result.value = String.valueOf(n1.integerValue*n2.floatValue);
+            } else {
+                result.value = String.valueOf(n1.floatValue*n2.floatValue);
+            }
+        }
         return result;
     }
     public ResultValue divide(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
-        if(result.type == SubClassif.INTEGER)
-            result.value = String.valueOf(n1.integerValue / n2.integerValue);
-        else
-            result.value = String.valueOf(n1.floatValue / n2.floatValue);
+        // Cast to type integer
+        if(result.type == SubClassif.INTEGER) {
+            if(n1.type != n2.type){
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf((int)(n1.floatValue/n2.integerValue));
+                else
+                    result.value = String.valueOf((int)(n1.integerValue/n2.floatValue));
+            } else {
+                result.value = String.valueOf(n1.integerValue/n2.integerValue);
+            }
+        }
+        // Cast to float
+        else {
+            if(n1.type != n2.type){         // Different types, find their value
+                if(n1.type == SubClassif.FLOAT)
+                    result.value = String.valueOf(n1.floatValue/n2.integerValue);
+                else
+                    result.value = String.valueOf(n1.integerValue/n2.floatValue);
+            } else {
+                result.value = String.valueOf(n1.floatValue/n2.floatValue);
+            }
+        }
         return result;
     }
 
@@ -147,9 +220,7 @@ public class Utility {
         result.type = findHighestOrder(n1,n2);
 
         if(result.type == SubClassif.INTEGER) {
-            System.out.print("Int!" + n1.integerValue + "^" + n2.integerValue);
             result.value = String.valueOf((int)(Math.pow(n1.integerValue, n2.integerValue)));
-            System.out.println("=" + result.value);
         } else {
             result.value = String.valueOf(Math.pow(n1.floatValue, n2.floatValue));
         }
