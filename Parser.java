@@ -202,7 +202,17 @@ public class Parser {
      */
     private void ifStmt(boolean bExec) throws Exception {
         System.out.println("Inside If");
+
+        //TODO: Delete this later
         scan.currentToken.printToken();
+
+        // Move nextToken to currentToken so we can get rid of the initial "if"
+        scan.getNext();
+
+        // test the condition in the if statement and execute if the condition is correct
+        boolean testIfCond = evalCond();
+
+        /* TODO: Delete this later
             if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
                 scan.nextToken.printToken();
                 error("Invalid if Statement");
@@ -226,6 +236,7 @@ public class Parser {
                 //    scan.getNext();
                 return;
             }
+            */
     }
 
     /**
@@ -277,7 +288,11 @@ public class Parser {
      * is true or false. This method should use getNext to be able execute the tokens and determine the boolean they result in.
      * @return The boolean value of whether this condition is true or false.
      */
-    private Boolean evalCond() throws Exception{
+    private boolean evalCond() throws Exception{
+
+        //init cond
+        boolean cond = true;
+        return cond;
 
         /* TODO: Delete this later
         if(scan.currentToken.tokenStr.equals(":"))
