@@ -22,18 +22,54 @@ public class StorageManager {
 
     public void updateVariable(String variable, ResultValue value) throws Exception {
         if (!variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable + "' has not already been instantiated");
+            try {
+                addVariable(variable, value);
+            } catch (Exception e) {
+                throw e;
+            }
+            //throw new Exception("Error: Variable '" + variable + "' has not already been instantiated");
         }
 
         variables.put(variable, value);
     }
 
     public ResultValue getVariableValue(String variable) throws Exception {
-        if (!variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable + "' does not exist");
+        
+        //Initialize an empty ResultValue
+        ResultValue rv = new ResultValue();
+
+        // test to see if the variable is just an undeclared integer
+        try {
+            Integer.parseInt(variable);
+
+            //if it is just an integer, set up rv as int
+            rv.type = SubClassif.INTEGER;
+            rv.value = variable;
+            rv.structure = primitive;
+        } catch (ParseException e) {
+
+            // test to see if the variable is just a straight up float
+            try {
+                Float.parseFloat(variable);
+
+                //setup float rv
+                rv.type = SubClassif.FLOAT;
+                rv.value = variable;
+                rv.structure = primitive;
+
+            } catch (ParseException e) {
+                // TODO: delete this eventually. This is for debugging
+                System.out.println("This is a potential variable");
+            }
         }
 
-        ResultValue rv = variables.get(variable);
+        // if the variable passed through "variable" is not found in the SM
+        if (!variables.containsKey(variable)) {
+            throw new Exception("Error: Variable '" + variable + "' does not exist");
+        } else {
+            rv = variables.get(variable);
+        }
+
         return rv;
     }
 }
