@@ -83,10 +83,13 @@ public class Utility {
         float num2 = 0;
 
         // If the operator is not recognized, it is an unknown operator
-        if (operators.indexOf(operator) < 0) {
-            throw new Exception("Unrecognizable operator: " + operator);
+        int i = 0;
+        for (i = 0; i < operators.length; i++) {
+            if (operators[i].equals(operator)) {
+                break;
+            }
         }
-        
+
         if (i == operators.length) {
             throw new Exception("Unknown operator: " + operator);
         }

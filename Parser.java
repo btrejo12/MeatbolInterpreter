@@ -200,7 +200,7 @@ public class Parser {
      * only the executeStatements method, so if you're calling from Parser's constructor then bExec should be set to true.
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
-    private void ifStmt(Boolean bExec) throws Exception {
+    private void ifStmt(boolean bExec) throws Exception {
         System.out.println("Inside If");
         scan.currentToken.printToken();
             if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
@@ -263,6 +263,8 @@ public class Parser {
      * @return The boolean value of whether this condition is true or false.
      */
     private Boolean evalCond() throws Exception{
+
+        /* TODO: Delete this later
         if(scan.currentToken.tokenStr.equals(":"))
             error("Invalid condition statement");
         if(scan.currentToken.tokenStr.equals("!")) {
@@ -295,6 +297,7 @@ public class Parser {
                 return true;
         }
         return false;
+        */
     }
 
     /**
