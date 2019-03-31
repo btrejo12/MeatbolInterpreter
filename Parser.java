@@ -9,7 +9,7 @@ public class Parser {
     private Utility util;
 
     private boolean bShowExpr = false;
-    private boolean bShowAssign = true;
+    private boolean bShowAssign = false;
 
     public Parser(String filename, SymbolTable st){
         System.out.println("Parser entry");
@@ -22,7 +22,7 @@ public class Parser {
             while (scan.trigger){
                 scan.getNext();
 
-                //debug();
+                debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
                     if (scan.currentToken.tokenStr.equals("if")){
@@ -38,6 +38,7 @@ public class Parser {
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
+                        System.out.println("Continue on seperator,");
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         ResultValue assignmentResult = assignmentStmt(true);
@@ -96,7 +97,6 @@ public class Parser {
         // Single Variable
         else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
             //debug();
-            //print("UHM");
             if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
             } /*else if (scan.currentToken.subClassif == SubClassif.STRING){
@@ -108,30 +108,32 @@ public class Parser {
             scan.getNext();
         }
         // Simple expression
-        else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
-            //print(scan.currentToken.tokenStr);
+        else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
+            print(scan.currentToken.tokenStr);
             String firstToken = scan.currentToken.tokenStr;
             scan.getNext(); //moves to operator -, +, etc
             if(scan.nextToken.primClassif != Classif.OPERAND){
-                //print(scan.nextToken.tokenStr);
+                print(scan.nextToken.tokenStr);
                 scan.nextToken.printToken();
                 error("Expected second argument to be of type operand");
             }
-            //print(firstToken);
-            //print(scan.currentToken.tokenStr);
-            //print(scan.nextToken.tokenStr);
+            print(firstToken);
+            print(scan.currentToken.tokenStr);
+            print(scan.nextToken.tokenStr);
             ResultValue res1 = storageMgr.getVariableValue(firstToken);
             ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
             showExpr(res);
+
         }
         // Who knows
         else {
             debug();
             error("Brenda you dumb hoe you shouldn't be here");
         }
+
         return res;
     }
 
@@ -190,6 +192,9 @@ public class Parser {
 
                 error("Expected an assignment operator token after variable");
         }
+
+        //TODO: Make sure this shows the variable and the value it was assigned
+        showAssign(targetVariable, res);
         return res;
     }
 
@@ -261,10 +266,13 @@ public class Parser {
      * @return The ResultValue that was assigned
      */
     private ResultValue assign(String variableString, ResultValue result) throws Exception{
+        ResultValue res= new ResultValue();
+
         ResultValue target = storageMgr.getVariableValue(variableString);
 
         if (target.type == result.type){
             target.value = result.value;
+            storageMgr.updateVariable(variableString, target);
         } else {
             if(target.type == SubClassif.INTEGER){
                 result.value = Integer.toString(Integer.parseInt(result.value));
@@ -277,10 +285,8 @@ public class Parser {
                 error("Not sure why we're here");
             }
         }
-        storageMgr.updateVariable(variableString, target);
-        showAssign(variableString, target);
 
-        return target;
+        return res;
     }
 
     /**
@@ -395,9 +401,9 @@ public class Parser {
                 System.out.print(scan.currentToken.tokenStr);
                 scan.getNext();
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                ResultValue variableEval = expr(",)"); //only evaluate this expression
+                ResultValue variableEval = expr(")"); //only evaluate this expression
                 System.out.print(variableEval.value);
-                //scan.getNext();
+                scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){
                 System.out.print(" ");
@@ -409,12 +415,11 @@ public class Parser {
                 scan.getNext();
                 break;
             }
-            /*
             if (scan.currentToken.tokenStr.equals(";")){
-
-                error("Never received ending ')' in print statement");
+                //TODO: Throw error, expected ')' instead got ';'
+                System.err.println("Never recieved ending ')' in print statement");
                 return;
-            }*/
+            }
         }
     }
 
