@@ -57,7 +57,7 @@ public class StorageManager {
                 rv.value = variable;
                 rv.structure = "primitive";
 
-            } catch (Exception e) {
+            } catch (Exception f) {
                 // TODO: delete this eventually. This is for debugging
                 System.out.println("This is a potential variable");
             }
