@@ -71,6 +71,7 @@ public class Parser {
     }
 
     private ResultValue expr(String endingDelimiter) throws Exception{
+        //print("Hello from expr " + scan.currentToken.tokenStr);
         ResultValue res = new ResultValue();
 
         /**
@@ -81,30 +82,44 @@ public class Parser {
          *      Conditional?
          */
 
-        // We are only doing simple expressions for now
+        // Unary minues
         if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
             if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
             res = storageMgr.getUnaryVariableValue(scan.currentToken.tokenStr);
             scan.getNext();
-        } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER && endingDelimiter.contains(scan.nextToken.tokenStr)){
-            res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-            scan.getNext();
-        } else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
-            Token firstToken = scan.currentToken;
-            scan.getNext(); //moves to operator -, +, etc
-            print("Hello from expr");
-            debug();
-            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER){
-                error("Expected second argument to be of type identifier");
+        }
+        // Single Variable
+        else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
+            if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
+            } else if (scan.currentToken.subClassif == SubClassif.STRING){
+                res = new ResultValue(scan.currentToken.tokenStr, "String", scan.currentToken.subClassif);
             }
-            ResultValue res1 = storageMgr.getVariableValue(firstToken.tokenStr);
+            scan.getNext();
+        }
+        // Simple expression
+        else if(scan.currentToken.subClassif == SubClassif.IDENTIFIER && scan.nextToken.primClassif == Classif.OPERATOR){
+            print(scan.currentToken.tokenStr);
+            String firstToken = scan.currentToken.tokenStr;
+            scan.getNext(); //moves to operator -, +, etc
+            if(scan.nextToken.primClassif != Classif.OPERAND){
+                print(scan.nextToken.tokenStr);
+                scan.nextToken.printToken();
+                error("Expected second argument to be of type operand");
+            }
+            print(firstToken);
+            print(scan.currentToken.tokenStr);
+            print(scan.nextToken.tokenStr);
+            ResultValue res1 = storageMgr.getVariableValue(firstToken);
             ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.nextToken.tokenStr);
 
-        } else {
+        }
+        // Who knows
+        else {
             debug();
             error("Brenda you dumb hoe you shouldn't be here");
         }
@@ -119,6 +134,7 @@ public class Parser {
      * @return the ResultValue of this assignment
      */
     private ResultValue assignmentStmt(Boolean bExec) throws Exception{
+        //print("In assignmentStmt");
         ResultValue res = new ResultValue();
         if(!bExec){
             skipTo(';');
@@ -141,6 +157,8 @@ public class Parser {
 
         switch(scan.currentToken.tokenStr){
             case "=":
+                //print("Equal sign assignment");
+                scan.getNext();
                 res2 = expr(";");
                 res = assign(targetVariable, res2);
                 break;
@@ -233,11 +251,38 @@ public class Parser {
      * is true or false. This method should use getNext to be able execute the tokens and determine the boolean they result in.
      * @return The boolean value of whether this condition is true or false.
      */
-    private Boolean evalCond(){
-        if(scan.currentToken.tokenStr.equals("F"))
+    private Boolean evalCond() throws Exception{
+        if(scan.currentToken.tokenStr.equals(":"))
+            error("Invalid condition statement");
+        if(scan.currentToken.tokenStr.equals("!")) {
+            scan.getNext();
+            Boolean b = evalCond();
+            b = !b;
+            return b;
+        } else if(scan.currentToken.tokenStr.equals("F"))
             return false;
         else if(scan.currentToken.tokenStr.equals("T"))
             return true;
+        else if(scan.currentToken.subClassif == meatbol.SubClassif.IDENTIFIER){
+            meatbol.STEntry stEntry = st.getSymbol(scan.currentToken.tokenStr);
+            ResultValue rv = storageMgr.getVariableValue(stEntry.symbol);
+            if(rv.type == meatbol.SubClassif.BOOLEAN){
+                if(rv.value.equals("T"))
+                    return true;
+                else return false;
+            }
+        }
+        else if(scan.currentToken.subClassif == meatbol.SubClassif.INTEGER) {
+            //Check for mathematical comparison
+            if(scan.nextToken.tokenStr.equals("<")){
+                meatbol.Token token = new meatbol.Token();
+                token.tokenStr = scan.currentToken.tokenStr;
+                scan.getNext();
+            }
+            //
+            if (Integer.parseInt(scan.currentToken.tokenStr) != 0)
+                return true;
+        }
         return false;
     }
 
@@ -314,7 +359,6 @@ public class Parser {
     //TODO: delete me cause im layz
     private void debug(){
         System.out.println("Current: " + scan.currentToken.tokenStr);
-        System.out.println("Next: " + scan.nextToken.tokenStr);
     }
 
 }
