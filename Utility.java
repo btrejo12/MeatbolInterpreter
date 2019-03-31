@@ -70,7 +70,7 @@ public class Utility {
                 if(n1.type == SubClassif.FLOAT)
                     result.value = String.valueOf((int)(n1.floatValue*n2.integerValue));
                 else
-                    result.value = String.valueOf((int)(n1.integerValue*n2.floatValue));
+                    result.value = String.valueOf(n1.integerValue*(int)n2.floatValue);
             } else {
                 result.value = String.valueOf(n1.integerValue*n2.integerValue);
             }
@@ -81,7 +81,7 @@ public class Utility {
                 if(n1.type == SubClassif.FLOAT)
                     result.value = String.valueOf(n1.floatValue*n2.integerValue);
                 else
-                    result.value = String.valueOf(n1.integerValue*n2.floatValue);
+                    result.value =  String.valueOf(n1.integerValue*(int)n2.floatValue);
             } else {
                 result.value = String.valueOf(n1.floatValue*n2.floatValue);
             }
@@ -98,7 +98,7 @@ public class Utility {
                 if(n1.type == SubClassif.FLOAT)
                     result.value = String.valueOf((int)(n1.floatValue/n2.integerValue));
                 else
-                    result.value = String.valueOf((int)(n1.integerValue/n2.floatValue));
+                    result.value = String.valueOf((n1.integerValue/(int)n2.floatValue));
             } else {
                 result.value = String.valueOf(n1.integerValue/n2.integerValue);
             }
@@ -109,7 +109,7 @@ public class Utility {
                 if(n1.type == SubClassif.FLOAT)
                     result.value = String.valueOf(n1.floatValue/n2.integerValue);
                 else
-                    result.value = String.valueOf(n1.integerValue/n2.floatValue);
+                    result.value = String.valueOf(n1.integerValue/(int)n2.floatValue);
             } else {
                 result.value = String.valueOf(n1.floatValue/n2.floatValue);
             }
@@ -229,7 +229,9 @@ public class Utility {
     }
 
     public SubClassif findHighestOrder(Numeric n1, Numeric n2){
-        if(n1.type == SubClassif.FLOAT || n2.type == SubClassif.FLOAT)
+        //if(n1.type == SubClassif.FLOAT || n2.type == SubClassif.FLOAT)
+        //    return SubClassif.FLOAT;
+        if(n1.type == SubClassif.FLOAT)
             return SubClassif.FLOAT;
         return SubClassif.INTEGER;
     }
