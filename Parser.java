@@ -96,10 +96,14 @@ public class Parser {
         }
         // Single Variable
         else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
+            //debug();
             if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-            } else if (scan.currentToken.subClassif == SubClassif.STRING){
+            } /*else if (scan.currentToken.subClassif == SubClassif.STRING){
                 res = new ResultValue(scan.currentToken.tokenStr, "String", scan.currentToken.subClassif);
+            }*/
+            else {
+                res = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
             }
             scan.getNext();
         }
@@ -120,7 +124,7 @@ public class Parser {
             ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
-            res = util.doMath(this, num1, num2, scan.nextToken.tokenStr);
+            res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
             showExpr(res);
 
         }
@@ -273,6 +277,7 @@ public class Parser {
                 result.value = Integer.toString(Integer.parseInt(result.value));
                 target.value = result.value;
             } else if (target.type == SubClassif.FLOAT){
+                print(result.value);
                 result.value = Float.toString(Float.parseFloat(result.value));
                 target.value = result.value;
             } else{
@@ -353,7 +358,7 @@ public class Parser {
         //Next token should be an open parenthesis
         if(!scan.currentToken.tokenStr.equals("(")){
             //TODO: Throw parser exception, open parenthesis was expected for print function
-            System.err.println("Open parenthesis expected in print function");
+            error("Open parenthesis expected after print function");
             return;
         }
         scan.getNext();
@@ -369,6 +374,7 @@ public class Parser {
             }
             if(scan.currentToken.tokenStr.equals(",")){
                 System.out.print(" ");
+                scan.getNext();
                 continue;
             }
             if(scan.currentToken.tokenStr.equals(")")){
