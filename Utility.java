@@ -86,7 +86,10 @@ public class Utility {
         if (operators.indexOf(operator) < 0) {
             throw new Exception("Unrecognizable operator: " + operator);
         }
-
+        
+        if (i == operators.length) {
+            throw new Exception("Unknown operator: " + operator);
+        }
         // cast n1's value to a num1 (float) regardless if its an int or float
         if (n1.type == SubClassif.INTEGER) {
             num1 = (float) n1.integerValue;
@@ -135,7 +138,7 @@ public class Utility {
         return rv;
     }
 
-    public ResultValue exponentiate(Numeric n1, Numeric n2) {
+    public ResultValue exponentiate(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
@@ -143,7 +146,7 @@ public class Utility {
         if(result.type == SubClassif.INTEGER)
             result.value = String.valueOf(Math.pow(n1.integerValue, n2.integerValue));
         else
-            result.value = String.valueOf(Math.pow(n1.floatValue / n2.floatValue));
+            result.value = String.valueOf(Math.pow(n1.floatValue, n2.floatValue));
 
         return result;
     }
