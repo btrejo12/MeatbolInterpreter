@@ -254,6 +254,21 @@ public class Parser {
 
         ResultValue target = storageMgr.getVariableValue(variableString);
 
+        if (target.type == result.type){
+            target.value = result.value;
+            storageMgr.updateVariable(variableString, target);
+        } else {
+            if(target.type == SubClassif.INTEGER){
+                result.value = Integer.toString(Integer.parseInt(result.value));
+                target.value = result.value;
+            } else if (target.type == SubClassif.FLOAT){
+                result.value = Float.toString(Float.parseFloat(result.value));
+                target.value = result.value;
+            } else{
+                error("Not sure why we're here");
+            }
+        }
+
         return res;
     }
 
