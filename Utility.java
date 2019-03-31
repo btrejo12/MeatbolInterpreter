@@ -63,7 +63,6 @@ public class Utility {
     public ResultValue multiply(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
-        System.out.println("num1: " +n1.strValue + ", num2: " + n2.strValue);
         result.type = findHighestOrder(n1,n2);
         // Cast to type integer
         if(result.type == SubClassif.INTEGER) {
@@ -221,9 +220,7 @@ public class Utility {
         result.type = findHighestOrder(n1,n2);
 
         if(result.type == SubClassif.INTEGER) {
-            System.out.print("Int!" + n1.integerValue + "^" + n2.integerValue);
             result.value = String.valueOf((int)(Math.pow(n1.integerValue, n2.integerValue)));
-            System.out.println("=" + result.value);
         } else {
             result.value = String.valueOf(Math.pow(n1.floatValue, n2.floatValue));
         }
