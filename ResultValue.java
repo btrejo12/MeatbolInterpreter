@@ -7,4 +7,10 @@ public class ResultValue {
     public String terminatingStr; // Terminating Statement (endwhile, endfor, etc)
 
     public ResultValue() {}
+
+    public ResultValue(String value, String structure, SubClassif type){
+        this.value = value;
+        this.structure = structure;
+        this.type = type;
+    }
 }
