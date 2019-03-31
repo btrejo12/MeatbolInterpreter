@@ -206,8 +206,9 @@ public class Parser {
         //TODO: Delete this later
         scan.currentToken.printToken();
 
+        //TODO: Delete next two lines. evalCond() will do this.
         // Move nextToken to currentToken so we can get rid of the initial "if"
-        scan.getNext();
+        //scan.getNext();
 
         // test the condition in the if statement and execute if the condition is correct
         boolean testIfCond = evalCond();
@@ -275,8 +276,40 @@ public class Parser {
      */
     private boolean evalCond() throws Exception{
 
-        //init cond
+        //init variables
+        ResultValue rv = null;
+        String endDelim = "";
         boolean cond = true;
+
+        if (scan.currentToken.tokenStr.equals("if")) {
+            endDelim = "endif";
+        } else if (scan.currentToken.tokenStr.equals("while")) {
+            endDelim = "endwhile";
+        } else {
+            error("Unknown flow control statement", scan.currentToken.tokenStr);
+        }
+
+        //move the nextToken to currentToken to make shift out the (if, while) statement
+        scan.getNext();
+
+        // get the ResultValue based on the ending delimiter.
+        rv = expr(endDelim);
+
+        // test to see if the condition is T or F based on the returned ResultValue
+        // first, make sure the ResultValue is indeed of type Boolean
+        if (rv.type != SubClassif.BOOLEAN) {
+            error("Invalid test. ReturnValue is not of type Boolean: " + rv.type);
+        }
+
+        if (rv.value.equals("T")) {
+            cond = true;
+        } else if (rv.value.equals("F")) {
+            cond = false;
+        } else {
+            error("Error in Utility.java. ResultValue is of type Boolean, but does not return " +
+                    "a Boolean value. Value: " + rv.value);
+        }
+
         return cond;
 
         /* TODO: Delete this later
