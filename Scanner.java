@@ -405,12 +405,14 @@ public class Scanner{
      *                     will be ignored and read to the first token when getNext
      *                     is called</p>
      */
-    public void setPosition(int lineNumber, int columnNumber){
+    public void setPosition(int lineNumber, int columnNumber) throws Exception{
         textCharM = sourceLineM.get(lineNumber-1).toCharArray();
         iSourceLineNr = lineNumber;
         iColPos = columnNumber;
         nextToken = new Token();
         currentToken = new Token();
+        getNext();
+        getNext();
     }
 
     /**
