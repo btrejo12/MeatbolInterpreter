@@ -149,7 +149,7 @@ public class Utility {
     public ResultValue compareNums(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception {
         String[] operators = {"==", "!=", "<", "<=", ">", ">="};
         ResultValue rv = new ResultValue();
-        boolean compare = true;
+        boolean compare;
 
         // using floats as placeholders
         float num1 = 0;

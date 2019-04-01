@@ -23,6 +23,8 @@ public class Numeric {
             this.integerValue = Integer.parseInt(this.strValue);
         } else if (res.type == SubClassif.FLOAT) {
             this.floatValue = Float.parseFloat(this.strValue);
+        } else if(res.type == SubClassif.STRING) {
+            return;
         } else {
             throw new Exception("Cannot recognize primitive type");
         }

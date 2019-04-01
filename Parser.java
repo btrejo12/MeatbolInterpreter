@@ -109,6 +109,14 @@ public class Parser {
         else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
             //print(scan.currentToken.tokenStr);
             String firstToken = scan.currentToken.tokenStr;
+            ResultValue res1;
+            ResultValue res2;
+
+            if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
+                res1 = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
+            else
+                res1 = storageMgr.getVariableValue(scan.currentToken.tokenStr);
+
             scan.getNext(); //moves to operator -, +, etc
             if(scan.nextToken.primClassif != Classif.OPERAND){
                 //print(scan.nextToken.tokenStr);
@@ -118,8 +126,13 @@ public class Parser {
             //print(firstToken);
             //print(scan.currentToken.tokenStr);
             //print(scan.nextToken.tokenStr);
-            ResultValue res1 = storageMgr.getVariableValue(firstToken);
-            ResultValue res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
+
+            //ResultValue res1 = storageMgr.getVariableValue(firstToken);
+            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER)
+                res2 = new ResultValue(scan.nextToken.tokenStr, "primitive", scan.nextToken.subClassif);
+            else
+                res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
+            //print("Res1: " + res1.value + ", Res2: " + res2.value);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
@@ -199,20 +212,27 @@ public class Parser {
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
     private void ifStmt(boolean bExec) throws Exception {
-        System.out.println("Inside If");
+        print("Inside If");
 
         //TODO: Delete this later
         scan.currentToken.printToken();
 
-        //TODO: Delete next two lines. evalCond() will do this.
-        // Move nextToken to currentToken so we can get rid of the initial "if"
-        //scan.getNext();
+        // Move off of the if
+        scan.getNext();
 
         // test the condition in the if statement and execute if the condition is correct
         boolean testIfCond = evalCond();
+        print("EvalCond: " + testIfCond);
 
-        /* TODO: Delete this later
-            if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
+        if(testIfCond)
+            executeStatements(true);
+        else
+            executeStatements(false);
+
+
+
+        // TODO: Delete this later
+           /* if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
                 scan.nextToken.printToken();
                 error("Invalid if Statement");
             } else
@@ -236,6 +256,8 @@ public class Parser {
                 return;
             }
             */
+        print("End if");
+        return;
     }
 
     /**
@@ -288,7 +310,10 @@ public class Parser {
      * @return The boolean value of whether this condition is true or false.
      */
     private boolean evalCond() throws Exception{
+        ResultValue result = expr(":");
+        return false;
 
+        /*
         //init variables
         ResultValue rv = null;
         String endDelim = "";
@@ -324,7 +349,7 @@ public class Parser {
         }
 
         return cond;
-
+        */
         /* TODO: Delete this later
         if(scan.currentToken.tokenStr.equals(":"))
             error("Invalid condition statement");
