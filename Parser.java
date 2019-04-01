@@ -10,7 +10,6 @@ public class Parser {
 
     private boolean bShowExpr = false;
     private boolean bShowAssign = false;
-    private boolean bShowStmt = false;
 
     public Parser(String filename, SymbolTable st){
         storageMgr = new StorageManager();
@@ -323,7 +322,6 @@ public class Parser {
                 result.value = Integer.toString(Integer.parseInt(result.value));
                 target.value = result.value;
             } else if (target.type == SubClassif.FLOAT){
-                print(result.value);
                 result.value = Float.toString(Float.parseFloat(result.value));
                 target.value = result.value;
             } else{
@@ -537,9 +535,9 @@ public class Parser {
             scan.getNext(); //sits on trigger
         }else if (scan.currentToken.tokenStr.equals("Stmt")){
             if (command.equals("on")){
-                bShowStmt = true;
+                scan.bPrintLines = true;
             } else if (command.equals("off")){
-                bShowStmt = false;
+                scan.bPrintLines = false;
             } else {
                 error("Unknown trigger for Stmt, should be 'on' or 'off'");
             }
@@ -560,9 +558,9 @@ public class Parser {
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }
-    public void showStmt(){
-        if (bShowStmt){ System.out.println(scan.iSourceLineNr);}
-    }
+    //public void showStmt(){
+    //    if (bShowStmt){ System.out.println(scan.iSourceLineNr, scan.sourceLineM.get(scan.iSourceLineNr-1));}
+   // /}
 
     //TODO: delete me cause im layz
     private void print(String printMe){
