@@ -218,18 +218,44 @@ public class Parser {
         //TODO: Delete this later
         scan.currentToken.printToken();
 
-
-        // test the condition in the if statement and execute if the condition is correct
-        boolean testIfCond = evalCond();
-        print("EvalCond: " + testIfCond);
-
-        if(testIfCond) {
-            ResultValue res = executeStatements(true);
-        } else {
-            executeStatements(false);
+        if(bExec) {
+            // test the condition in the if statement and execute if the condition is correct
+            boolean testIfCond = evalCond();
+            print("EvalCond: " + testIfCond);
+            print("After evalCond: " + scan.currentToken.tokenStr);
+            if (testIfCond) {
+                // Cond returned true, execute the statements below it
+                ResultValue res = executeStatements(true);
+                if (res.terminatingStr.equals("else")) {
+                    scan.getNext();
+                    if (!scan.currentToken.tokenStr.equals(":"))
+                        error("Expected ':' token after 'else");
+                    // Finish the else block but dont execute them
+                    res = executeStatements(false);
+                }
+                if (!res.terminatingStr.equals("endif")) {
+                    error("Expected 'endif' for an 'if'");
+                }
+                scan.getNext();
+                if (!scan.currentToken.tokenStr.equals(";"))
+                    error("Expected ';' after 'endif'");
+            } else {
+                // Condition returned false, execute else or find endif
+                ResultValue res = executeStatements(false);
+                if (res.terminatingStr.equals("else")) {
+                    scan.getNext();
+                    if (!scan.currentToken.tokenStr.equals(":"))
+                        error("Expected ':' after 'else'");
+                    res = executeStatements(true);
+                }
+                if (!res.terminatingStr.equals("endif"))
+                    error("Expected 'endif' after 'if'");
+            }
+        } else{
+            skipTo(':');
         }
-
-
+        print("End if");
+        return;
 
         // TODO: Delete this later
            /* if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
@@ -256,8 +282,6 @@ public class Parser {
                 return;
             }
             */
-        print("End if");
-        return;
     }
 
     /**
@@ -400,6 +424,7 @@ public class Parser {
      */
     private void skipTo(Character endingDelimiter){
         //TODO: Move the tokens over until you reach the endingDelimiter
+        //TODO: Change this to a string to make it easier to match a token?
     }
 
     /**
