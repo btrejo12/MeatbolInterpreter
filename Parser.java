@@ -73,7 +73,7 @@ public class Parser {
         scan.getNext();
 
         while (scan.currentToken.subClassif != SubClassif.END) {
-
+            debug();
             /****** We're checking for subClassifs ******/
 
             // Nested if/while
@@ -264,7 +264,7 @@ public class Parser {
             boolean testIfCond = evalCond();
             print("EvalCond: " + testIfCond);
             print("After evalCond: " + scan.currentToken.tokenStr);
-            scan.getNext();
+            scan.getNext();     // Move to the ':'
             print("After next before if work " + scan.currentToken.tokenStr);
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
@@ -294,8 +294,8 @@ public class Parser {
                 if (!res.terminatingStr.equals("endif"))
                     error("Expected 'endif' after 'if'");
             }
-        } else{
-            skipTo(";");
+        } else{     // Do not execute this ifStmt, but traverse through the statements
+            skipTo(":");
             ResultValue res = executeStatements(false);
             if(res.terminatingStr.equals("else")){
                 scan.getNext(); // go to ':'
@@ -345,6 +345,7 @@ public class Parser {
         System.out.println("Inside While");
         ResultValue rv;
         while(bExec && evalCond()){
+            scan.getNext();         // Moves us to the ':'
             rv = executeStatements(bExec);
             if(!rv.terminatingStr.equals("endwhile"))
                 error("Expected endwhile after while");
@@ -479,8 +480,10 @@ public class Parser {
      * which is ';' for assignmentStatement and ':' for control statements.
      * @param endingDelimiter
      */
-    private void skipTo(String endingDelimiter){
+    private void skipTo(String endingDelimiter) throws Exception{
         //TODO: Move the tokens over until you reach the endingDelimiter
+        while(!scan.currentToken.tokenStr.equals(endingDelimiter))
+            scan.getNext();
     }
 
     /**
