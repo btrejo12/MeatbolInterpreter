@@ -146,6 +146,28 @@ public class Utility {
         return res;
     }
 
+    public ResultValue compareStrings(Numeric s1, Numeric s2, String operator) throws Exception {
+        boolean isTrue = true;
+        ResultValue res = new ResultValue();
+
+        if (operator.equals("==")) {
+            isTrue = s1.value.equals(s2.value);
+        } else if (operator.equals("!=")) {
+            isTrue = !s1.value.equals(s2.value);
+        } else {
+            throw new Exception("Error: Invalid operator on variables of type String: " + operator);
+        }
+
+        res.type = SubClassif.BOOLEAN;
+        if (isTrue) {
+            res.value = "T";
+        } else {
+            res.value = "F";
+        }
+        res.structure = "primitive";
+        return res;
+    }
+
     public ResultValue compareNums(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception {
         String[] operators = {"==", "!=", "<", "<=", ">", ">="};
         ResultValue rv = new ResultValue();
@@ -165,6 +187,11 @@ public class Utility {
 
         if (i == operators.length) {
             throw new Exception("Unknown operator: " + operator);
+        }
+
+        // if it is a String comparison, call compareStrings();
+        if (n1.type == SubClassif.STRING && n2.type == SubClassif.STRING) {
+            return compareStrings(n1, n2, operator);
         }
         // cast n1's value to a num1 (float) regardless if its an int or float
         if (n1.type == SubClassif.INTEGER) {
@@ -215,6 +242,7 @@ public class Utility {
     }
 
     public ResultValue exponentiate(Parser parser, Numeric n1, Numeric n2) {
+
         ResultValue result = new ResultValue();
         result.structure = "primitive";
         result.type = findHighestOrder(n1,n2);
