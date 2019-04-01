@@ -91,7 +91,9 @@ public class Scanner{
 
         // Trigger determines if we've reached EOF
         if (trigger) {
+            //System.out.println("Current Token: " + this.currentToken.tokenStr);
             skipEmptyLines();
+
             for (int i = 0; i <= textCharM.length; i++) {
                 int index = iColPos + i;
 
