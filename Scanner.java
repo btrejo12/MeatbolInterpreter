@@ -255,6 +255,13 @@ public class Scanner{
                 }
                 index++;
             }
+            if(index < variableArr.length) {
+                char[] newArr = new char[index];
+                for(int i=0;i<index;i++){
+                    newArr[i] = escapedArr[i];
+                }
+                return String.valueOf(newArr);
+            }
         return String.valueOf(escapedArr);
 
     }
