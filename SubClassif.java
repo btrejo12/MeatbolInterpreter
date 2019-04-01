@@ -16,5 +16,7 @@ public enum SubClassif
     DECLARE,    // declare statement (e.g., Int)
     // FUNCTION's subclassfications
     BUILTIN,    // builtin function (e.g., print)
-    USER        // user-defined function
+    USER,        // user-defined function
+    // DEBUGS' subclassification
+    DEBUGTYPE
 }
