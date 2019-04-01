@@ -326,16 +326,26 @@ public class Parser {
 
         System.out.println("Inside While on line " + scan.currentToken.iSourceLineNr);
         ResultValue rv;
-        while(bExec && evalCond()){
-            scan.getNext();         // Moves us to the ':'
-            rv = executeStatements(bExec);
-            if(!rv.terminatingStr.equals("endwhile"))
-                error("Expected endwhile after while");
-            scan.setPosition(lineNum,colPos);
+        if(bExec) {
+            while (evalCond()) {
+                scan.getNext();         // Moves us to the ':'
+                rv = executeStatements(bExec);
+                if (!rv.terminatingStr.equals("endwhile"))
+                    error("Expected endwhile after while");
+                scan.setPosition(lineNum, colPos);
+            }
+            print("Exiting while loop on line " + scan.currentToken.iSourceLineNr + ". Current is on " + scan.currentToken.tokenStr);
+            scan.getNext();         // Move to the ':' after the while condition
+            rv = executeStatements(false);
+        } else {
+            skipTo(":");
+            rv = executeStatements(false);
         }
-        print("Exiting while loop on line " + scan.currentToken.iSourceLineNr + ". Current is on " + scan.currentToken.tokenStr);
-        scan.getNext();         // Move to the ':' after the while condition
-        rv = executeStatements(false);
+        if(!rv.terminatingStr.equals("endwhile"))
+            error("Expected 'endwhile' after while loop");
+        scan.getNext();
+        if(!scan.currentToken.tokenStr.equals(";"))
+            error("Expected ';' after 'endwhile'");
     }
 
     /**
