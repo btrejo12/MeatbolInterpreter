@@ -73,7 +73,6 @@ public class Parser {
         scan.getNext();
 
         while (scan.currentToken.subClassif != SubClassif.END) {
-            debug();
             /****** We're checking for subClassifs ******/
 
             // Nested if/while
@@ -100,7 +99,7 @@ public class Parser {
             } else if (scan.currentToken.primClassif == Classif.DEBUG) {
                 handleDebug();
             } else {
-                //error("There's an issue with the currentToken, Clarence you b****." + scan.currentToken.tokenStr);
+                //error("There's an issue with the currentToken, Clarence why." + scan.currentToken.tokenStr);
             }
 
             // shift
@@ -108,7 +107,6 @@ public class Parser {
         }
 
         // lets see what the end flow statement is lmaooo
-        scan.currentToken.printToken();
         res.terminatingStr = scan.currentToken.tokenStr;
         res.type = SubClassif.END;
         res.structure = "";
@@ -118,7 +116,7 @@ public class Parser {
     private ResultValue expr(String endingDelimiter) throws Exception{
         //print("Hello from expr " + scan.currentToken.tokenStr);
         ResultValue res = new ResultValue();
-
+        String expr = "... ";
         /**
          * Expression Cases:
          *      Unary minus (-A)
@@ -126,7 +124,7 @@ public class Parser {
          *      Simple expression (A + B)
          *      Conditional?
          */
-        // Unary minues
+        // Unary minus
         if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
             if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
@@ -135,13 +133,9 @@ public class Parser {
         }
         // Single Variable
         else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
-            //debug();
-            //print("UHM");
             if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-            } /*else if (scan.currentToken.subClassif == SubClassif.STRING){
-                res = new ResultValue(scan.currentToken.tokenStr, "String", scan.currentToken.subClassif);
-            }*/
+            }
             else {
                 res = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
             }
@@ -165,11 +159,7 @@ public class Parser {
                 scan.nextToken.printToken();
                 error("Expected second argument to be of type operand");
             }
-            //print(firstToken);
-            //print(scan.currentToken.tokenStr);
-            //print(scan.nextToken.tokenStr);
 
-            //ResultValue res1 = storageMgr.getVariableValue(firstToken);
             if(scan.nextToken.subClassif != SubClassif.IDENTIFIER)
                 res2 = new ResultValue(scan.nextToken.tokenStr, "primitive", scan.nextToken.subClassif);
             else
@@ -178,12 +168,12 @@ public class Parser {
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
+            expr = expr+res1.value+" "+scan.currentToken.tokenStr+" "+res2.value;
             scan.getNext();
-            showExpr("...",res);
+            showExpr(expr,res);
         }
         // Who knows
         else {
-            debug();
             error("Cannot recognize expression statement. Current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
         }
         return res;
@@ -240,7 +230,6 @@ public class Parser {
                 res = assign(targetVariable, util.add(this, num1, num2));
                 break;
             default:
-                print(scan.currentToken.tokenStr);
 
                 error("Expected an assignment operator token after variable");
         }
@@ -254,18 +243,12 @@ public class Parser {
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
     private void ifStmt(boolean bExec) throws Exception {
-        print("Inside If on line " + scan.currentToken.iSourceLineNr);
 
-        //TODO: Delete this later
-        scan.currentToken.printToken();
 
         if(bExec) {
             // test the condition in the if statement and execute if the condition is correct
             boolean testIfCond = evalCond();
-            print("EvalCond: " + testIfCond);
-            print("After evalCond: " + scan.currentToken.tokenStr);
             scan.getNext();     // Move to the ':'
-            print("After next before if work " + scan.currentToken.tokenStr);
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(true);
@@ -277,7 +260,6 @@ public class Parser {
                         error("Expected ':' token after 'else");
 
                     // Finish the else block but dont execute them
-                    print("On 'else' on line " + scan.currentToken.iSourceLineNr + ". Not executing");
                     res = executeStatements(false);
                 }
 
@@ -311,7 +293,6 @@ public class Parser {
             if(!res.terminatingStr.equals("endif"))
                 error("Expected 'endif' after 'if'");
         }
-        print("End if on line " + scan.currentToken.iSourceLineNr);
         return;
     }
 
@@ -324,7 +305,6 @@ public class Parser {
         colPos = scan.currentToken.iColPos;
         lineNum = scan.currentToken.iSourceLineNr;
 
-        System.out.println("Inside While on line " + scan.currentToken.iSourceLineNr);
         ResultValue rv;
         if(bExec) {
             while (evalCond()) {
@@ -334,7 +314,6 @@ public class Parser {
                     error("Expected endwhile after while");
                 scan.setPosition(lineNum, colPos);
             }
-            print("Exiting while loop on line " + scan.currentToken.iSourceLineNr + ". Current is on " + scan.currentToken.tokenStr);
             scan.getNext();         // Move to the ':' after the while condition
             rv = executeStatements(false);
         } else {
@@ -385,10 +364,8 @@ public class Parser {
     private boolean evalCond() throws Exception{
         // Move off the if or while
         scan.getNext();
-        print("Entering evalCond, current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
         ResultValue result = expr(":");
 
-        print("evalCond result: " + result.value);
         if(result.value.equals("T"))
             return true;
         else
@@ -433,17 +410,12 @@ public class Parser {
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 ResultValue variableEval = expr(",)"); //only evaluate this expression
                 System.out.print(variableEval.value);
-                //debug();
-                //print(scan.nextToken.tokenStr);
-                //scan.getNext();
                 if(scan.currentToken.primClassif != Classif.SEPARATOR){
                     scan.getNext();
                 }
             } else {
                 ResultValue variable = expr(",)");
                 System.out.print(variable.value);
-                //debug();
-                //print(scan.nextToken.tokenStr);
                 scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){
@@ -520,21 +492,12 @@ public class Parser {
     }
 
     public void showExpr(String expr, ResultValue result){
-        if (bShowExpr){ System.out.print(expr+ "is" + result.value);}
+        if (bShowExpr){ System.out.println(expr+ " is " + result.value);}
     }
 
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }
 
-    //TODO: delete me cause im layz
-    private void print(String printMe){
-        System.out.println(printMe);
-    }
-
-    //TODO: delete me cause im layz
-    private void debug(){
-        System.out.println("Current: " + scan.currentToken.tokenStr);
-    }
 
 }

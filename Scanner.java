@@ -97,7 +97,7 @@ public class Scanner{
             for (int i = 0; i <= textCharM.length; i++) {
                 int index = iColPos + i;
 
-                if(index >= textCharM.length){
+                if (index >= textCharM.length) {
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                     attemptNewSymbolSave(variableName);
                     //System.out.println(variableName);
@@ -117,24 +117,30 @@ public class Scanner{
                         if (currentChar == ' ') {
                             try {
                                 incrementColumnPosition(i);
-                            }catch(ParserException pe) {
+                            } catch (ParserException pe) {
                                 return currentToken.tokenStr;
                             }
                             i = i - 1;
                             continue;
                         } //This character and the next are the start of a comment, go to the next line
-                        else if (currentChar == '/' && textCharM.length > index && textCharM[index+1] == '/'){
+                        else if (currentChar == '/' && textCharM.length > index && textCharM[index + 1] == '/') {
                             incrementColumnPosition(textCharM.length);
-                            i=-1;
+                            i = -1;
                             continue;
                         }//This is a operator token, assign it and update iCol
                         else if (operators.indexOf(currentChar) >= 0) {
-	                        checkOperator(index);
-	                         break;
+                            checkOperator(index);
+                            break;
                         } //This is a separator token, assign it and update iCol
                         else if (separators.indexOf(currentChar) >= 0) {
                             assignNextToken(Character.toString(currentChar), Classif.SEPARATOR, SubClassif.EMPTY);
-                            incrementColumnPosition(i);
+                            try {
+                                incrementColumnPosition(i);
+                            } catch (Exception e) {
+                                nextToken.tokenStr = "";
+                                assignNextToken("", Classif.EOF, SubClassif.EMPTY);
+                                return currentToken.tokenStr;
+                            }
                             break;
                         } //We found string literals, evaluate them.
                         else if (currentChar == '\"') {
@@ -171,8 +177,6 @@ public class Scanner{
                 }
             }
         }
-        if(!trigger)
-            System.out.println("Trigger");
         return currentToken.tokenStr;
     }
 
@@ -335,7 +339,7 @@ public class Scanner{
      *<p>SetNextToEmpty is used when we have reached EOF</p>
      */
     private void setNextToEmpty(){
-        System.out.println("********TRIGGER**********");
+        //System.out.println("********TRIGGER**********");
         trigger = false;
         nextToken.tokenStr = "";
         nextToken.primClassif = Classif.EOF;
