@@ -119,7 +119,7 @@ public class Scanner{
                         } //This character and the next are the start of a comment, go to the next line
                         else if (currentChar == '/' && textCharM.length > index && textCharM[index+1] == '/'){
                             incrementColumnPosition(textCharM.length);
-                            i=0;
+                            i=-1;
                             continue;
                         }//This is a operator token, assign it and update iCol
                         else if (operators.indexOf(currentChar) >= 0) {
