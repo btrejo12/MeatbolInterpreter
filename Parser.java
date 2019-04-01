@@ -46,7 +46,7 @@ public class Parser {
                         scan.nextToken.printToken();
                     }
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
-                        handleFunction();
+                        handleFunction(true);
                 } else if (scan.currentToken.primClassif == Classif.DEBUG){
                         handleDebug();
                 }
@@ -96,7 +96,7 @@ public class Parser {
                 }
             } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
                 // The only function that should work is print
-                handleFunction();
+                handleFunction(bExec);
             } else if (scan.currentToken.primClassif == Classif.DEBUG) {
                 handleDebug();
             } else {
@@ -199,7 +199,7 @@ public class Parser {
         //print("In assignmentStmt");
         ResultValue res = new ResultValue();
         if(!bExec){
-            skipTo(';');
+            skipTo(";");
             return res;
         }
         if(scan.currentToken.subClassif != SubClassif.IDENTIFIER){
@@ -295,7 +295,7 @@ public class Parser {
                     error("Expected 'endif' after 'if'");
             }
         } else{
-            skipTo(':');
+            skipTo(";");
             ResultValue res = executeStatements(false);
             if(res.terminatingStr.equals("else")){
                 scan.getNext(); // go to ':'
@@ -337,12 +337,21 @@ public class Parser {
      * This method is a little more tricky in that it should use Scanner's setPosition to figure out where to loop back to.
      * @param bExec
      */
-    private void whileStmt(Boolean bExec){
+    private void whileStmt(Boolean bExec) throws Exception{
         int colPos, lineNum;
-        colPos = scan.iColPos;
-        lineNum = scan.iSourceLineNr;
+        colPos = scan.currentToken.iColPos;
+        lineNum = scan.currentToken.iSourceLineNr;
 
         System.out.println("Inside While");
+        ResultValue rv;
+        while(bExec && evalCond()){
+            rv = executeStatements(bExec);
+            if(!rv.terminatingStr.equals("endwhile"))
+                error("Expected endwhile after while");
+            scan.setPosition(lineNum,colPos);
+        }
+        rv = executeStatements(false);
+
 
         //scan.setPosition(lineNum,colPos);
     }
@@ -470,18 +479,20 @@ public class Parser {
      * which is ';' for assignmentStatement and ':' for control statements.
      * @param endingDelimiter
      */
-    private void skipTo(Character endingDelimiter){
+    private void skipTo(String endingDelimiter){
         //TODO: Move the tokens over until you reach the endingDelimiter
-        //TODO: Change this to a string to make it easier to match a token?
     }
 
     /**
      * When Scanner returns a built in function or user-defined function, it should be handled here.
      */
-    private void handleFunction() throws Exception{
-        if(scan.currentToken.tokenStr.equals("print")){
-            printFunction();
-        }
+    private void handleFunction(boolean bExec) throws Exception{
+        if(bExec) {
+            if (scan.currentToken.tokenStr.equals("print")) {
+                printFunction();
+            }
+        } else
+            skipTo(";");
     }
 
     private void printFunction() throws Exception{
