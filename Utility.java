@@ -151,9 +151,9 @@ public class Utility {
         ResultValue res = new ResultValue();
 
         if (operator.equals("==")) {
-            isTrue = s1.value.equals(s2.value);
+            isTrue = s1.strValue.equals(s2.strValue);
         } else if (operator.equals("!=")) {
-            isTrue = !s1.value.equals(s2.value);
+            isTrue = !s1.strValue.equals(s2.strValue);
         } else {
             throw new Exception("Error: Invalid operator on variables of type String: " + operator);
         }
