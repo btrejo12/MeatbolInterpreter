@@ -63,13 +63,55 @@ public class Parser {
      * @param bExec the trigger to determine whether the nested block needs to be run based on the condition.
      * @return The ResultValue of...something
      */
-    private ResultValue executeStatements(Boolean bExec){
+    private ResultValue executeStatements(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
 
-        if(bExec){
+        if (!scan.currentToken.tokenStr.equals(":"))
+            error("Expected a ':' currentToken value is " + scan.currentToken.tokenStr);
 
+        // shift so the currentToken is the first token after the :
+        scan.getNext();
+
+        while (scan.currentToken.subClassif != SubClassif.END) {
+
+            /****** We're checking for subClassifs ******/
+
+            // Nested if/while
+            if (scan.currentToken.subClassif == SubClassif.FLOW) {
+                if (scan.currentToken.tokenStr.equals("if")) {
+                    ifStmt(bExec);
+                } else if (scan.currentToken.tokenStr.equals("while")) {
+                    whileStmt(bExec);
+                } else {
+                    error("Brenda wtf is wrong with you there's only 2 flows:" + scan.currentToken.tokenStr);
+                }
+            } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                // This is just declaring a variable
+                if (scan.nextToken.primClassif == Classif.SEPARATOR) {
+                    continue;
+                } else if (scan.nextToken.primClassif == Classif.OPERATOR) { // assigning a variable to a value
+                    assignmentStmt(bExec);
+                } else {
+                    error("");
+                }
+            } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
+                // The only function that should work is print
+                handleFunction();
+            } else if (scan.currentToken.primClassif == Classif.DEBUG) {
+                handleDebug();
+            } else {
+                //error("There's an issue with the currentToken, Clarence you b****." + scan.currentToken.tokenStr);
+            }
+
+            // shift
+            scan.getNext();
         }
 
+        // lets see what the end flow statement is lmaooo
+        scan.currentToken.printToken();
+        res.terminatingStr = scan.currentToken.tokenStr;
+        res.type = SubClassif.END;
+        res.structure = "";
         return res;
     }
 
