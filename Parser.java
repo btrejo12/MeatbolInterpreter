@@ -223,6 +223,8 @@ public class Parser {
             boolean testIfCond = evalCond();
             print("EvalCond: " + testIfCond);
             print("After evalCond: " + scan.currentToken.tokenStr);
+            scan.getNext();
+            print("After next before if work " + scan.currentToken.tokenStr);
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(true);
@@ -253,6 +255,12 @@ public class Parser {
             }
         } else{
             skipTo(':');
+            ResultValue res = executeStatements(false);
+            if(res.terminatingStr.equals("else")){
+                scan.getNext(); // go to ':'
+                if(!scan.currentToken.tokenStr.equals(":"))
+                    error("Expected ':' after 'else");
+            }
         }
         print("End if");
         return;
