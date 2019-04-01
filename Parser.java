@@ -184,7 +184,7 @@ public class Parser {
         // Who knows
         else {
             debug();
-            error("Brenda you dumb hoe you shouldn't be here");
+            error("Cannot recognize expression statement. Current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
         }
         return res;
     }
@@ -254,7 +254,7 @@ public class Parser {
      * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
      */
     private void ifStmt(boolean bExec) throws Exception {
-        print("Inside If");
+        print("Inside If on line " + scan.currentToken.iSourceLineNr);
 
         //TODO: Delete this later
         scan.currentToken.printToken();
@@ -269,13 +269,18 @@ public class Parser {
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(true);
+
+                // Once the 'if' returns, we should either be on an else or an endif;
                 if (res.terminatingStr.equals("else")) {
-                    scan.getNext();
+                    scan.getNext();     // Move to the ':'
                     if (!scan.currentToken.tokenStr.equals(":"))
                         error("Expected ':' token after 'else");
+
                     // Finish the else block but dont execute them
+                    print("On 'else' on line " + scan.currentToken.iSourceLineNr + ". Not executing");
                     res = executeStatements(false);
                 }
+
                 if (!res.terminatingStr.equals("endif")) {
                     error("Expected 'endif' for an 'if'");
                 }
@@ -301,36 +306,13 @@ public class Parser {
                 scan.getNext(); // go to ':'
                 if(!scan.currentToken.tokenStr.equals(":"))
                     error("Expected ':' after 'else");
+                res = executeStatements(false);
             }
+            if(!res.terminatingStr.equals("endif"))
+                error("Expected 'endif' after 'if'");
         }
-        print("End if");
+        print("End if on line " + scan.currentToken.iSourceLineNr);
         return;
-
-        // TODO: Delete this later
-           /* if(scan.nextToken.subClassif != SubClassif.BOOLEAN) {
-                scan.nextToken.printToken();
-                error("Invalid if Statement");
-            } else
-                scan.nextToken.printToken();
-            if(!evalCond()) {
-                System.out.print("eval was false. ");
-                while (!scan.nextToken.tokenStr.equals("endif")) {
-                    if (scan.getNext() == "")
-                        error("Reached end of file");
-                    if(scan.currentToken.tokenStr.equals("else")) {
-                        System.out.println("Found an else");
-                        scan.getNext();
-                        return;
-                    }
-                }
-            } else {
-                System.out.println("eval was true");
-                //Return from function after finding end of line
-                //while (!scan.nextToken.tokenStr.equals(":"))
-                //    scan.getNext();
-                return;
-            }
-            */
     }
 
     /**
@@ -342,7 +324,7 @@ public class Parser {
         colPos = scan.currentToken.iColPos;
         lineNum = scan.currentToken.iSourceLineNr;
 
-        System.out.println("Inside While");
+        System.out.println("Inside While on line " + scan.currentToken.iSourceLineNr);
         ResultValue rv;
         while(bExec && evalCond()){
             scan.getNext();         // Moves us to the ':'
@@ -351,10 +333,9 @@ public class Parser {
                 error("Expected endwhile after while");
             scan.setPosition(lineNum,colPos);
         }
+        print("Exiting while loop on line " + scan.currentToken.iSourceLineNr + ". Current is on " + scan.currentToken.tokenStr);
+        scan.getNext();         // Move to the ':' after the while condition
         rv = executeStatements(false);
-
-
-        //scan.setPosition(lineNum,colPos);
     }
 
     /**
@@ -394,6 +375,7 @@ public class Parser {
     private boolean evalCond() throws Exception{
         // Move off the if or while
         scan.getNext();
+        print("Entering evalCond, current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
         ResultValue result = expr(":");
 
         print("evalCond result: " + result.value);
@@ -401,78 +383,6 @@ public class Parser {
             return true;
         else
             return false;
-
-        /*
-        //init variables
-        ResultValue rv = null;
-        String endDelim = "";
-        boolean cond = true;
-
-        if (scan.currentToken.tokenStr.equals("if")) {
-            endDelim = "endif";
-        } else if (scan.currentToken.tokenStr.equals("while")) {
-            endDelim = "endwhile";
-        } else {
-            error("Unknown flow control statement", scan.currentToken.tokenStr);
-        }
-
-        //move the nextToken to currentToken to make shift out the (if, while) statement
-        scan.getNext();
-
-        // get the ResultValue based on the ending delimiter.
-        rv = expr(endDelim);
-
-        // test to see if the condition is T or F based on the returned ResultValue
-        // first, make sure the ResultValue is indeed of type Boolean
-        if (rv.type != SubClassif.BOOLEAN) {
-            error("Invalid test. ReturnValue is not of type Boolean: " + rv.type);
-        }
-
-        if (rv.value.equals("T")) {
-            cond = true;
-        } else if (rv.value.equals("F")) {
-            cond = false;
-        } else {
-            error("Error in Utility.java. ResultValue is of type Boolean, but does not return " +
-                    "a Boolean value. Value: " + rv.value);
-        }
-
-        return cond;
-        */
-        /* TODO: Delete this later
-        if(scan.currentToken.tokenStr.equals(":"))
-            error("Invalid condition statement");
-        if(scan.currentToken.tokenStr.equals("!")) {
-            scan.getNext();
-            Boolean b = evalCond();
-            b = !b;
-            return b;
-        } else if(scan.currentToken.tokenStr.equals("F"))
-            return false;
-        else if(scan.currentToken.tokenStr.equals("T"))
-            return true;
-        else if(scan.currentToken.subClassif == meatbol.SubClassif.IDENTIFIER){
-            meatbol.STEntry stEntry = st.getSymbol(scan.currentToken.tokenStr);
-            ResultValue rv = storageMgr.getVariableValue(stEntry.symbol);
-            if(rv.type == meatbol.SubClassif.BOOLEAN){
-                if(rv.value.equals("T"))
-                    return true;
-                else return false;
-            }
-        }
-        else if(scan.currentToken.subClassif == meatbol.SubClassif.INTEGER) {
-            //Check for mathematical comparison
-            if(scan.nextToken.tokenStr.equals("<")){
-                meatbol.Token token = new meatbol.Token();
-                token.tokenStr = scan.currentToken.tokenStr;
-                scan.getNext();
-            }
-            //
-            if (Integer.parseInt(scan.currentToken.tokenStr) != 0)
-                return true;
-        }
-        return false;
-        */
     }
 
     /**
@@ -481,7 +391,6 @@ public class Parser {
      * @param endingDelimiter
      */
     private void skipTo(String endingDelimiter) throws Exception{
-        //TODO: Move the tokens over until you reach the endingDelimiter
         while(!scan.currentToken.tokenStr.equals(endingDelimiter))
             scan.getNext();
     }
@@ -502,7 +411,6 @@ public class Parser {
         scan.getNext();
         //Next token should be an open parenthesis
         if(!scan.currentToken.tokenStr.equals("(")){
-            //TODO: Throw parser exception, open parenthesis was expected for print function
             error("Open parenthesis expected after print function");
             return;
         }
@@ -538,12 +446,6 @@ public class Parser {
                 scan.getNext();
                 break;
             }
-            /*
-            if (scan.currentToken.tokenStr.equals(";")){
-
-                error("Never received ending ')' in print statement");
-                return;
-            }*/
         }
     }
 
@@ -614,9 +516,6 @@ public class Parser {
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }
-    //public void showStmt(){
-    //    if (bShowStmt){ System.out.println(scan.iSourceLineNr, scan.sourceLineM.get(scan.iSourceLineNr-1));}
-   // /}
 
     //TODO: delete me cause im layz
     private void print(String printMe){
