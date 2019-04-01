@@ -12,7 +12,6 @@ public class Parser {
     private boolean bShowAssign = true;
 
     public Parser(String filename, SymbolTable st){
-        System.out.println("Parser entry");
         storageMgr = new StorageManager();
         util = new Utility();
         this.st = st;
@@ -34,7 +33,7 @@ public class Parser {
                     } else if (scan.currentToken.tokenStr.equals("while")){
                         whileStmt(true);
                     }
-                    scan.currentToken.printToken(); //for debugging
+                    //scan.currentToken.printToken(); //for debugging
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
@@ -85,12 +84,11 @@ public class Parser {
          *      Simple expression (A + B)
          *      Conditional?
          */
-
         // Unary minues
         if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
             if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
-            res = storageMgr.getUnaryVariableValue(scan.currentToken.tokenStr);
+            res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
             scan.getNext();
         }
         // Single Variable
@@ -125,6 +123,7 @@ public class Parser {
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
+            scan.getNext();
             showExpr(res);
         }
         // Who knows
@@ -397,7 +396,18 @@ public class Parser {
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 ResultValue variableEval = expr(",)"); //only evaluate this expression
                 System.out.print(variableEval.value);
+                //debug();
+                //print(scan.nextToken.tokenStr);
                 //scan.getNext();
+                if(scan.currentToken.primClassif != Classif.SEPARATOR){
+                    scan.getNext();
+                }
+            } else {
+                ResultValue variable = expr(",)");
+                System.out.print(variable.value);
+                //debug();
+                //print(scan.nextToken.tokenStr);
+                scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){
                 System.out.print(" ");
