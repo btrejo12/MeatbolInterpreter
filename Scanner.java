@@ -113,7 +113,11 @@ public class Scanner{
 
                         //Skip blank space
                         if (currentChar == ' ') {
-                            incrementColumnPosition(i);
+                            try {
+                                incrementColumnPosition(i);
+                            }catch(ParserException pe) {
+                                return currentToken.tokenStr;
+                            }
                             i = i - 1;
                             continue;
                         } //This character and the next are the start of a comment, go to the next line
@@ -165,6 +169,8 @@ public class Scanner{
                 }
             }
         }
+        if(!trigger)
+            System.out.println("Trigger");
         return currentToken.tokenStr;
     }
 
@@ -270,7 +276,7 @@ public class Scanner{
      *<p>IncrementColumnPosition updates the iColPos whenever we are moving between tokens.</p>
      * @param relativeIndex is the relative index within the for loop which must be added to iColPos
      */
-    private void incrementColumnPosition(int relativeIndex){
+    private void incrementColumnPosition(int relativeIndex) throws ParserException{
         iColPos += (relativeIndex+1);
         //System.out.print(" ColPos: " + iColPos);
         if(iColPos >= textCharM.length){
@@ -283,6 +289,7 @@ public class Scanner{
                 printNextLine();
             } else {
                 setNextToEmpty();
+                throw new ParserException(iSourceLineNr,"End of File",sourceFileNm);
             }
 
         }
