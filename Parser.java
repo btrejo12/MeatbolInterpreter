@@ -9,7 +9,8 @@ public class Parser {
     private Utility util;
 
     private boolean bShowExpr = false;
-    private boolean bShowAssign = true;
+    private boolean bShowAssign = false;
+    private boolean bShowStmt = false;
 
     public Parser(String filename, SymbolTable st){
         storageMgr = new StorageManager();
@@ -137,7 +138,7 @@ public class Parser {
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
             scan.getNext();
-            showExpr(res);
+            showExpr("...",res);
         }
         // Who knows
         else {
@@ -467,7 +468,6 @@ public class Parser {
     public void handleDebug() throws Exception{
         //current token is on debug
         scan.getNext();
-
         String command = scan.nextToken.tokenStr;
         if (scan.currentToken.tokenStr.equals("Expr")){
             if(command.equals("on")){
@@ -487,30 +487,42 @@ public class Parser {
                 error("Unknown trigger for Token, should be 'on' or 'off'");
             }
             scan.getNext(); //sits on trigger
-        } else if (scan.currentToken.tokenStr.equals("Assign")){
-            if (command.equals("on")){
+        } else if (scan.currentToken.tokenStr.equals("Assign")) {
+            if (command.equals("on")) {
                 bShowAssign = true;
-            } else if (command.equals("off")){
+            } else if (command.equals("off")) {
                 bShowAssign = false;
             } else {
-                error("Unknown trigger for Token, should be 'on' or 'off'");
+                error("Unknown trigger for Assign, should be 'on' or 'off'");
+            }
+            scan.getNext(); //sits on trigger
+        }else if (scan.currentToken.tokenStr.equals("Stmt")){
+            if (command.equals("on")){
+                bShowStmt = true;
+            } else if (command.equals("off")){
+                bShowStmt = false;
+            } else {
+                error("Unknown trigger for Stmt, should be 'on' or 'off'");
             }
             scan.getNext(); //sits on trigger
         } else {
             error("Unknown Debug Command");
         }
-        if(scan.nextToken.tokenStr.equals(";")){
+        if(!scan.nextToken.tokenStr.equals(";")){
             error("Expected semicolon after debugging assignment");
         }
         scan.getNext(); //sits on ';'
     }
 
-    public void showExpr(ResultValue result){
-        if (bShowExpr){ System.out.print("\t\t..." + result.value);}
+    public void showExpr(String expr, ResultValue result){
+        if (bShowExpr){ System.out.print(expr+ "is" + result.value);}
     }
 
     public void showAssign(String variable, ResultValue result){
-        if (bShowAssign){ System.out.println("\t\t..." +variable + " = " + result.value);}
+        if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
+    }
+    public void showStmt(){
+        if (bShowStmt){ System.out.println(scan.iSourceLineNr);}
     }
 
     //TODO: delete me cause im layz

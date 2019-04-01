@@ -434,7 +434,12 @@ public class Scanner{
 
         //Variable doesn't exist in SymbolTable
         if (sEntry == null){
-            if (currentToken.subClassif != SubClassif.DECLARE){
+            if(currentToken.primClassif == Classif.DEBUG){
+                if(varName.equals("on") || varName.equals("off")){
+                    primary = Classif.DEBUG;
+                    secondary = SubClassif.EMPTY;
+                }
+            } else if (currentToken.subClassif != SubClassif.DECLARE){
                 throw new Exception("Variable '" + varName + "' has not been initialized.");
             } else {
                 // add symbol to the symbol table
