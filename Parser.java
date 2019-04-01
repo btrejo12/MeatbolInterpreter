@@ -217,17 +217,16 @@ public class Parser {
         //TODO: Delete this later
         scan.currentToken.printToken();
 
-        // Move off of the if
-        scan.getNext();
 
         // test the condition in the if statement and execute if the condition is correct
         boolean testIfCond = evalCond();
         print("EvalCond: " + testIfCond);
 
-        if(testIfCond)
-            executeStatements(true);
-        else
+        if(testIfCond) {
+            ResultValue res = executeStatements(true);
+        } else {
             executeStatements(false);
+        }
 
 
 
@@ -310,8 +309,15 @@ public class Parser {
      * @return The boolean value of whether this condition is true or false.
      */
     private boolean evalCond() throws Exception{
+        // Move off the if or while
+        scan.getNext();
         ResultValue result = expr(":");
-        return false;
+
+        print("evalCond result: " + result.value);
+        if(result.value.equals("T"))
+            return true;
+        else
+            return false;
 
         /*
         //init variables
