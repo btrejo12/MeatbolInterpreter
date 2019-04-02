@@ -441,14 +441,13 @@ public class Scanner{
     }
 
     /**
-     * Attempts to save a new symbol into the Scanner's current SymbolTable. Will throw errors
+     * <p>Attempts to save a new symbol into the Scanner's current SymbolTable. Will throw errors
      * if the symbol has already been instantiated, or if there are additional errors with the
-     * symbol being saved
+     * symbol being saved </p>
      * @param varName - name of the variable being saved.
      * @throws Exception
      */
     private void attemptNewSymbolSave(String varName) throws Exception {
-        //TODO: Check if it's in the symboltable
         STIdentifier newEntry = new STIdentifier(varName, Classif.OPERAND, SubClassif.IDENTIFIER);
         STEntry sEntry = symbolTable.getSymbol(varName);
         Classif primary = null;

@@ -14,7 +14,15 @@ public class Numeric {
      */
     public Numeric(){}
 
-    public Numeric(Parser parse, ResultValue res, String operand, String title) throws Exception{
+    /**
+     * Create a generic Numeric object for all data types used in assignment.
+     * @param parse The Parser object to reference for errors.
+     * @param res   The ResultValue used to convert into a Numeric type.
+     * @param operator   The operator symbol used for error throwing (maybe)
+     * @param title     The title, order of operand, to be used in error throwing
+     * @throws Exception
+     */
+    public Numeric(Parser parse, ResultValue res, String operator, String title) throws Exception{
         this.strValue = res.value;
         this.title = title;
         this.type = res.type;
@@ -26,7 +34,7 @@ public class Numeric {
         } else if(res.type == SubClassif.STRING) {
             return;
         } else {
-            throw new Exception("Cannot recognize primitive type");
+            parse.error("Cannot recognize primitive type of " + this.title);
         }
     }
 

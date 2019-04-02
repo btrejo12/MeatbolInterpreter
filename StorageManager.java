@@ -8,10 +8,19 @@ public class StorageManager {
 
     private HashMap<String, ResultValue> variables = null;
 
+    /**
+     * <p>StorageManager is responsible for holding declared variables and their value</p>
+     */
     public StorageManager() {
         this.variables = new HashMap<String, ResultValue>();
     }
 
+    /**
+     * <p>Add a variable to the global hashmap</p>
+     * @param variable  The variable name used as a key for the hashmap
+     * @param value     The value the variable will hold (null for undeclared)
+     * @throws Exception
+     */
     public void addVariable(String variable, ResultValue value) throws Exception {
         if (variables.containsKey(variable)) {
             throw new Exception("Error: Variable '" + variable + "' has already been instantiated");
@@ -20,6 +29,12 @@ public class StorageManager {
         variables.put(variable, value);
     }
 
+    /**
+     * <p>Updated a variable's value in the global hashmap</p>
+     * @param variable      The name of the variable to be updated
+     * @param value         The value to update the variable with
+     * @throws Exception
+     */
     public void updateVariable(String variable, ResultValue value) throws Exception {
         if (!variables.containsKey(variable)) {
             try {
@@ -27,12 +42,17 @@ public class StorageManager {
             } catch (Exception e) {
                 throw e;
             }
-            //throw new Exception("Error: Variable '" + variable + "' has not already been instantiated");
         }
-
         variables.put(variable, value);
     }
 
+
+    /**
+     * <p>Return a variable's value from the global hashmap</p>
+     * @param variable      The variable to be grabbed from the global hashmap
+     * @return     The ResultValue that corresponds to the variable being asked for
+     * @throws Exception
+     */
     public ResultValue getVariableValue(String variable) throws Exception {
 
         //Initialize an empty ResultValue
@@ -71,6 +91,12 @@ public class StorageManager {
         return rv;
     }
 
+    /**
+     * <p>Return the requested variable's value in unary minus form</p>
+     * @param variable      The variable requested from the global hashmap
+     * @return              The ResultValue in unary minus form
+     * @throws Exception
+     */
     public ResultValue getUnaryVariableValue(String variable) throws Exception {
         if (!variables.containsKey(variable)){
             throw new Exception("Error: Variable '" + variable + "' does not exists");

@@ -3,6 +3,14 @@ package meatbol;
 import javax.xml.transform.Result;
 
 public class Utility {
+
+    /**
+     * <p>Subtracts two numeric objects and returns their result</p>
+     * @param parser    The parser object that this function was called from
+     * @param n1        The first numeric operand
+     * @param n2        The second numeric operand
+     * @return          The result saved in a ResultValue object
+     */
     public ResultValue subtract(Parser parser, Numeric n1, Numeric n2){
        ResultValue result = new ResultValue();
        result.structure = "primitive";
@@ -32,6 +40,14 @@ public class Utility {
         }
        return result;
     }
+
+    /**
+     * <p>Adds two numeric objects and returns their result</p>
+     * @param parser    The parser object that this function was called from
+     * @param n1        The first numeric operand
+     * @param n2        The second numeric operand
+     * @return          The result saved in a ResultValue object
+     */
     public ResultValue add(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.type = findHighestOrder(n1,n2);
@@ -60,6 +76,14 @@ public class Utility {
         }
         return result;
     }
+
+    /**
+     * <p>Multiply two numeric objects and returns their result</p>
+     * @param parser    The parser object that this function was called from
+     * @param n1        The first numeric operand
+     * @param n2        The second numeric operand
+     * @return          The result saved in a ResultValue object
+     */
     public ResultValue multiply(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
@@ -88,6 +112,14 @@ public class Utility {
         }
         return result;
     }
+
+    /**
+     * <p>Divide two numeric objects and returns their result</p>
+     * @param parser    The parser object that this function was called from
+     * @param n1        The first numeric operand
+     * @param n2        The second numeric operand
+     * @return          The result saved in a ResultValue object
+     */
     public ResultValue divide(Parser parser, Numeric n1, Numeric n2) {
         ResultValue result = new ResultValue();
         result.structure = "primitive";
@@ -117,6 +149,15 @@ public class Utility {
         return result;
     }
 
+    /**
+     * <p>When the math operation is unknown, this function figures it out.</p>
+     * @param parser    The parser object that this function was called from
+     * @param n1        The first numeric object of this operation
+     * @param n2        The second numeric object of this operation
+     * @param operator  The operator that must be applied to the numeric objects
+     * @return          The ResultValue that this operation produced
+     * @throws Exception
+     */
     public ResultValue doMath(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception{
         ResultValue res;
         switch(operator){
@@ -146,6 +187,14 @@ public class Utility {
         return res;
     }
 
+    /**
+     * <p>When we have to do String comparisons this function will do the evaluating</p>
+     * @param s1    The first string to be compared
+     * @param s2    The second string to be compared
+     * @param operator  The operation done on the strings
+     * @return      The ResultValue that was produced from the comparison
+     * @throws Exception
+     */
     public ResultValue compareStrings(Numeric s1, Numeric s2, String operator) throws Exception {
         boolean isTrue = true;
         ResultValue res = new ResultValue();
@@ -168,6 +217,15 @@ public class Utility {
         return res;
     }
 
+    /**
+     * <p>When comparing Numerics, this function applies the appropriate comparison and returns the result</p>
+     * @param parser    The parser object that saw the comparison
+     * @param n1        The first Numeric in the operation
+     * @param n2        The second Numeric in the operation
+     * @param operator  The operation to be applied to the Numerics
+     * @return          The ResultValue this comparison produced (boolean)
+     * @throws Exception
+     */
     public ResultValue compareNums(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception {
         String[] operators = {"==", "!=", "<", "<=", ">", ">="};
         ResultValue rv = new ResultValue();
@@ -241,6 +299,13 @@ public class Utility {
         return rv;
     }
 
+    /**
+     * <p>Exponentiated the numerics</p>
+     * @param parser    The parser object that saw the operation
+     * @param n1        The base of the exponential equation
+     * @param n2        The exponent in the exponential equation
+     * @return          The ResultValue from the exponential equation
+     */
     public ResultValue exponentiate(Parser parser, Numeric n1, Numeric n2) {
 
         ResultValue result = new ResultValue();
@@ -256,6 +321,12 @@ public class Utility {
         return result;
     }
 
+    /**
+     * <p>When comparing two Numerics of different types, the highest order must be decided</p>
+     * @param n1    The first numeric of the operation
+     * @param n2    The second numeric of the operation
+     * @return      The SubClassification of the highest order that was produced
+     */
     public SubClassif findHighestOrder(Numeric n1, Numeric n2){
         //if(n1.type == SubClassif.FLOAT || n2.type == SubClassif.FLOAT)
         //    return SubClassif.FLOAT;

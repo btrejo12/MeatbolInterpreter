@@ -6,15 +6,23 @@ public class ParserException extends Exception {
     public String diagnostic;
     public String sourceFileName;
 
-    // constructor
+    /**
+     * Initialize new exception to be thrown when finding an error during parsing
+     * @param iLineNr       The line number the error was found on
+     * @param diagnostic    The text to output to give information about the error
+     * @param sourceFileName    The source file this error was found in
+     */
     public ParserException(int iLineNr, String diagnostic, String sourceFileName)
     {
         this.iLineNr = iLineNr;
         this.diagnostic = diagnostic;
         this.sourceFileName = sourceFileName;
     }
-    
-    // Exceptions are required to provide tosString()
+
+    /**
+     * toString method that must be included for Exceptions in order to be printed
+     * @return  the Exception string to print
+     */
     public String toString()
     {
         StringBuffer sb = new StringBuffer();

@@ -11,6 +11,11 @@ public class Parser {
     private boolean bShowExpr = false;
     private boolean bShowAssign = false;
 
+    /**
+     * <p>Parser's constructor is responsible for traversing through the file and applying the appropriate operations</p>
+     * @param filename  The filename to be passed to Scanner to be used for reading
+     * @param st        The global symbol table used for the Parser
+     */
     public Parser(String filename, SymbolTable st){
         storageMgr = new StorageManager();
         util = new Utility();
@@ -58,10 +63,10 @@ public class Parser {
     }
 
     /**
-     * This function is called from a nested if or while, in order to determine whether the nested condition should
-     * run or not.
-     * @param bExec the trigger to determine whether the nested block needs to be run based on the condition.
-     * @return The ResultValue of...something
+     * <p>Used inside of 'if/while', the embedded statements to be executed are run here</p>
+     * @param bExec     The boolean that decides whether the embedded statements should be executed
+     * @return          The endflow statement that terminated the statement execution
+     * @throws Exception
      */
     private ResultValue executeStatements(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
@@ -112,11 +117,10 @@ public class Parser {
     }
 
     /**
-     * This function evaluates the current expression up until the delimiter that is passed in.
-     * Will return the result as a ResultValue object.
-     * @param endingDelimiter - parser stops and returns a result
-     * @return res - ResultValue that contains the data of the expression observed
-     * @throws ParserException based through error()
+     * <p>Used to evaluation an expression and return the result of it</p>
+     * @param endingDelimiter   The delimiter to stop at for this specific expression
+     * @return  The ResultValue that was production from the expression operation
+     * @throws Exception
      */
     private ResultValue expr(String endingDelimiter) throws Exception{
 
@@ -178,13 +182,12 @@ public class Parser {
     }
 
     /**
-     * This function is called when the grammer has type 'variable = expr ;'. The current token should be set to 'variable'.
-     * @param bExec the trigger to determine whether the assignment statement should run (it may be inside a false if statement
-     *              therefore we should not run it in this case)
-     * @return the ResultValue of this assignment
+     * <p>This method is used when an assignment to a variable must be done.</p>
+     * @param bExec The boolean that decied whether we apply this assignment or not
+     * @return  The ResultValue that was assigned to the variable
+     * @throws Exception
      */
     private ResultValue assignmentStmt(Boolean bExec) throws Exception{
-        //print("In assignmentStmt");
         ResultValue res = new ResultValue();
         if(!bExec){
             skipTo(";");
@@ -236,9 +239,9 @@ public class Parser {
 
 
     /**
-     * This function is called when a outer most if statement is scanned. I don't think this is used in nexted if statements tho,
-     * only the executeStatements method, so if you're calling from Parser's constructor then bExec should be set to true.
-     * @param bExec the trigger whether to run the code inside of the if (based on the condition) or not.
+     * <p>This method is used to parse through an if statement code block</p>
+     * @param bExec  The boolean that decides whether the statements in the code block should be executed
+     * @throws Exception
      */
     private void ifStmt(boolean bExec) throws Exception {
 
@@ -295,8 +298,9 @@ public class Parser {
     }
 
     /**
-     * This method is a little more tricky in that it should use Scanner's setPosition to figure out where to loop back to.
-     * @param bExec
+     * <p>This method is executed when a while statement code block is found</p>
+     * @param bExec The boolean that decides whether the statements in the code block should be executed
+     * @throws Exception
      */
     private void whileStmt(Boolean bExec) throws Exception{
         int colPos, lineNum;
@@ -326,11 +330,11 @@ public class Parser {
     }
 
     /**
-     * Once you return a result value, you should assign it to the left most variable (variableString) and return what you
-     * assigned to it. This method should use StorageManager to check for data type.
-     * @param variableString The variable string to be looked up in StorageManager to confirm data type and declaration.
-     * @param result The ResultValue you're assigning to the variableString
-     * @return The ResultValue that was assigned
+     * <p>When a variable requires a new assignment this method updates its value in the StorageManager</p>
+     * @param variableString    The variable that will be assigned a new value
+     * @param result    The ResultValue to be assigned to the variable
+     * @return The ResultValue that was assigned to the variable
+     * @throws Exception
      */
     private ResultValue assign(String variableString, ResultValue result) throws Exception{
         ResultValue target = storageMgr.getVariableValue(variableString);
@@ -355,9 +359,9 @@ public class Parser {
     }
 
     /**
-     * This method is called when you find a control-flow variable (if, while) in order to determine whether the conditional
-     * is true or false. This method should use getNext to be able execute the tokens and determine the boolean they result in.
-     * @return The boolean value of whether this condition is true or false.
+     * <p>Evaluated the value of a condition for flow statements and returns it's boolean value</p>
+     * @return  The boolean value dependent on the condition
+     * @throws Exception
      */
     private boolean evalCond() throws Exception{
         // Move off the if or while
@@ -371,9 +375,9 @@ public class Parser {
     }
 
     /**
-     * When you're skipping over something, it's nice to be able to use getNext() to traverse to the ending token,
-     * which is ';' for assignmentStatement and ':' for control statements.
-     * @param endingDelimiter
+     * <p>Moves current token to the specified string</p>
+     * @param endingDelimiter   The String to stop the current token at
+     * @throws Exception
      */
     private void skipTo(String endingDelimiter) throws Exception{
         while(!scan.currentToken.tokenStr.equals(endingDelimiter))
@@ -381,7 +385,9 @@ public class Parser {
     }
 
     /**
-     * When Scanner returns a built in function or user-defined function, it should be handled here.
+     * <p>This method is responsible for handling functions the parser comes across</p>
+     * @param bExec Decides whether the function should be executed or not
+     * @throws Exception
      */
     private void handleFunction(boolean bExec) throws Exception{
         if(bExec) {
@@ -392,6 +398,10 @@ public class Parser {
             skipTo(";");
     }
 
+    /**
+     * <p>Prints the parameters in the function</p>
+     * @throws Exception
+     */
     private void printFunction() throws Exception{
         scan.getNext();
         //Next token should be an open parenthesis
@@ -430,9 +440,9 @@ public class Parser {
     }
 
     /**
-     * Clark's notes specify how to set up this error function, although the lineNumber and sourcefile part are confusing.
-     * @param fmt
-     * @param varArgs
+     * <p>Throws a ParserException when an error in the code is found</p>
+     * @param fmt   The string to specify what caused the error
+     * @param varArgs   I don't know why you made me include this parameter, Clark
      * @throws Exception
      */
     public void error(String fmt, Object...varArgs) throws Exception{
@@ -440,6 +450,10 @@ public class Parser {
         throw new ParserException(scan.currentToken.iSourceLineNr, diagnosticTxt, scan.sourceFileNm);
     }
 
+    /**
+     * <p>This method is responsible for triggering the debug statements requested by the programmer</p>
+     * @throws Exception
+     */
     public void handleDebug() throws Exception{
         //current token is on debug
         scan.getNext();
@@ -491,21 +505,19 @@ public class Parser {
 
     /**
      * Used to print the following expr and it's result. Used for debugging and output printing
-     * @param expr
-     * @param result
+     * @param expr  The expression to be printed
+     * @param result The ResultValue that was returned by the expression
      */
     public void showExpr(String expr, ResultValue result){
         if (bShowExpr){ System.out.println(expr+ " is " + result.value);}
     }
 
     /**
-     * Used to print the following variable and it's result. Used for debugging and output printing
-     * @param expr
-     * @param result
+     * <p>Used to print variable assignments for debugging</p>
+     * @param variable  The variable that is receiving the new assignment
+     * @param result    The ResultValue that is being assigned to the variable
      */
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }
-
-
 }

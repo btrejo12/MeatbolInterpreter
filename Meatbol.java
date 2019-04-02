@@ -19,6 +19,10 @@ package meatbol;
 
 public class Meatbol 
 {
+    /**
+     * Initialize SymbolTable for storage and Parser to parse through file.
+     * @param args The input file to be read
+     */
     public static void main(String[] args) 
     {
         // Create the SymbolTable
