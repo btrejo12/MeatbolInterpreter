@@ -73,8 +73,6 @@ public class Parser {
         scan.getNext();
 
         while (scan.currentToken.subClassif != SubClassif.END) {
-            /****** We're checking for subClassifs ******/
-
             // Nested if/while
             if (scan.currentToken.subClassif == SubClassif.FLOW) {
                 if (scan.currentToken.tokenStr.equals("if")) {
@@ -113,17 +111,18 @@ public class Parser {
         return res;
     }
 
+    /**
+     * This function evaluates the current expression up until the delimiter that is passed in.
+     * Will return the result as a ResultValue object.
+     * @param endingDelimiter - parser stops and returns a result
+     * @return res - ResultValue that contains the data of the expression observed
+     * @throws ParserException based through error()
+     */
     private ResultValue expr(String endingDelimiter) throws Exception{
-        //print("Hello from expr " + scan.currentToken.tokenStr);
+
         ResultValue res = new ResultValue();
         String expr = "... ";
-        /**
-         * Expression Cases:
-         *      Unary minus (-A)
-         *      Single Variable (A)
-         *      Simple expression (A + B)
-         *      Conditional?
-         */
+
         // Unary minus
         if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
             // Negate the operand
@@ -155,7 +154,7 @@ public class Parser {
 
             scan.getNext(); //moves to operator -, +, etc
             if(scan.nextToken.primClassif != Classif.OPERAND){
-                //print(scan.nextToken.tokenStr);
+
                 scan.nextToken.printToken();
                 error("Expected second argument to be of type operand");
             }
@@ -164,7 +163,6 @@ public class Parser {
                 res2 = new ResultValue(scan.nextToken.tokenStr, "primitive", scan.nextToken.subClassif);
             else
                 res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
-            //print("Res1: " + res1.value + ", Res2: " + res2.value);
             Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
             Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
             res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
@@ -172,7 +170,7 @@ public class Parser {
             scan.getNext();
             showExpr(expr,res);
         }
-        // Who knows
+        // Unknown error
         else {
             error("Cannot recognize expression statement. Current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
         }
@@ -491,10 +489,20 @@ public class Parser {
         scan.getNext(); //sits on ';'
     }
 
+    /**
+     * Used to print the following expr and it's result. Used for debugging and output printing
+     * @param expr
+     * @param result
+     */
     public void showExpr(String expr, ResultValue result){
         if (bShowExpr){ System.out.println(expr+ " is " + result.value);}
     }
 
+    /**
+     * Used to print the following variable and it's result. Used for debugging and output printing
+     * @param expr
+     * @param result
+     */
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }

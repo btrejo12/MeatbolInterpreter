@@ -27,17 +27,6 @@ public class Meatbol
         try
         {
             Parser parser = new Parser(args[0], symbolTable);
-
-            // Print a column heading 
-            //System.out.printf("%-11s %-12s %s\n"
-            //        , "primClassif"
-            //        , "subClassif"
-            //        , "tokenStr");
-            //Scanner scan = new Scanner(args[0], symbolTable);
-            //while (! scan.getNext().isEmpty())
-            //{
-            //    scan.currentToken.printToken();
-            //}
         }
         catch (Exception e)
         {
