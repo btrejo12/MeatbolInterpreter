@@ -1,6 +1,6 @@
 package meatbol;
 
-import javax.xml.transform.Result;
+import sun.jvm.hotspot.StackTrace;
 
 public class Parser {
     private Scanner scan;
@@ -16,7 +16,7 @@ public class Parser {
      * @param filename  The filename to be passed to Scanner to be used for reading
      * @param st        The global symbol table used for the Parser
      */
-    public Parser(String filename, SymbolTable st){
+    public Parser(String filename, SymbolTable st) throws Exception{
         storageMgr = new StorageManager();
         util = new Utility();
         this.st = st;
@@ -44,8 +44,7 @@ public class Parser {
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
-                        ResultValue assignmentResult = assignmentStmt(true);
-                        //TODO: Assign the return value to the currentToken using Storage Manager
+                        assignmentStmt(true);
                     } else {
                         //Not sure here
                         scan.nextToken.printToken();
@@ -57,7 +56,6 @@ public class Parser {
                 }
             }
         } catch(Exception e){
-            //TODO: Call error method to create a ParserException
             e.printStackTrace();
         }
     }
@@ -403,6 +401,7 @@ public class Parser {
      * @throws Exception
      */
     private void printFunction() throws Exception{
+        int counter=0;
         scan.getNext();
         //Next token should be an open parenthesis
         if(!scan.currentToken.tokenStr.equals("(")){
@@ -415,13 +414,19 @@ public class Parser {
                 //This is a string literal, we should print it
                 System.out.print(scan.currentToken.tokenStr);
                 scan.getNext();
-            } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
+            }/* else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 ResultValue variableEval = expr(",)"); //only evaluate this expression
                 System.out.print(variableEval.value);
                 if(scan.currentToken.primClassif != Classif.SEPARATOR){
                     scan.getNext();
                 }
-            } else {
+            } */else if (scan.currentToken.primClassif == Classif.OPERAND){
+                ResultValue variable = expr(",)");
+                System.out.print(variable.value);
+                if(scan.currentToken.primClassif != Classif.SEPARATOR)
+                    scan.getNext();
+            }else {
+                //System.out.print("From print function: " + scan.currentToken.tokenStr);
                 ResultValue variable = expr(",)");
                 System.out.print(variable.value);
                 scan.getNext();
@@ -436,6 +441,9 @@ public class Parser {
                 scan.getNext();
                 break;
             }
+            counter++;
+            if(counter > 100)
+                error("Sorry, we had an infinite loop and had to exit");
         }
     }
 
