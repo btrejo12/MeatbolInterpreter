@@ -1,7 +1,5 @@
 package meatbol;
 
-import sun.jvm.hotspot.StackTrace;
-
 public class Parser {
     private Scanner scan;
     private StorageManager storageMgr;
