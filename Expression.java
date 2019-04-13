@@ -1,26 +1,122 @@
 package meatbol;
 
-import jdk.jshell.spi.ExecutionControlProvider;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Stack;
 
 public class Expression {
     private Scanner scan;
     private StorageManager storageMgr;
     private SymbolTable st;
+    private Parser parser;
     private Utility util;
     private final static String operators = "+-*/<>=!#^";
-    //private ArrayList<Token> fullExpression;
     private Out out;
-    private Stack stack;
 
-    public Expression(Scanner scanner, StorageManager storageMgr, SymbolTable st) {
+    public Expression(Parser parse, Scanner scanner, StorageManager storageMgr, SymbolTable st) {
+        this.parser = parse;
         this.scan = scanner;
         this.storageMgr = storageMgr;
         this.st = st;
     }
 
+    public ResultValue evaluateExpression(String terminatingToken) throws Exception{
+        /**
+         * Possible situations for expression to handle:
+         *      Evaluating assignment statements, e.g. Int i = 3*4+5;
+         *      Evaluating conditions, e.g. if 2*4 > 6*5:
+         *      Print functions e.g. print("Hello", i, 5+6);
+         *      Array size declarations, e.g. Int array[variable]
+         *      (Maybe) Array populating, e.g. array[] = 10, 20, 30, 50;
+         *
+         *      1st Step:
+         *          We don't want to use Scanner's get next while converting, so save
+         *          all the elements of this expression into an ArrayList
+         *      2nd Step:
+         *          Convert the expression to postfix if the length is greater than 1,
+         *          we need to be careful here because it might be unary minus for expressions
+         *          of length two.
+         *      3rd Step:
+         *          Evaluate the postfix expression and return the result
+         */
+        ArrayList<Token> exprTokens = new ArrayList<Token>();
 
+        // Save expression tokens into an array list
+        while (!terminatingToken.contains(scan.nextToken.tokenStr)){
+            exprTokens.add(scan.currentToken);
+        }
+
+        if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
+
+        } else if (exprTokens.size() == 2){     // Unary minus maybe?
+            parser.error("Expression only contains two tokens: ", Arrays.toString(exprTokens.toArray()));
+        }
+
+        // Convert this expression to post fix
+        ArrayList<Token> postfix = convertToPostfix(exprTokens);
+        // Evaluate the expression and return its result
+        ResultValue res = evalPostfix(postfix);
+        return res;
+    }
+
+    private ResultValue evalPostfix(ArrayList<Token> tokens){
+        Stack<Token> stack = new Stack<Token>();
+
+
+    }
+
+    private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
+        Stack<Token> stack = new Stack();
+        ArrayList<Token> out = new ArrayList<Token>();
+
+        for (Token token: tokens){
+            switch(token.primClassif){
+                case OPERAND:
+                    out.add(token);
+                    break;
+                case OPERATOR:
+                    if (stack.isEmpty()) {
+                        stack.push(token);
+                        break;
+                    } else {
+                        if (checkPrecedence(stack.peek(), token)){     // Returns true if what
+                            Token popped = stack.pop();                // is in the stack
+                            stack.push(token);                         // has higher precedence
+                            out.add(popped);
+                        } else {
+                            stack.push(token);
+                        }
+                    }
+                case SEPARATOR:
+                    switch(token.tokenStr){
+                        case "(":
+                            stack.push(token);
+                            break;
+                        case ")":
+                            boolean parenthesisCheck = false;
+                            while(!stack.isEmpty()){
+                                Token popped = stack.pop();
+                                if (popped.equals("(")){
+                                    parenthesisCheck = true;
+                                    break;
+                                }
+                                out.add(popped);
+                            }
+                            if (!parenthesisCheck)
+                                parser.error("Did not find left parenthesis match in expression");
+                            break;
+                        default:
+                            parser.error("Invalid separator within expression");
+                            break;
+                    } // seperator switch
+                    break;
+                default:
+                    parser.error("Invalid token within expression: ", token.tokenStr);
+                    break;
+            } // postfix switch
+        } // for loop
+        return out;
+    }
 
 
     private ArrayList<Token> getExpression(String delimiter) throws Exception {
@@ -34,6 +130,36 @@ public class Expression {
             //}
         }
         return fullExpression;
+    }
+
+    /**
+     * Check if the first operator has a higher precedence than the second operator
+     * @param first The first operator in the expression
+     * @param second The second operator in the expression
+     * @return True if the first operator has a higher precedence, false if not or same
+     */
+    private boolean checkPrecedence(Token first, Token second) throws Exception{
+        String[] arrlist = {"^","*/", "+-", "#", "<=>=!=<>==", "not", "andor"};
+
+        int firstIndex= -1;
+        int secondIndex= -1;
+
+        for(int i = 0; i < arrlist.length; i++){
+            if(arrlist[i].contains(first.tokenStr)){
+                firstIndex = i;
+            }
+            if (arrlist[i].contains(second.tokenStr)){
+                secondIndex = i;
+            }
+        }
+
+        if(firstIndex == -1 || secondIndex == -1)
+            parser.error("Invalid operator token for either", first.tokenStr, " or ", second.tokenStr);
+
+        if(firstIndex < secondIndex)
+            return true;
+        else
+            return false;
     }
 
 

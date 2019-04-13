@@ -118,6 +118,7 @@ public class Parser {
      * @return  The ResultValue that was production from the expression operation
      * @throws Exception
      */
+    /*
     private ResultValue expr(String endingDelimiter) throws Exception{
 
         ResultValue res = new ResultValue();
@@ -184,6 +185,7 @@ public class Parser {
         }
         return res;
     }
+    */
 
     /**
      * <p>This method is used when an assignment to a variable must be done.</p>
