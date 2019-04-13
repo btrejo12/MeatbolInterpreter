@@ -47,6 +47,7 @@ public class Expression {
         }
 
         if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
+            //TODO: Convert this token to a RV and return it
 
         } else if (exprTokens.size() == 2){     // Unary minus maybe?
             parser.error("Expression only contains two tokens: ", Arrays.toString(exprTokens.toArray()));
@@ -62,7 +63,9 @@ public class Expression {
     private ResultValue evalPostfix(ArrayList<Token> tokens){
         Stack<Token> stack = new Stack<Token>();
 
+        while(!tokens.isEmpty()){
 
+        }
     }
 
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
