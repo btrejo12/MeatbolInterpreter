@@ -129,6 +129,14 @@ public class Parser {
             if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
             res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
             scan.getNext();
+        } else if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.INTEGER){
+            // Negate the operand
+            if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
+            res.value = "-" + scan.nextToken.tokenStr;
+            res.type = SubClassif.INTEGER;
+            res.structure= "int";
+            //res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
+            scan.getNext();
         }
         // Single Variable
         else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){

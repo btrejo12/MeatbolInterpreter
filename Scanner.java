@@ -373,7 +373,11 @@ public class Scanner{
             i = 0;
         }
         if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
-            assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
+            if(op == '-' && currentToken.primClassif != Classif.OPERAND) {
+                assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.UNARY);
+            } else {
+                assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
+            }
             iColPos=i;
             return;
         } else{

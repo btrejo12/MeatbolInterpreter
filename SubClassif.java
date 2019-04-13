@@ -18,5 +18,7 @@ public enum SubClassif
     BUILTIN,    // builtin function (e.g., print)
     USER,        // user-defined function
     // DEBUGS' subclassification
-    DEBUGTYPE
+    DEBUGTYPE,
+    // OPERATOR subclassification
+    UNARY
 }
