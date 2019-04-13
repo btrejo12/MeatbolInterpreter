@@ -11,7 +11,7 @@ public class Expression {
     private Parser parser;
     private Utility util;
     private final static String operators = "+-*/<>=!#^";
-    private Out out;
+    private ArrayList<Token> out;
 
     public Expression(Parser parse, Scanner scanner, StorageManager storageMgr, SymbolTable st) {
         this.parser = parse;
@@ -48,9 +48,10 @@ public class Expression {
 
         if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
 
-        } else if (exprTokens.size() == 2){     // Unary minus maybe?
-            parser.error("Expression only contains two tokens: ", Arrays.toString(exprTokens.toArray()));
-        }
+        } //else if (exprTokens.size() == 2){     // Unary minus maybe?
+        //    if(exprTokens.get(0)) == "-"
+        //    parser.error("Expression only contains two tokens: ", Arrays.toString(exprTokens.toArray()));
+        //}
 
         // Convert this expression to post fix
         ArrayList<Token> postfix = convertToPostfix(exprTokens);
@@ -152,10 +153,12 @@ public class Expression {
                 secondIndex = i;
             }
         }
-
         if(firstIndex == -1 || secondIndex == -1)
             parser.error("Invalid operator token for either", first.tokenStr, " or ", second.tokenStr);
-
+        if(first.subClassif == SubClassif.UNARY)
+            firstIndex = -1;
+        if(second.subClassif == SubClassif.UNARY)
+            secondIndex = -1;
         if(firstIndex < secondIndex)
             return true;
         else
