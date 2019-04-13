@@ -62,7 +62,7 @@ public class Expression {
 
     private ResultValue evalPostfix(ArrayList<Token> tokens){
         Stack<Token> stack = new Stack<Token>();
-
+        return new ResultValue();
 
     }
 
