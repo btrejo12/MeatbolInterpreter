@@ -1,5 +1,6 @@
 package meatbol;
 
+import javax.xml.transform.Result;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
@@ -61,12 +62,39 @@ public class Expression {
         return res;
     }
 
-    private ResultValue evalPostfix(ArrayList<Token> tokens){
-        Stack<Token> stack = new Stack<Token>();
+    private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
+        Stack<ResultValue> stack = new Stack<ResultValue>();
 
         while(!tokens.isEmpty()){
-
+            Token token = tokens.remove(0);
+            switch(token.primClassif){
+                case OPERAND:
+                    stack.push(storageMgr.getVariableValue(token.tokenStr));
+                    break;
+                case OPERATOR:
+                    ResultValue res2 = stack.pop();
+                    ResultValue res1 = new ResultValue();
+                    if(stack.isEmpty()){
+                        res2 = storageMgr.getUnaryVariableValue(res2.value);
+                        stack.push(res2);
+                    } else {
+                        res1 = stack.pop();
+                        Numeric num1 = new Numeric(parser, res2, token.tokenStr, "First operand");
+                        Numeric num2 = new Numeric(parser, res1, token.tokenStr, "Second operand");
+                        ResultValue res3 = parser.util.doMath(parser, num1, num2, token.tokenStr);
+                        stack.push(res3);
+                    }
+                    break;
+                default:
+                    parser.error("Invalid token: ", token.tokenStr);
+                    break;
+            }
         }
+        ResultValue finalRes = stack.pop();
+
+        if(!stack.isEmpty())
+            parser.error("Stack was expected to be empty after evaluating the postfix expr");
+        return finalRes;
     }
 
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{

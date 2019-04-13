@@ -98,6 +98,12 @@ public class StorageManager {
      * @throws Exception
      */
     public ResultValue getUnaryVariableValue(String variable) throws Exception {
+
+        ResultValue rv = getVariableValue(variable);
+        rv.value = "-" + rv.value;
+        return rv;
+
+/*
         if (!variables.containsKey(variable)){
             throw new Exception("Error: Variable '" + variable + "' does not exists");
         }
@@ -105,5 +111,6 @@ public class StorageManager {
         rv.value = "-" + rv.value;
         variables.put(variable, rv);
         return rv;
+  */
     }
 }

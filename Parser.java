@@ -4,7 +4,7 @@ public class Parser {
     private Scanner scan;
     private StorageManager storageMgr;
     private SymbolTable st;
-    private Utility util;
+    public Utility util;
 
     private boolean bShowExpr = false;
     private boolean bShowAssign = false;
