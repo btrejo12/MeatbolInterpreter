@@ -75,7 +75,6 @@ public class Expression {
 
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<ResultValue> stack = new Stack<ResultValue>();
-
         while(!tokens.isEmpty()){
             Token token = tokens.remove(0);
             switch(token.primClassif){
@@ -107,14 +106,13 @@ public class Expression {
         ResultValue finalRes = stack.pop();
 
         if(!stack.isEmpty())
-and             parser.error("Stack was expected to be empty after evaluating the postfix expr "+finalRes.value+" " + stack.pop().value);
+             parser.error("Stack was expected to be empty after evaluating the postfix expr. last thing popped: "+finalRes.value+" next value on stack: " + stack.pop().value);
         return finalRes;
     }
 
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<Token> stack = new Stack();
         ArrayList<Token> out = new ArrayList<Token>();
-
         for (Token token: tokens){
             switch(token.primClassif){
                 case OPERAND:
@@ -161,18 +159,19 @@ and             parser.error("Stack was expected to be empty after evaluating th
                             boolean bracketCheck = false;
                             while(!stack.isEmpty()){
                                 Token popped = stack.pop();
-                                if (popped.equals("[")){
+                                if (popped.tokenStr.equals("[")){
                                     bracketCheck = true;
                                     break;
                                 }
                                 out.add(popped);
                             }
-                            if (!bracketCheck)
+                            if (!bracketCheck) {
                                 parser.error("Did not find left bracket match in expression");
+                            }
                             break;
 
                         default:
-                            parser.error("Invalid separator within expression");
+                            parser.error("Invalid separator within expression: '"+token.tokenStr +"' ");
                             break;
                     } // seperator switch
                     break;
@@ -181,6 +180,11 @@ and             parser.error("Stack was expected to be empty after evaluating th
                     break;
             } // postfix switch
         } // for loop
+        //Empty stack into out
+        while(!stack.isEmpty()){
+            Token token = stack.pop();
+            out.add(token);
+        }
         return out;
     }
 

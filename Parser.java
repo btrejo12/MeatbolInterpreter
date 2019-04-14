@@ -43,6 +43,18 @@ public class Parser {
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
                         //TODO: What if this is '[' for an array reference?
+                        if(scan.nextToken.tokenStr.equals("[")){
+                            //first find what's inside the brackets
+                            Token array = scan.currentToken;
+                            scan.getNext();
+                            if(scan.nextToken.tokenStr.equals("]")) {
+                                //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
+
+                                //Call expression to get a list of resultValues to initialize array.
+                            } else{
+                                //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
+                            }
+                        }
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         assignmentStmt(true);
@@ -448,6 +460,7 @@ public class Parser {
                 continue;
             }
             if(scan.currentToken.tokenStr.equals(")")){
+                //TODO find out why the parentheses and comma are lost when unary minus is given
                 System.out.println();
                 scan.getNext();
                 break;
