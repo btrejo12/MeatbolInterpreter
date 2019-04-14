@@ -195,40 +195,34 @@ public class Expression {
      * @param second The second operator in the expression
      * @return True if the first operator has a higher precedence, false if not or same
      */
-    private boolean checkPrecedence(Token first, Token second) throws Exception{
-        String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr["};
-        String sFirst = first.tokenStr;
-        String sSecond = second.tokenStr;
+    private boolean checkPrecedence(Token first, Token second) throws Exception {
+        if(getPrecedence(first) > getPrecedence(second))
+            return true;
+        return false;
+    }
+        private int getPrecedence(Token token) throws Exception{
+          String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr["};
+          String tokenStr = token.tokenStr;
 
-        if(first.subClassif == SubClassif.UNARY)
-            sFirst = "U-";
-        if(second.subClassif == SubClassif.UNARY)
-            sSecond = "U-";
-        if(first.subClassif == SubClassif.ARRAY)
-            sFirst = "arr[";
-        if(second.subClassif == SubClassif.ARRAY)
-            sSecond = "arr[";
+          if(token.subClassif == SubClassif.UNARY)
+              tokenStr = "U-";
+          else if(token.subClassif == SubClassif.UNARY)
+              tokenStr = "arr[";
 
-        int firstIndex= -1;
-        int secondIndex= -1;
+          int index = -1;
 
-        for(int i = 0; i < precedence.length; i++){
-            if(precedence[i].contains(sFirst)){
-                firstIndex = i;
-            }
-            if (precedence[i].contains(sSecond)){
-                secondIndex = i;
-            }
+          for(int i = 0; i< precedence.length; i++) {
+              if(precedence[i].contains(tokenStr)){
+                  index = i;
+                  break;
+              }
+          }
+          if(index == -1)
+              parser.error("Invalid operator token", token.tokenStr);
+          return index;
         }
 
-        if(firstIndex == -1 || secondIndex == -1)
-            parser.error("Invalid operator token for either", first.tokenStr, " or ", second.tokenStr);
 
-        if(firstIndex > secondIndex)
-            return true;
-        else
-            return false;
-    }
 
 
     private ResultValue popOut(ArrayList<Token> fullExpression) {

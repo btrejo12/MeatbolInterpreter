@@ -5,7 +5,7 @@ public class ResultValue {
     public String value; // Value of this ResultValue
     public String structure; // Structure of this ResultValue (fixed array, primitive, etc)
     public String terminatingStr = ""; // Terminating Statement (endwhile, endfor, etc)
-
+    public Arrayz arr;
     /**
      * Declared an empty ResultValue
      */
@@ -21,5 +21,12 @@ public class ResultValue {
         this.value = value;
         this.structure = structure;
         this.type = type;
+    }
+
+    public ResultValue(String value, String structure, SubClassif type, int bounds){
+        this.value = value;
+        this.structure = structure;
+        this.type = type;
+        this.arr = new Arrayz(bounds);
     }
 }
