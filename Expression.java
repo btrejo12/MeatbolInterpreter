@@ -47,10 +47,19 @@ public class Expression {
             exprTokens.add(scan.currentToken);
             scan.getNext();
         }
-
+        ResultValue res;
         if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
-            ResultValue res = storageMgr.getVariableValue(exprTokens.get(0).tokenStr);
-            return res;
+            try {
+                Token token = exprTokens.get(0);
+                if(token.subClassif == SubClassif.IDENTIFIER)
+                    res = storageMgr.getVariableValue(token.tokenStr);
+                else
+                    res = new ResultValue(token.tokenStr, "primitive", token.subClassif);
+                return res;
+            } catch (Exception e) {
+                System.out.println(terminatingToken);
+                parser.error(e.getMessage() + scan.iSourceLineNr);
+            }
 
         } //else if (exprTokens.size() == 2){     // Unary minus maybe?
         //    if(exprTokens.get(0)) == "-"
@@ -60,7 +69,7 @@ public class Expression {
         // Convert this expression to post fix
         ArrayList<Token> postfix = convertToPostfix(exprTokens);
         // Evaluate the expression and return its result
-        ResultValue res = evalPostfix(postfix);
+        res = evalPostfix(postfix);
         return res;
     }
 
@@ -98,7 +107,7 @@ public class Expression {
         ResultValue finalRes = stack.pop();
 
         if(!stack.isEmpty())
-            parser.error("Stack was expected to be empty after evaluating the postfix expr");
+and             parser.error("Stack was expected to be empty after evaluating the postfix expr "+finalRes.value+" " + stack.pop().value);
         return finalRes;
     }
 
@@ -224,7 +233,7 @@ public class Expression {
 
 
 
-
+    //TODO Delete me
     private ResultValue popOut(ArrayList<Token> fullExpression) {
         return new ResultValue();
     }

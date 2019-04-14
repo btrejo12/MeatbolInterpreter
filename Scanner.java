@@ -203,11 +203,13 @@ public class Scanner{
      */
     private void shiftTokens(){
         //System.out.println("Shift tokens from " + currentToken.tokenStr + " to " + nextToken.tokenStr);
+        currentToken = new Token();
         currentToken.primClassif = nextToken.primClassif;
         currentToken.subClassif = nextToken.subClassif;
         currentToken.tokenStr = nextToken.tokenStr;
         currentToken.iColPos = nextToken.iColPos;
         currentToken.iSourceLineNr = nextToken.iSourceLineNr;
+        nextToken = new Token();
     }
 
     /**

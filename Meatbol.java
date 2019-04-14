@@ -27,7 +27,6 @@ public class Meatbol
     {
         // Create the SymbolTable
         SymbolTable symbolTable = new SymbolTable();
-        
         try
         {
             Parser parser = new Parser(args[0], symbolTable);
