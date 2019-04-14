@@ -4,6 +4,7 @@ public class Parser {
     private Scanner scan;
     private StorageManager storageMgr;
     private SymbolTable st;
+    private Expression expr;
     public Utility util;
 
     private boolean bShowExpr = false;
@@ -20,6 +21,7 @@ public class Parser {
         this.st = st;
         scan = new Scanner(filename, st);
         scan.sManager = storageMgr;
+        this.expr = new Expression(this, scan, storageMgr, st);
         try {
             while (scan.trigger){
                 scan.getNext();
@@ -220,18 +222,18 @@ public class Parser {
             case "=":
                 //print("Equal sign assignment");
                 scan.getNext();
-                res2 = expr(";");
+                res2 = expr.evaluateExpression(";");
                 res = assign(targetVariable, res2);
                 break;
             case "-=": // x -= 5+1;
-                res2 = expr(";");
+                res2 = expr.evaluateExpression(";");
                 num2 = new Numeric(this, res2, "-=", "2nd operator");
                 res1 = storageMgr.getVariableValue(targetVariable);
                 num1 = new Numeric(this, res1, "-=", "1st operator");
                 res = assign(targetVariable, util.subtract(this, num1, num2));
                 break;
             case "+=":
-                res2 = expr(";");
+                res2 = expr.evaluateExpression(";");
                 num2 = new Numeric(this, res2, "+=", "2nd operator");
                 res1 = storageMgr.getVariableValue(targetVariable);
                 num1 = new Numeric(this, res1, "+=", "1st operator");
@@ -373,7 +375,7 @@ public class Parser {
     private boolean evalCond() throws Exception{
         // Move off the if or while
         scan.getNext();
-        ResultValue result = expr(":");
+        ResultValue result = expr.evaluateExpression(":");
 
         if(result.value.equals("T"))
             return true;
@@ -430,13 +432,13 @@ public class Parser {
                     scan.getNext();
                 }
             } */else if (scan.currentToken.primClassif == Classif.OPERAND){
-                ResultValue variable = expr(",)");
+                ResultValue variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);
                 if(scan.currentToken.primClassif != Classif.SEPARATOR)
                     scan.getNext();
             }else {
                 //System.out.print("From print function: " + scan.currentToken.tokenStr);
-                ResultValue variable = expr(",)");
+                ResultValue variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);
                 scan.getNext();
             }
