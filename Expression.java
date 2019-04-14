@@ -24,9 +24,9 @@ public class Expression {
     public ResultValue evaluateExpression(String terminatingToken) throws Exception{
         /**
          * Possible situations for expression to handle:
-         *      Evaluating assignment statements, e.g. Int i = 3*4+5;
-         *      Evaluating conditions, e.g. if 2*4 > 6*5:
-         *      Print functions e.g. print("Hello", i, 5+6);
+         *      --Evaluating assignment statements, e.g. Int i = 3*4+5;
+         *      --Evaluating conditions, e.g. if 2*4 > 6*5:
+         *      --Print functions e.g. print("Hello", i, 5+6);
          *      Array size declarations, e.g. Int array[variable]
          *      (Maybe) Array populating, e.g. array[] = 10, 20, 30, 50;
          *
@@ -43,12 +43,14 @@ public class Expression {
         ArrayList<Token> exprTokens = new ArrayList<Token>();
 
         // Save expression tokens into an array list
-        while (!terminatingToken.contains(scan.nextToken.tokenStr)){
+        while (!terminatingToken.contains(scan.currentToken.tokenStr)){
             exprTokens.add(scan.currentToken);
+            scan.getNext();
         }
 
         if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
-            //TODO: Convert this token to a RV and return it
+            ResultValue res = storageMgr.getVariableValue(exprTokens.get(0).tokenStr);
+            return res;
 
         } //else if (exprTokens.size() == 2){     // Unary minus maybe?
         //    if(exprTokens.get(0)) == "-"
@@ -69,7 +71,10 @@ public class Expression {
             Token token = tokens.remove(0);
             switch(token.primClassif){
                 case OPERAND:
-                    stack.push(storageMgr.getVariableValue(token.tokenStr));
+                    if(token.subClassif == SubClassif.ARRAY){
+                        //TODO: Get array element at index stack.pop()
+                    } else
+                        stack.push(storageMgr.getVariableValue(token.tokenStr));
                     break;
                 case OPERATOR:
                     ResultValue res2 = stack.pop();
@@ -104,7 +109,10 @@ public class Expression {
         for (Token token: tokens){
             switch(token.primClassif){
                 case OPERAND:
-                    out.add(token);
+                    if(token.subClassif == SubClassif.ARRAY){
+                        stack.push(token); // because array's are higher than everything
+                    } else
+                        out.add(token);
                     break;
                 case OPERATOR:
                     if (stack.isEmpty()) {
@@ -137,6 +145,23 @@ public class Expression {
                             if (!parenthesisCheck)
                                 parser.error("Did not find left parenthesis match in expression");
                             break;
+                        case "[":
+                            stack.push(token);
+                            break;
+                        case "]":
+                            boolean bracketCheck = false;
+                            while(!stack.isEmpty()){
+                                Token popped = stack.pop();
+                                if (popped.equals("[")){
+                                    bracketCheck = true;
+                                    break;
+                                }
+                                out.add(popped);
+                            }
+                            if (!bracketCheck)
+                                parser.error("Did not find left bracket match in expression");
+                            break;
+
                         default:
                             parser.error("Invalid separator within expression");
                             break;
@@ -171,26 +196,35 @@ public class Expression {
      * @return True if the first operator has a higher precedence, false if not or same
      */
     private boolean checkPrecedence(Token first, Token second) throws Exception{
-        String[] arrlist = {"^","*/", "+-", "#", "<=>=!=<>==", "not", "andor"};
+        String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr["};
+        String sFirst = first.tokenStr;
+        String sSecond = second.tokenStr;
+
+        if(first.subClassif == SubClassif.UNARY)
+            sFirst = "U-";
+        if(second.subClassif == SubClassif.UNARY)
+            sSecond = "U-";
+        if(first.subClassif == SubClassif.ARRAY)
+            sFirst = "arr[";
+        if(second.subClassif == SubClassif.ARRAY)
+            sSecond = "arr[";
 
         int firstIndex= -1;
         int secondIndex= -1;
 
-        for(int i = 0; i < arrlist.length; i++){
-            if(arrlist[i].contains(first.tokenStr)){
+        for(int i = 0; i < precedence.length; i++){
+            if(precedence[i].contains(sFirst)){
                 firstIndex = i;
             }
-            if (arrlist[i].contains(second.tokenStr)){
+            if (precedence[i].contains(sSecond)){
                 secondIndex = i;
             }
         }
+
         if(firstIndex == -1 || secondIndex == -1)
             parser.error("Invalid operator token for either", first.tokenStr, " or ", second.tokenStr);
-        if(first.subClassif == SubClassif.UNARY)
-            firstIndex = -1;
-        if(second.subClassif == SubClassif.UNARY)
-            secondIndex = -1;
-        if(firstIndex < secondIndex)
+
+        if(firstIndex > secondIndex)
             return true;
         else
             return false;

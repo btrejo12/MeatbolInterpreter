@@ -32,7 +32,7 @@ public class Parser {
                     } else if (scan.currentToken.tokenStr.equals("def")){
                         System.err.println("User defined functions are not being used in this programming assignment.");
                     } else if (scan.currentToken.tokenStr.equals("for")){
-                        System.err.println("For loops are not being used in this programming assignment");
+                        //TODO: Handle for loops bruh
                     } else if (scan.currentToken.tokenStr.equals("while")){
                         whileStmt(true);
                     }
@@ -40,6 +40,7 @@ public class Parser {
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
+                        //TODO: What if this is '[' for an array reference?
                         continue;
                     } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                         assignmentStmt(true);
