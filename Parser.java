@@ -270,7 +270,6 @@ public class Parser {
         if(bExec) {
             // test the condition in the if statement and execute if the condition is correct
             boolean testIfCond = evalCond();
-            scan.getNext();     // Move to the ':'
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(true);
@@ -331,13 +330,11 @@ public class Parser {
         ResultValue rv;
         if(bExec) {
             while (evalCond()) {
-                scan.getNext();         // Moves us to the ':'
                 rv = executeStatements(bExec);
                 if (!rv.terminatingStr.equals("endwhile"))
                     error("Expected endwhile after while");
                 scan.setPosition(lineNum, colPos);
             }
-            scan.getNext();         // Move to the ':' after the while condition
             rv = executeStatements(false);
         } else {
             skipTo(":");
@@ -452,6 +449,12 @@ public class Parser {
                 //System.out.print("From print function: " + scan.currentToken.tokenStr);
                 ResultValue variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);
+                if(scan.currentToken.tokenStr.equals(")")){
+                    scan.getNext();
+                    System.out.println();
+                    break;
+                }
+
                 scan.getNext();
             }
             if(scan.currentToken.tokenStr.equals(",")){

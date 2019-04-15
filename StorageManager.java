@@ -91,6 +91,25 @@ public class StorageManager {
         return rv;
     }
 
+    public ResultValue getVariableValue(Token token) throws Exception{
+        ResultValue rv = new ResultValue();
+
+        // test to see if the variable is a constant
+        if(token.subClassif != SubClassif.IDENTIFIER && token.primClassif == Classif.OPERAND){
+            //return basically the token but instead ResultValue
+            rv.value = token.tokenStr;
+            rv.structure = "primitive";
+            rv.type = token.subClassif;
+        }
+        else
+            if(!variables.containsKey(token.tokenStr)) {
+                throw new Exception("Error: Variable '" + token.tokenStr + "' does not exist");
+            } else {
+                rv = variables.get(token.tokenStr);
+            }
+        return rv;
+    }
+
     /**
      * <p>Return the requested variable's value in unary minus form</p>
      * @param variable      The variable requested from the global hashmap

@@ -82,7 +82,7 @@ public class Expression {
                     if(token.subClassif == SubClassif.ARRAY){
                         //TODO: Get array element at index stack.pop()
                     } else
-                        stack.push(storageMgr.getVariableValue(token.tokenStr));
+                        stack.push(storageMgr.getVariableValue(token));
                     break;
                 case OPERATOR:
                     ResultValue res2 = stack.pop();
@@ -92,8 +92,8 @@ public class Expression {
                         stack.push(res2);
                     } else {
                         res1 = stack.pop();
-                        Numeric num1 = new Numeric(parser, res2, token.tokenStr, "First operand");
-                        Numeric num2 = new Numeric(parser, res1, token.tokenStr, "Second operand");
+                        Numeric num1 = new Numeric(parser, res1, token.tokenStr, "First operand");
+                        Numeric num2 = new Numeric(parser, res2, token.tokenStr, "Second operand");
                         ResultValue res3 = parser.util.doMath(parser, num1, num2, token.tokenStr);
                         stack.push(res3);
                     }
@@ -134,6 +134,7 @@ public class Expression {
                             stack.push(token);
                         }
                     }
+                    break;
                 case SEPARATOR:
                     switch(token.tokenStr){
                         case "(":
@@ -169,8 +170,11 @@ public class Expression {
                                 parser.error("Did not find left bracket match in expression");
                             }
                             break;
-
+                        //case "-":
+                            //if()
+                          //  stack.push(token);
                         default:
+                            token.printToken();
                             parser.error("Invalid separator within expression: '"+token.tokenStr +"' ");
                             break;
                     } // seperator switch
