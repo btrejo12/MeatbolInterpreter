@@ -114,6 +114,7 @@ public class Parser {
                                 error("Must declare size when intantiating an array object: ", array.tokenStr);
                             } else {
                                 // TODO: Call whatever method will get these array variables and save it to Storage manager
+                                scan.getNext(); // Puts us on the equal
                             }
                         } else {
                             ResultValue size = expr.evaluateExpression("]");
@@ -126,7 +127,7 @@ public class Parser {
                         continue;
                     }
                 } else if (scan.nextToken.primClassif == Classif.OPERATOR) { // assigning a variable to a value
-                    assignmentStmt(bExec, scan.currentToken);
+                    assignmentStmt(bExec);
                 } else {
                     error("");
                 }
