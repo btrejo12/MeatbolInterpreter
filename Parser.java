@@ -449,7 +449,12 @@ public class Parser {
                 System.out.print(variable.value);
                 if(scan.currentToken.primClassif != Classif.SEPARATOR)
                     scan.getNext();
-            }else {
+            }else if (scan.currentToken.tokenStr.equals("#")){
+                // We're going to concatenate it anyway, just skip this token and go to what is being added
+                scan.getNext();
+                continue;
+            }
+            else {
                 //System.out.print("From print function: " + scan.currentToken.tokenStr);
                 ResultValue variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);

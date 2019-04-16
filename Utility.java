@@ -149,6 +149,13 @@ public class Utility {
         return result;
     }
 
+    private ResultValue stringConcatenation(Parser parse, Numeric n1, Numeric n2)throws Exception{
+        if(n1.type != SubClassif.STRING){
+            parse.error("Expected first operand to be of type string when using '#' operator. Operand: ", n1.strValue);
+        }
+        String value = n1.strValue + n2.strValue;
+        return new ResultValue(value, "primitive", SubClassif.STRING);
+    }
 
     /**
      * <p>When the math operation is unknown, this function figures it out.</p>
@@ -199,7 +206,7 @@ public class Utility {
      * @return      The ResultValue that was produced from the comparison
      * @throws Exception
      */
-    public ResultValue compareStrings(Numeric s1, Numeric s2, String operator) throws Exception {
+    public ResultValue compareStrings(Parser parser, Numeric s1, Numeric s2, String operator) throws Exception {
         boolean isTrue = true;
         ResultValue res = new ResultValue();
 
@@ -208,7 +215,7 @@ public class Utility {
         } else if (operator.equals("!=")) {
             isTrue = !s1.strValue.equals(s2.strValue);
         } else {
-            throw new Exception("Error: Invalid operator on variables of type String: " + operator);
+            isTrue = stringComparison(parser, s1, s2, operator);
         }
 
         res.type = SubClassif.BOOLEAN;
@@ -219,6 +226,63 @@ public class Utility {
         }
         res.structure = "primitive";
         return res;
+    }
+
+    private boolean stringComparison(Parser parser, Numeric s1, Numeric s2, String operator) throws Exception {
+        String first = s1.strValue;
+        String second = s2.strValue;
+
+        String [] operators = {">", "<", ">=", "<="};
+
+        int i;
+        for(i = 0; i < operators.length; i++){
+            if(operator.equals(operators[i]))
+                break;
+        }
+
+        if(i == operators.length)
+            parser.error("Invalid String operator: ", operator);
+
+        int size = Math.min(first.length(), second.length());
+
+        for(int j = 0; j < size; j++){
+            char left = first.charAt(j);
+            char right = second.charAt(j);
+
+            switch(i){
+                case 0: // >
+                    if (left == right)
+                        continue;
+                    else if (left > right)
+                        return true;
+                    else
+                        return false;
+                case 1: // <
+                    if (left == right)
+                        continue;
+                    else if (left < right)
+                        return true;
+                    else
+                        return false;
+                case 2: // >=
+                    if(left == right)
+                        continue;
+                    else if (left > right)
+                        return true;
+                    else
+                        return false;
+                case 3: // <=
+                    if (left == right)
+                        continue;
+                    else if ( left < right)
+                        return true;
+                    else
+                        return false;
+            }
+
+        }
+
+        return false;
     }
 
     /**
@@ -252,8 +316,8 @@ public class Utility {
         }
 
         // if it is a String comparison, call compareStrings();
-        if (n1.type == SubClassif.STRING && n2.type == SubClassif.STRING) {
-            return compareStrings(n1, n2, operator);
+        if (n1.type == SubClassif.STRING) {
+            return compareStrings(parser, n1, n2, operator);
         }
         // cast n1's value to a num1 (float) regardless if its an int or float
         if (n1.type == SubClassif.INTEGER) {
