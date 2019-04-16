@@ -1,5 +1,6 @@
 package meatbol;
 
+import javax.xml.transform.Result;
 import java.util.ArrayList;
 
 public class Arrayz {
@@ -17,6 +18,7 @@ public class Arrayz {
         if (limit.type != SubClassif.INTEGER)
             throw new Exception("Array size must be of type integer, found:" + limit.value);
         arr = new ResultValue[Integer.parseInt(limit.value)];
+        bounds = Integer.parseInt(limit.value);
     }
 
     public int getBounds(){
@@ -34,6 +36,18 @@ public class Arrayz {
     public void add(ResultValue value) throws Exception{
         // ???
         //TODO: Update the RV's value string in StorageManager
+    }
+
+    public ResultValue get(ResultValue index) throws Exception{
+        ResultValue rv;
+        int ind;
+        try{
+            ind = Integer.parseInt(index.value);
+        } catch (Exception e){
+            throw new Exception("Invalid index");
+        }
+        rv = arr[ind];
+        return rv;
     }
 
     /**

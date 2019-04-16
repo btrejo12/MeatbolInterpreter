@@ -20,6 +20,5 @@ public enum SubClassif
     // DEBUGS' subclassification
     DEBUGTYPE,
     // OPERATOR subclassification
-    UNARY,
-    ARRAY
+    UNARY
 }

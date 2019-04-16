@@ -22,25 +22,7 @@ public class Expression {
     }
 
     public ResultValue evaluateExpression(String terminatingToken) throws Exception{
-        /**
-         * Possible situations for expression to handle:
-         *      --Evaluating assignment statements, e.g. Int i = 3*4+5;
-         *      --Evaluating conditions, e.g. if 2*4 > 6*5:
-         *      --Print functions e.g. print("Hello", i, 5+6);
-         *      Array size declarations, e.g. Int array[variable]
-         *      (Maybe) Array populating, e.g. array[] = 10, 20, 30, 50;
-         *
-         *      1st Step:
-         *          We don't want to use Scanner's get next while converting, so save
-         *          all the elements of this expression into an ArrayList
-         *      2nd Step:
-         *          Convert the expression to postfix if the length is greater than 1,
-         *          we need to be careful here because it might be unary minus for expressions
-         *          of length two.
-         *      3rd Step:
-         *          Evaluate the postfix expression and return the result
-         */
-        ArrayList<Token> exprTokens = new ArrayList<Token>();
+        ArrayList<Token> exprTokens = new ArrayList<>();
 
         // Save expression tokens into an array list
         while (!terminatingToken.contains(scan.currentToken.tokenStr)){
@@ -81,15 +63,18 @@ public class Expression {
     }
 
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
-        Stack<ResultValue> stack = new Stack<ResultValue>();
-        //System.out.print("\nEval:");
+        Stack<ResultValue> stack = new Stack<>();
+        //System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
         while(!tokens.isEmpty()){
             Token token = tokens.remove(0);
             //System.out.print(token.tokenStr);
             switch(token.primClassif){
                 case OPERAND:
-                    if(token.subClassif == SubClassif.ARRAY){
-                        //TODO: Get array element at index stack.pop()
+                    //System.out.print("Operand.." + token.tokenStr);
+                    if(isArray(token)){
+                        //System.out.print("..is array\n");
+                        ResultValue value = getArrayValue(token, stack.pop());
+                        stack.push(value);
                     } else {
                         //System.out.println(token.tokenStr);
                         ResultValue rv = storageMgr.getVariableValue(token);
@@ -110,8 +95,11 @@ public class Expression {
                         stack.push(res3);
                     }
                     break;
+                case FUNCTION:
+
+                    break;
                 default:
-                    parser.error("Invalid token: ", token.tokenStr);
+                    parser.error("Invalid token: '", token.tokenStr, "'");
                     break;
             }
         }
@@ -123,14 +111,16 @@ public class Expression {
     }
 
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
-        Stack<Token> stack = new Stack();
-        ArrayList<Token> out = new ArrayList<Token>();
-        //System.out.print("\nConversion: ");
+        Stack<Token> stack = new Stack<>();
+        ArrayList<Token> out = new ArrayList<>();
+        //System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
         for (Token token: tokens){
-            //System.out.print(token.tokenStr);
+            //System.out.print(token.tokenStr+" ");
             switch(token.primClassif){
                 case OPERAND:
-                    if(token.subClassif == SubClassif.ARRAY){
+                    //System.out.print("Operand: " + token.tokenStr);
+                    if(isArray(token)){
+                        //System.out.print(" is array");
                         stack.push(token); // because array's are higher than everything
                     } else
                         out.add(token);
@@ -160,6 +150,8 @@ public class Expression {
                                 Token popped = stack.pop();
                                 if (popped.tokenStr.equals("(")){
                                     parenthesisCheck = true;
+                                    if(isFunction(stack.peek()))
+                                        out.add(stack.pop());
                                     break;
                                 }
                                 out.add(popped);
@@ -175,6 +167,9 @@ public class Expression {
                             while(!stack.isEmpty()){
                                 Token popped = stack.pop();
                                 if (popped.tokenStr.equals("[")){
+                                    Token array = stack.pop();
+                                    //System.out.println("Should be arr:" + array.tokenStr);
+                                    out.add(array);
                                     bracketCheck = true;
                                     break;
                                 }
@@ -193,6 +188,9 @@ public class Expression {
                             break;
                     } // seperator switch
                     break;
+                case FUNCTION:
+                    stack.push(token);
+                    break;
                 default:
                     parser.error("Invalid token within expression: ", token.tokenStr);
                     break;
@@ -204,6 +202,30 @@ public class Expression {
             out.add(token);
         }
         return out;
+    }
+
+    public boolean isArray(Token token) throws Exception{
+        ResultValue rv = storageMgr.getVariableValue(token);
+        if(rv.structure.equals("fixed-array"))
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isFunction(Token token) throws Exception{
+        ResultValue rv = storageMgr.getVariableValue(token);
+        if(rv.type == SubClassif.BUILTIN || rv.type == SubClassif.USER)
+            return true;
+        else
+            return false;
+    }
+
+    private ResultValue getArrayValue(Token array, ResultValue index) throws Exception{
+        ResultValue element = storageMgr.getVariableValue(array.tokenStr);
+        //System.out.println("From Storage Manager..." + element.value);
+        ResultValue rv = element.arr.get(index);
+        //System.out.println("Array value is..." + rv.value);
+        return rv;
     }
 
 
@@ -235,13 +257,15 @@ public class Expression {
     }
 
     private int getPrecedence(Token token) throws Exception{
-      String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr["};
+      String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr[ fun"};
       String tokenStr = token.tokenStr;
 
       if(token.subClassif == SubClassif.UNARY)
           tokenStr = "U-";
-      else if(token.subClassif == SubClassif.UNARY)
+      else if(isArray(token))
           tokenStr = "arr[";
+      else if(token.primClassif == Classif.FUNCTION)
+          tokenStr = "fun";
 
       int index = -1;
 

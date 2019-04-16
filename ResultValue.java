@@ -35,10 +35,10 @@ public class ResultValue {
     */
 
     public String toString(){
-        if (this.type != SubClassif.ARRAY){
+        if (!structure.equals("fixed-array")){
           return this.value;
         } else {
-            return this.arr.toString();
+            return this.arr.arr.toString();
         }
     }
 }

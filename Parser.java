@@ -62,6 +62,16 @@ public class Parser {
                                 //Call expression to get a list of resultValues to initialize array.
                             } else{
                                 //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
+                                scan.getNext(); // on expr
+                                ResultValue size = expr.evaluateExpression("]");
+                                setSize(array, size);
+                                scan.getNext();
+                                //System.out.println("Just finished setting array to size " + size.value + " current token: " + scan.currentToken.tokenStr);
+                                if(scan.currentToken.tokenStr.equals("=")){
+                                    scan.getNext();
+                                    assignArray(";", array);
+                                } else if (!scan.currentToken.tokenStr.equals(";"))
+                                    error("Expected ';' after array declaration");
                             }
                         }
                         continue;
@@ -399,8 +409,14 @@ public class Parser {
                 if(scan.currentToken.primClassif != Classif.SEPARATOR){
                     scan.getNext();
                 }
-            } */else if (scan.currentToken.primClassif == Classif.OPERAND){
-                ResultValue variable = expr.evaluateExpression(",)");
+            } */
+            else if (scan.currentToken.primClassif == Classif.OPERAND){
+                ResultValue variable;
+                if(expr.isArray(scan.currentToken)){
+                    variable = expr.evaluateExpression(",)");
+                }else {
+                    variable = expr.evaluateExpression(",)");
+                }
                 System.out.print(variable.value);
                 if(scan.currentToken.primClassif != Classif.SEPARATOR)
                     scan.getNext();
@@ -521,18 +537,53 @@ public class Parser {
     }
 
     public void setSize(Token target, ResultValue bounds) throws Exception {
-        ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
+        ResultValue targetRV = storageMgr.getVariableValue(target);
         targetRV.arr.setBounds(bounds);
+        targetRV.structure = "fixed-array";
         storageMgr.updateVariable(target.tokenStr, targetRV);
+        //targetRV = storageMgr.getVariableValue(target);
+        //System.out.println("Setting size for " + target.tokenStr + " of type " + targetRV.structure + " to " + bounds.value);
+
     }
 
     public void assignArray(String endTerm, Token tokAssign) throws Exception {
-        ArrayList<ResultValue> rvList = new ArrayList<ResultValue>();
         ResultValue targetRV = storageMgr.getVariableValue(tokAssign.tokenStr);
         SubClassif type = targetRV.type;
+        StringBuilder valueString = new StringBuilder("");
         int bounds = targetRV.arr.getBounds();
+        int index = 0;
+        ResultValue [] array = new ResultValue[bounds];
 
-        while (!scan.currentToken.tokenStr.equals(endTerm)) {
+        while(!scan.currentToken.tokenStr.equals(endTerm)){
+            if (index >= bounds) {
+                error("Number of variables assigned to " + tokAssign.tokenStr +
+                        " exceeds " + bounds + " found " + index);
+            }
+            if(scan.currentToken.primClassif == Classif.SEPARATOR) {
+                valueString.append(scan.currentToken.tokenStr);
+                scan.getNext();
+                continue;
+            }
+            String element = "";
+            if(type == SubClassif.INTEGER){
+                element =  Integer.toString(Integer.parseInt(scan.currentToken.tokenStr));
+            } else if (type == SubClassif.FLOAT){
+                element = Float.toString(Float.parseFloat(scan.currentToken.tokenStr));
+            } else { // String variables
+                element = scan.currentToken.tokenStr;
+            }
+            valueString.append(element);
+            array[index] = new ResultValue(element, "primitive", type);
+            scan.getNext();
+            index++;
+        }
+        targetRV.arr.arr = array;
+        targetRV.value = valueString.toString();
+        //System.out.print("Array assignment: " + targetRV);
+        storageMgr.updateVariable(tokAssign.tokenStr, targetRV);
+
+
+        /*while (!scan.currentToken.tokenStr.equals(endTerm)) {
             // in the event that one of the tokens is a float and the array is an int array
             if (scan.currentToken.subClassif != type) {
                 if (scan.currentToken.subClassif == SubClassif.FLOAT) {
@@ -552,10 +603,7 @@ public class Parser {
         }
         targetRV.value = rvList.toString();
         targetRV.arr.arr = (ResultValue[]) rvList.toArray();
-        storageMgr.updateVariable(tokAssign.tokenStr, targetRV);
+        storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
 
-    public void setBounds(Token target, int newBounds) {
-
-    }
 }
