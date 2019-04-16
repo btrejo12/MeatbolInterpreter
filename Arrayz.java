@@ -12,6 +12,7 @@ public class Arrayz {
 
     public Arrayz(ResultValue owner){
         this.owner = owner;
+        bounds = -1; //undeclared size
     }
 
     public void setBounds(ResultValue limit) throws Exception{
@@ -19,6 +20,11 @@ public class Arrayz {
             throw new Exception("Array size must be of type integer, found:" + limit.value);
         arr = new ResultValue[Integer.parseInt(limit.value)];
         bounds = Integer.parseInt(limit.value);
+    }
+
+    public void setBounds(int bounds){
+        arr = new ResultValue[bounds];
+        this.bounds = bounds;
     }
 
     public int getBounds(){

@@ -57,8 +57,9 @@ public class Parser {
                                 if (!scan.nextToken.tokenStr.equals("=")) {
                                     error("'=' missing. Arrays without initial bounds must have initial values", scan.nextToken);
                                 }
-
-                                assignArray(";", array);
+                                scan.getNext(); // on equal sign
+                                scan.getNext(); // on values
+                                assignArrayNoSize(array, ";");
                                 //Call expression to get a list of resultValues to initialize array.
                             } else{
                                 //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
@@ -546,10 +547,50 @@ public class Parser {
 
     }
 
+    public void assignArrayNoSize(Token target, String endTerm) throws Exception{
+        ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
+        SubClassif type = targetRV.type;
+        StringBuilder valueString = new StringBuilder();
+        int index = 0;
+        ArrayList<ResultValue> buffer = new ArrayList<>();
+
+        while(!scan.currentToken.tokenStr.equals(endTerm)){
+
+            if(scan.currentToken.primClassif == Classif.SEPARATOR) {
+                valueString.append(scan.currentToken.tokenStr);
+                scan.getNext();
+                continue;
+            }
+            String element;
+            if(type == SubClassif.INTEGER){
+                element =  Integer.toString(Integer.parseInt(scan.currentToken.tokenStr));
+            } else if (type == SubClassif.FLOAT){
+                element = Float.toString(Float.parseFloat(scan.currentToken.tokenStr));
+            } else { // String variables
+                element = scan.currentToken.tokenStr;
+            }
+            valueString.append(element);
+            buffer.add(new ResultValue(element, "primitive", type));
+            scan.getNext();
+            index++;
+        }
+        ResultValue [] array = new ResultValue[index];
+        for(int i = 0; i < buffer.size(); i++){
+            array[i] = buffer.get(i);
+        }
+        targetRV.arr.setBounds(index);
+        targetRV.structure = "fixed-array";
+        targetRV.arr.arr = array;
+        targetRV.value = valueString.toString();
+        //System.out.print("Array assignment: " + targetRV);
+        storageMgr.updateVariable(target.tokenStr, targetRV);
+
+    }
+
     public void assignArray(String endTerm, Token tokAssign) throws Exception {
         ResultValue targetRV = storageMgr.getVariableValue(tokAssign.tokenStr);
         SubClassif type = targetRV.type;
-        StringBuilder valueString = new StringBuilder("");
+        StringBuilder valueString = new StringBuilder();
         int bounds = targetRV.arr.getBounds();
         int index = 0;
         ResultValue [] array = new ResultValue[bounds];
@@ -564,7 +605,7 @@ public class Parser {
                 scan.getNext();
                 continue;
             }
-            String element = "";
+            String element;
             if(type == SubClassif.INTEGER){
                 element =  Integer.toString(Integer.parseInt(scan.currentToken.tokenStr));
             } else if (type == SubClassif.FLOAT){

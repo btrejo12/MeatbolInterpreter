@@ -96,7 +96,7 @@ public class Expression {
                     }
                     break;
                 case FUNCTION:
-
+                    System.err.println("Hi hello, built in functions hasn't been implemented just yet...");
                     break;
                 default:
                     parser.error("Invalid token: '", token.tokenStr, "'");
