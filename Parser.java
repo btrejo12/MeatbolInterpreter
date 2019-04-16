@@ -103,9 +103,30 @@ public class Parser {
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 // This is just declaring a variable
                 if (scan.nextToken.primClassif == Classif.SEPARATOR) {
-                    continue;
+                    // Check if an array variable
+                    if(scan.nextToken.tokenStr.equals("[")){
+                        Token array = scan.currentToken;
+                        scan.getNext();
+                        if(scan.nextToken.tokenStr.equals("]")){
+                            // No size, make sure there's an equal sign
+                            scan.getNext(); // should be on ']'
+                            if(!scan.nextToken.tokenStr.equals("=")){
+                                error("Must declare size when intantiating an array object: ", array.tokenStr);
+                            } else {
+                                // TODO: Call whatever method will get these array variables and save it to Storage manager
+                            }
+                        } else {
+                            ResultValue size = expr.evaluateExpression("]");
+                            // TODO: Put this array in the Storage Manager with this declared size
+                            if(scan.nextToken.primClassif == Classif.OPERATOR){ // Probably an equal sign
+                                // TODO: Do whatever we are going to call to show this datatype.
+                            }
+                        }
+                    } else {
+                        continue;
+                    }
                 } else if (scan.nextToken.primClassif == Classif.OPERATOR) { // assigning a variable to a value
-                    assignmentStmt(bExec);
+                    assignmentStmt(bExec, scan.currentToken);
                 } else {
                     error("");
                 }
