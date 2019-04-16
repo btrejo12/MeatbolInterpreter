@@ -19,6 +19,10 @@ public class Arrayz {
         arr = new ResultValue[Integer.parseInt(limit.value)];
     }
 
+    public int getBounds(){
+        return bounds;
+    }
+
     public void update(int index, ResultValue addition) throws Exception{
         if(index >= bounds || index < 0){
             throw new Exception("Array index out of bounds");
