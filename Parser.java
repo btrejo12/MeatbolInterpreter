@@ -25,7 +25,7 @@ public class Parser {
         try {
             while (scan.trigger){
                 scan.getNext();
-
+                //scan.currentToken.printToken();
                 //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
@@ -41,6 +41,7 @@ public class Parser {
                     //scan.currentToken.printToken(); //for debugging
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // This is a variable being decalred only
+                    //System.out.println(">>>Identifier" + scan.currentToken.tokenStr);
                     if(scan.nextToken.primClassif == Classif.SEPARATOR){
                         //TODO: What if this is '[' for an array reference?
                         if(scan.nextToken.tokenStr.equals("[")){
@@ -64,6 +65,7 @@ public class Parser {
                     }
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
                         handleFunction(true);
+                        //System.out.println("Coming back from function..." + scan.currentToken.tokenStr);
                 } else if (scan.currentToken.primClassif == Classif.DEBUG){
                         handleDebug();
                 }
@@ -209,6 +211,7 @@ public class Parser {
      * @throws Exception
      */
     private ResultValue assignmentStmt(Boolean bExec) throws Exception{
+        //System.out.println("....Enter assignment...");
         ResultValue res = new ResultValue();
         if(!bExec){
             skipTo(";");
@@ -235,6 +238,7 @@ public class Parser {
                 //print("Equal sign assignment");
                 scan.getNext();
                 res2 = expr.evaluateExpression(";");
+                //System.out.println("From assignment>>>" + res2);
                 res = assign(targetVariable, res2);
                 break;
             case "-=": // x -= 5+1;

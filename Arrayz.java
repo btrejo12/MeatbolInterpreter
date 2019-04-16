@@ -29,4 +29,8 @@ public class Arrayz {
 
     }
 
+    public String toString(){
+        return this.arr.toString();
+    }
+
 }

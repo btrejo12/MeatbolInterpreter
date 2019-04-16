@@ -29,4 +29,12 @@ public class ResultValue {
         this.type = type;
         this.arr = new Arrayz(bounds);
     }
+
+    public String toString(){
+        if (this.type != SubClassif.ARRAY){
+          return this.value;
+        } else {
+            return this.arr.toString();
+        }
+    }
 }

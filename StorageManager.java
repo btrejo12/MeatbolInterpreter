@@ -95,7 +95,7 @@ public class StorageManager {
         ResultValue rv = new ResultValue();
 
         // test to see if the variable is a constant
-        if(token.subClassif != SubClassif.IDENTIFIER && token.primClassif == Classif.OPERAND){
+        if(token.subClassif != SubClassif.IDENTIFIER){
             //return basically the token but instead ResultValue
             rv.value = token.tokenStr;
             rv.structure = "primitive";

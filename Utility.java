@@ -149,6 +149,7 @@ public class Utility {
         return result;
     }
 
+
     /**
      * <p>When the math operation is unknown, this function figures it out.</p>
      * @param parser    The parser object that this function was called from
@@ -177,6 +178,9 @@ public class Utility {
                 // conditional cases
             case "^":
                 res = exponentiate(parser, n1, n2);
+                break;
+            case "#":
+                res = stringConcatenation(parser, n1, n2);
                 break;
             default:
                 res = compareNums(parser, n1, n2, operator);

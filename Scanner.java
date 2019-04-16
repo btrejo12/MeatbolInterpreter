@@ -471,7 +471,8 @@ public class Scanner{
             } else {
                 // add symbol to the symbol table
                 symbolTable.putSymbol(varName, newEntry);
-
+                primary = Classif.OPERAND;
+                secondary = SubClassif.IDENTIFIER;
                 ResultValue rv = new ResultValue();
 
                 //TODO: Change this for prg 4 ---------

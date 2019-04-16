@@ -28,6 +28,7 @@ public class Numeric {
         this.type = res.type;
 
         if(res.type == SubClassif.INTEGER){
+            //System.out.print(res);
             this.integerValue = Integer.parseInt(this.strValue);
         } else if (res.type == SubClassif.FLOAT) {
             this.floatValue = Float.parseFloat(this.strValue);
