@@ -1,5 +1,8 @@
 package meatbol;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Parser {
     private Scanner scan;
     private StorageManager storageMgr;
@@ -50,7 +53,12 @@ public class Parser {
                             scan.getNext();
                             if(scan.nextToken.tokenStr.equals("]")) {
                                 //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
+                                scan.getNext();
+                                if (!scan.nextToken.tokenStr.equals("=")) {
+                                    error("'=' missing. Arrays without initial bounds must have initial values", scan.nextToken);
+                                }
 
+                                assignArray(";", array);
                                 //Call expression to get a list of resultValues to initialize array.
                             } else{
                                 //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
@@ -111,7 +119,7 @@ public class Parser {
                             // No size, make sure there's an equal sign
                             scan.getNext(); // should be on ']'
                             if(!scan.nextToken.tokenStr.equals("=")){
-                                error("Must declare size when intantiating an array object: ", array.tokenStr);
+                                error("Must declare size when instantiating an array object: ", array.tokenStr);
                             } else {
                                 // TODO: Call whatever method will get these array variables and save it to Storage manager
                             }
@@ -126,7 +134,7 @@ public class Parser {
                         continue;
                     }
                 } else if (scan.nextToken.primClassif == Classif.OPERATOR) { // assigning a variable to a value
-                    assignmentStmt(bExec, scan.currentToken);
+                    assignmentStmt(bExec);
                 } else {
                     error("");
                 }
@@ -149,81 +157,6 @@ public class Parser {
         res.structure = "";
         return res;
     }
-
-    /**
-     * <p>Used to evaluation an expression and return the result of it</p>
-     * @param endingDelimiter   The delimiter to stop at for this specific expression
-     * @return  The ResultValue that was production from the expression operation
-     * @throws Exception
-     */
-    /*
-    private ResultValue expr(String endingDelimiter) throws Exception{
-
-        ResultValue res = new ResultValue();
-        String expr = "... ";
-
-        // Unary minus
-        if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
-            // Negate the operand
-            if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
-            res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
-            scan.getNext();
-        } else if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.INTEGER){
-            // Negate the operand
-            if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
-            res.value = "-" + scan.nextToken.tokenStr;
-            res.type = SubClassif.INTEGER;
-            res.structure= "int";
-            //res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
-            scan.getNext();
-        }
-        // Single Variable
-        else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
-            if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-            }
-            else {
-                res = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
-            }
-            scan.getNext();
-        }
-        // Simple expression
-        else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
-            //print(scan.currentToken.tokenStr);
-            String firstToken = scan.currentToken.tokenStr;
-            ResultValue res1;
-            ResultValue res2;
-
-            if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
-                res1 = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
-            else
-                res1 = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-
-            scan.getNext(); //moves to operator -, +, etc
-            if(scan.nextToken.primClassif != Classif.OPERAND){
-
-                scan.nextToken.printToken();
-                error("Expected second argument to be of type operand");
-            }
-
-            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER)
-                res2 = new ResultValue(scan.nextToken.tokenStr, "primitive", scan.nextToken.subClassif);
-            else
-                res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
-            Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
-            Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
-            res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
-            expr = expr+res1.value+" "+scan.currentToken.tokenStr+" "+res2.value;
-            scan.getNext();
-            showExpr(expr,res);
-        }
-        // Unknown error
-        else {
-            error("Cannot recognize expression statement. Current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
-        }
-        return res;
-    }
-    */
 
     /**
      * <p>This method is used when an assignment to a variable must be done.</p>
@@ -584,5 +517,44 @@ public class Parser {
      */
     public void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
+    }
+
+    public void setSize(Token target, ResultValue bounds) throws Exception {
+        ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
+        targetRV.arr.setBounds(bounds);
+        storageMgr.updateVariable(target.tokenStr, targetRV);
+    }
+
+    public void assignArray(String endTerm, Token tokAssign) throws Exception {
+        ArrayList<ResultValue> rvList = new ArrayList<ResultValue>();
+        ResultValue targetRV = storageMgr.getVariableValue(tokAssign.tokenStr);
+        SubClassif type = targetRV.type;
+        int bounds = targetRV.arr.getBounds();
+
+        while (!scan.currentToken.tokenStr.equals(endTerm)) {
+            // in the event that one of the tokens is a float and the array is an int array
+            if (scan.currentToken.subClassif != type) {
+                if (scan.currentToken.subClassif == SubClassif.FLOAT) {
+                    int periodIndex = scan.currentToken.tokenStr.indexOf(".");
+                    String casted = scan.currentToken.tokenStr.substring(0, periodIndex);
+                    ResultValue addRV = new ResultValue(casted, "primitive", type);
+                    rvList.add(addRV);
+                    scan.getNext();
+                    continue;
+                }
+            }
+
+            ResultValue addRV = new ResultValue(scan.currentToken.tokenStr, "primitive", type);
+
+            rvList.add(addRV);
+            scan.getNext();
+        }
+        targetRV.value = rvList.toString();
+        targetRV.arr.arr = (ResultValue[]) rvList.toArray();
+        storageMgr.updateVariable(tokAssign.tokenStr, targetRV);
+    }
+
+    public void setBounds(Token target, int newBounds) {
+
     }
 }
