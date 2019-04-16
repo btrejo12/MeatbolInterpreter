@@ -5,28 +5,23 @@ import java.util.ArrayList;
 public class Arrayz {
     public int bounds;
     //public String name;
-    private String arr[];
+    public ArrayList<ResultValue> arr = new ArrayList<ResultValue>();
+    private ResultValue owner;
 
 
-    public Arrayz(int bounds){
-        //this.name = name;
-        this.bounds = bounds;
-        this.arr = new String[bounds];
+    public Arrayz(ResultValue owner){
+        this.owner = owner;
     }
 
-    public void add(int index, String value) throws Exception{
+    public void update(int index, ResultValue addition) throws Exception{
         if(index >= bounds || index < 0){
-            throw new Exception();
+            throw new Exception("Array index out of bounds");
         }
-        arr[index] = value;
+        arr.set(index, addition);
     }
 
-    public void add(String value) throws Exception{
-        for(int i = 0; i< bounds; i++){
-            if(arr[i] != null)
-                arr[i] = value;
-        }
-
+    public void add(ResultValue value) throws Exception{
+        arr.add(value);
     }
 
     public String toString(){

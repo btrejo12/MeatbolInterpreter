@@ -9,7 +9,9 @@ public class ResultValue {
     /**
      * Declared an empty ResultValue
      */
-    public ResultValue() {}
+    public ResultValue() {
+        arr = new Arrayz(this);
+    }
 
     /**
      * <p>Populated constructor for easy declaration of ResultValue object </p>
@@ -23,12 +25,14 @@ public class ResultValue {
         this.type = type;
     }
 
+    /*
     public ResultValue(String value, String structure, SubClassif type, int bounds){
         this.value = value;
         this.structure = structure;
         this.type = type;
         this.arr = new Arrayz(bounds);
     }
+    */
 
     public String toString(){
         if (this.type != SubClassif.ARRAY){
