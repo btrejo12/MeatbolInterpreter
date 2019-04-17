@@ -89,7 +89,41 @@ public class Arrayz {
         return res;
     }
 
+    public ResultValue stringLength() throws Exception{
+        if(owner.type != SubClassif.STRING)
+            throw new Exception("Function 'LENGTH' can only be used on Strings");
+        ResultValue rv = new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
+        return rv;
+    }
+
+    public ResultValue stringSpaces() throws Exception{
+        if(owner.type != SubClassif.STRING)
+            throw new Exception("Function 'SPACES' can only be used on Strings");
+        String valueString = owner.value;
+        int spaces = 0;
+        for(int i = 0; i < valueString.length(); i++){
+            if(valueString.charAt(i) == ' ')
+                spaces++;
+        }
+        ResultValue spacesRV = new ResultValue(Integer.toString(spaces), "primitive", SubClassif.INTEGER);
+        return spacesRV;
+    }
+
     public void updateElement(ResultValue index, ResultValue value) throws Exception{
+        if(owner.type == SubClassif.STRING){
+            StringBuilder valueString = new StringBuilder(owner.value);
+            int position = Integer.parseInt(index.value);
+            if(value.value.length() > 1){
+                int end = Math.min(owner.value.length(), position+value.value.length());
+                valueString.replace(position, end, value.value);
+            } else {
+                char change = value.value.charAt(0);
+                valueString.setCharAt(position, change);
+            }
+            owner.value = valueString.toString();
+            return;
+        }
+        // For array objects
         int idx;
         try {
             idx = Integer.parseInt(index.value);
@@ -110,21 +144,6 @@ public class Arrayz {
                 sb.append(rv.value + ", ");
         }
         owner.value = sb.toString();
-    }
-
-    public ResultValue stringLength(){
-        ResultValue rv = new ResultValue(Integer.toString(arr.length), "primitive", SubClassif.INTEGER);
-        return rv;
-    }
-
-    public ResultValue stringSpaces(){
-        int spaces = 0;
-        for(int i = 0; i < bounds; i++){
-            if(arr[i].value.equals(" "))
-                spaces++;
-        }
-        ResultValue spacesRV = new ResultValue(Integer.toString(spaces), "primitive", SubClassif.INTEGER);
-        return spacesRV;
     }
 
     public String toString(){

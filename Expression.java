@@ -112,7 +112,8 @@ public class Expression {
         ResultValue finalRes = stack.pop();
 
         if(!stack.isEmpty())
-             parser.error("Stack was expected to be empty after evaluating the postfix expr. last thing popped: "+finalRes.value+" next value on stack: " + stack.pop().value);
+             parser.error("Stack was expected to be empty after evaluating the postfix expr." +
+                     "Last thing popped: "+finalRes.value+" next value on stack: " + stack.pop().value);
         return finalRes;
     }
 
@@ -120,7 +121,8 @@ public class Expression {
         Stack<Token> stack = new Stack<>();
         ArrayList<Token> out = new ArrayList<>();
         //System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
-        for (Token token: tokens){
+        for (int i = 0; i < tokens.size(); i++){
+            Token token = tokens.get(i);
             //System.out.print(token.tokenStr+" ");
             switch(token.primClassif){
                 case OPERAND:
@@ -128,6 +130,8 @@ public class Expression {
                     if(isArray(token)){
                         //System.out.print(" is array");
                         stack.push(token); // because array's are higher than everything
+                    } else if(isString(token) && tokens.get(i+1).tokenStr.equals("[")){
+                        stack.push(token);
                     } else
                         out.add(token);
                     break;
@@ -213,6 +217,14 @@ public class Expression {
     public boolean isArray(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
         if(rv.structure.equals("fixed-array"))
+            return true;
+        else
+            return false;
+    }
+
+    public boolean isString(Token token) throws Exception{
+        ResultValue rv = storageMgr.getVariableValue(token);
+        if(rv.type == SubClassif.STRING)
             return true;
         else
             return false;

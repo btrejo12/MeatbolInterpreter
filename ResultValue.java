@@ -24,23 +24,6 @@ public class ResultValue {
         this.value = value;
         this.structure = structure;
         this.type = type;
-
-        if(type == SubClassif.STRING){
-            setStringArray();
-        }
-    }
-
-    private void setStringArray(){
-        int bounds = value.length();
-        arr.setBounds(bounds);
-        ResultValue [] stringRV = new ResultValue[bounds];
-
-        for(int i = 0; i < bounds; i++){
-            String elem = Character.toString(value.charAt(i));
-            ResultValue rv = new ResultValue(elem, "primitive", type);
-            stringRV[i] = rv;
-        }
-        arr.arr = stringRV;
     }
 
     /*
