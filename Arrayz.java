@@ -47,6 +47,12 @@ public class Arrayz {
     }
 
     public ResultValue get(ResultValue index) throws Exception{
+        if(owner.type == SubClassif.STRING){
+            int position = Integer.parseInt(index.value);
+            String element = Character.toString(owner.value.charAt(position));
+            return new ResultValue(element, "primitive", owner.type);
+        }
+
         ResultValue rv;
         int ind;
         try{
@@ -71,6 +77,8 @@ public class Arrayz {
             }
 
         }
+        if(ret != 0)
+            ret++; // Cause clark said plus one for some odd reason
         ResultValue res = new ResultValue(Integer.toString(ret), "primitive", SubClassif.INTEGER);
         return res;
     }
@@ -80,12 +88,7 @@ public class Arrayz {
      * @return
      */
     public ResultValue maxelem(){
-        int counter = 0;
-        for(int i = 0; i < arr.length; i++){
-            if (arr[i] != null)
-                counter++;
-        }
-        ResultValue res = new ResultValue(Integer.toString(counter), "primitive", SubClassif.INTEGER);
+        ResultValue res = new ResultValue(Integer.toString(bounds), "primitive", SubClassif.INTEGER);
         return res;
     }
 

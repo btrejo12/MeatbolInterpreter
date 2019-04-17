@@ -36,6 +36,7 @@ public class Expression {
                 exprTokens.add(scan.currentToken);
             scan.getNext();
         }
+        System.out.println("\nConstructor: " + Arrays.toString(exprTokens.toArray()));
         ResultValue res;
         if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
             try {
@@ -64,7 +65,7 @@ public class Expression {
 
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<ResultValue> stack = new Stack<>();
-        //System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
+        System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
         while(!tokens.isEmpty()){
             Token token = tokens.remove(0);
             //System.out.print(token.tokenStr);
@@ -73,14 +74,23 @@ public class Expression {
                     //System.out.print("Operand.." + token.tokenStr);
                     if(isArray(token)){
                         //System.out.print("..is array\n");
-                        if(!stack.isEmpty()) {
+                        if(token.isArray) { // there's a index we need to get for this array
                             ResultValue value = getArrayValue(token, stack.pop());
                             stack.push(value);
-                        } else {
+                        } else { // otherwise its just a reference to this array
                             ResultValue rv = storageMgr.getVariableValue(token);
                             stack.push(rv);
                         }
-                    } else {
+                    } else if(isString(token)){
+                        //If it's a string array reference, we need to get the value of it
+                        if(token.isArray){
+                            ResultValue value = getArrayValue(token, stack.pop());
+                            stack.push(value);
+                        }else { // Otherwise, we just want to push it on the stack
+                            ResultValue value = storageMgr.getVariableValue(token);
+                            stack.push(value);
+                        }
+                    }else {
                         //System.out.println(token.tokenStr);
                         ResultValue rv = storageMgr.getVariableValue(token);
                         stack.push(rv);
@@ -120,7 +130,7 @@ public class Expression {
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<Token> stack = new Stack<>();
         ArrayList<Token> out = new ArrayList<>();
-        //System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
+        System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
         for (int i = 0; i < tokens.size(); i++){
             Token token = tokens.get(i);
             //System.out.print(token.tokenStr+" ");
@@ -129,9 +139,17 @@ public class Expression {
                     //System.out.print("Operand: " + token.tokenStr);
                     if(isArray(token)){
                         //System.out.print(" is array");
+                        if(tokens.get(i+1).tokenStr.equals("["))
+                            token.isArray = true;
                         stack.push(token); // because array's are higher than everything
-                    } else if(isString(token) && tokens.get(i+1).tokenStr.equals("[")){
-                        stack.push(token);
+                    } else if(isString(token)){
+                        int index = i+1;
+                        if( !(index >= tokens.size()) && tokens.get(index).tokenStr.equals("[")){
+                            token.isArray = true;
+                            stack.push(token);
+                        }else {
+                            out.add(token);
+                        }
                     } else
                         out.add(token);
                     break;

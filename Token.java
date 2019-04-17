@@ -25,6 +25,7 @@ public class Token
      * relative to zero.
      */
     public int iColPos = 0;
+    public boolean isArray = false;
     
     public Token(String value)
     {

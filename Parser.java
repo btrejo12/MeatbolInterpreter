@@ -597,7 +597,7 @@ public class Parser {
             }
             String element;
             if(type == SubClassif.INTEGER){
-                element =  Integer.toString(Integer.parseInt(scan.currentToken.tokenStr));
+                element =  Integer.toString((int)(Float.parseFloat(scan.currentToken.tokenStr)));
             } else if (type == SubClassif.FLOAT){
                 element = Float.toString(Float.parseFloat(scan.currentToken.tokenStr));
             } else { // String variables
@@ -641,7 +641,7 @@ public class Parser {
             }
             String element;
             if(type == SubClassif.INTEGER){
-                element =  Integer.toString(Integer.parseInt(scan.currentToken.tokenStr));
+                element =  Integer.toString((int)(Float.parseFloat(scan.currentToken.tokenStr)));
             } else if (type == SubClassif.FLOAT){
                 element = Float.toString(Float.parseFloat(scan.currentToken.tokenStr));
             } else { // String variables
