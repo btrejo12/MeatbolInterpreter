@@ -73,8 +73,13 @@ public class Expression {
                     //System.out.print("Operand.." + token.tokenStr);
                     if(isArray(token)){
                         //System.out.print("..is array\n");
-                        ResultValue value = getArrayValue(token, stack.pop());
-                        stack.push(value);
+                        if(!stack.isEmpty()) {
+                            ResultValue value = getArrayValue(token, stack.pop());
+                            stack.push(value);
+                        } else {
+                            ResultValue rv = storageMgr.getVariableValue(token);
+                            stack.push(rv);
+                        }
                     } else {
                         //System.out.println(token.tokenStr);
                         ResultValue rv = storageMgr.getVariableValue(token);
@@ -96,7 +101,8 @@ public class Expression {
                     }
                     break;
                 case FUNCTION:
-                    System.err.println("Hi hello, built in functions hasn't been implemented just yet...");
+                    ResultValue functionReturn = handleFunction(token, stack.pop());
+                    stack.push(functionReturn);
                     break;
                 default:
                     parser.error("Invalid token: '", token.tokenStr, "'");
@@ -218,6 +224,32 @@ public class Expression {
             return true;
         else
             return false;
+    }
+
+    private ResultValue handleFunction(Token function, ResultValue parameter) throws Exception{
+        ResultValue rv = new ResultValue();
+        switch(function.tokenStr){
+            case "LENGTH":
+                if(parameter.type != SubClassif.STRING)
+                    parser.error("Function 'LENGTH' can only be used on String");
+                return parameter.arr.stringLength();
+            case "SPACES":
+                if(parameter.type != SubClassif.STRING)
+                    parser.error("Function'SPACES' can only be used on String");
+                return parameter.arr.stringSpaces();
+            case "ELEM":
+                if(!parameter.structure.equals("fixed-array"))
+                    parser.error("ELEM can only be used on arrays");
+                return parameter.arr.elem();
+            case "MAXELEM":
+                if(!parameter.structure.equals("fixed-array"))
+                    parser.error("MAXELEM can only be ued on arrays");
+                return parameter.arr.maxelem();
+            default:
+                parser.error("Unknown function defined");
+                break;
+        }
+        return rv;
     }
 
     private ResultValue getArrayValue(Token array, ResultValue index) throws Exception{

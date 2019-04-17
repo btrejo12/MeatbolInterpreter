@@ -44,7 +44,7 @@ public class Parser {
                     }
                     //scan.currentToken.printToken(); //for debugging
                 } else if (scan.currentToken.subClassif == SubClassif.DECLARE){
-                    System.out.println("Declare is.." + scan.currentToken.tokenStr);
+                    //System.out.println("Declare is.." + scan.currentToken.tokenStr);
                     scan.getNext();
                     if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
                         error("Expected identifier after declare " + scan.currentToken.tokenStr);

@@ -8,10 +8,12 @@ public class Arrayz {
     //public String name;
     public ResultValue []  arr;
     private ResultValue owner;
+    private SubClassif type;
 
 
     public Arrayz(ResultValue owner){
         this.owner = owner;
+        this.type = owner.type;
         bounds = -1; //undeclared size
     }
 
@@ -60,26 +62,31 @@ public class Arrayz {
      * Returns the subscript of the highest populated element
      * @return The index of the highest populated element
      */
-    public int elem(){
-        int ret = -1;
-        for(int i = arr.length; i >=0; i--){
-            if(arr[i] != null)
+    public ResultValue elem(){
+        int ret = 0;
+        for(int i = arr.length-1; i >=0; i--){
+            if(arr[i] != null) {
                 ret = i;
+                break;
+            }
+
         }
-        return ret;
+        ResultValue res = new ResultValue(Integer.toString(ret), "primitive", SubClassif.INTEGER);
+        return res;
     }
 
     /**
      * Returns the number of populated elements.
      * @return
      */
-    public int maxelem(){
+    public ResultValue maxelem(){
         int counter = 0;
         for(int i = 0; i < arr.length; i++){
             if (arr[i] != null)
                 counter++;
         }
-        return counter;
+        ResultValue res = new ResultValue(Integer.toString(counter), "primitive", SubClassif.INTEGER);
+        return res;
     }
 
     public void updateElement(ResultValue index, ResultValue value) throws Exception{
@@ -90,15 +97,34 @@ public class Arrayz {
             throw new Exception("Invalid index: " + index.value);
         }
         arr[idx] = value;
-        updateString();
+        if(value.type != SubClassif.STRING)
+            updateString();
     }
 
     public void updateString(){
         StringBuilder sb = new StringBuilder();
         for(ResultValue rv: arr){
-            sb.append(rv.value + ", ");
+            if(rv == null)
+                sb.append("null, ");
+            else
+                sb.append(rv.value + ", ");
         }
         owner.value = sb.toString();
+    }
+
+    public ResultValue stringLength(){
+        ResultValue rv = new ResultValue(Integer.toString(arr.length), "primitive", SubClassif.INTEGER);
+        return rv;
+    }
+
+    public ResultValue stringSpaces(){
+        int spaces = 0;
+        for(int i = 0; i < bounds; i++){
+            if(arr[i].value.equals(" "))
+                spaces++;
+        }
+        ResultValue spacesRV = new ResultValue(Integer.toString(spaces), "primitive", SubClassif.INTEGER);
+        return spacesRV;
     }
 
     public String toString(){
