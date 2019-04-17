@@ -82,6 +82,25 @@ public class Arrayz {
         return counter;
     }
 
+    public void updateElement(ResultValue index, ResultValue value) throws Exception{
+        int idx;
+        try {
+            idx = Integer.parseInt(index.value);
+        } catch(Exception e){
+            throw new Exception("Invalid index: " + index.value);
+        }
+        arr[idx] = value;
+        updateString();
+    }
+
+    public void updateString(){
+        StringBuilder sb = new StringBuilder();
+        for(ResultValue rv: arr){
+            sb.append(rv.value + ", ");
+        }
+        owner.value = sb.toString();
+    }
+
     public String toString(){
         return this.arr.toString();
     }
