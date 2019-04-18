@@ -93,8 +93,8 @@ public class Arrayz {
     }
 
     public ResultValue stringLength() throws Exception{
-        if(owner.type != SubClassif.STRING)
-            throw new Exception("Function 'LENGTH' can only be used on Strings");
+        //if(owner.type != SubClassif.STRING)
+            //throw new Exception("Function 'LENGTH' can only be used on Strings");
         ResultValue rv = new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
         return rv;
     }

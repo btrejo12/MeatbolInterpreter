@@ -39,7 +39,7 @@ public class Parser {
                     } else if (scan.currentToken.tokenStr.equals("for")){
                         //TODO: Handle for loops bruh
                         forStmt(true);
-                        error("Trying to run a for loop and we havent written code for this");
+                        //error("Trying to run a for loop and we havent written code for this");
                     } else if (scan.currentToken.tokenStr.equals("while")){
                         whileStmt(true);
                     }
@@ -684,14 +684,14 @@ public class Parser {
         targetRV.arr.arr = (ResultValue[]) rvList.toArray();
         storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
-    public void forStmt(boolean bExec) {
+    public void forStmt(boolean bExec) throws Exception{
         int colPos = 0, lineNum = 0;
         //colPos = scan.currentToken.iColPos;
         //lineNum = scan.currentToken.iSourceLineNr;
         ResultValue rv;
 
         if (!bExec) {
-            skiptTo(":");
+            skipTo(":");
             rv = executeStatements(false);
         } else {
 
@@ -715,13 +715,11 @@ public class Parser {
                 */
                     //ResultValue rv;
                     String ctrlVar = scan.currentToken.tokenStr;
-                    try {
-                        rv = storageMgr.getVariableValue(scan.currentToken);
-                    } catch (Exception e) {
-                        error(e.getMessage);
-                    }
 
-                    if (rv.subClassif != SubClassif.INTEGER) {
+                    rv = storageMgr.getVariableValue(scan.currentToken);
+
+
+                    if (rv.type != SubClassif.INTEGER) {
                         error("Control variable must be an integer if an assignment is done in the for loop."
                                 , scan.currentToken);
                     }
@@ -746,17 +744,16 @@ public class Parser {
                     ResultValue endCond = expr.evaluateExpression(":");
 
                     // Compare the ctrlVar and endCond values
-                    int ctrl = 0, end = 0;
-                    try {
-                        ctrl = Integer.parseInt(rv.value);
-                        end = Integer.parseInt(endCond.value);
-                    } catch (Exception e) {
-                        error(e.getMessage());
-                    }
+                    int ctrl = 0;
+                    int end = 0;
+
+                    //ctrl = Integer.parseInt(rv.value);
+                    end = Integer.parseInt(endCond.value);
+
                     ResultValue rvBool;
-                    for (ctrl; ctrl < end; ctrl++) {
+                    for (ctrl=Integer.parseInt(rv.value); ctrl < end; ctrl++) {
                         rvBool = executeStatements(bExec);
-                        if (!rvBool.terminatingString.equals("endfor")) {
+                        if (!rvBool.terminatingStr.equals("endfor")) {
                             error("Expected 'endfor' for created for loop");
                         }
                         scan.setPosition(lineNum, colPos);
@@ -765,8 +762,8 @@ public class Parser {
             }
         }
 
-        if(!rv.terminatingStr.equals("endfor"))
-            error("Expected 'endfor' after while loop");
+        //if(!rv.terminatingStr.equals("endfor"))
+        //    error("Expected 'endfor' after while loop");
         scan.getNext();
         if(!scan.currentToken.tokenStr.equals(";"))
             error("Expected ';' after 'endfor'");

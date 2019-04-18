@@ -238,9 +238,10 @@ public class Expression {
         exprTokens.add(scan.currentToken);
         scan.getNext();
         while(!scan.currentToken.tokenStr.equals(terminatingString)){
-            if(scan.currentToken.equals("("))
+            if(scan.currentToken.tokenStr.equals("("))
                 exprTokens = embeddedParenthesis(exprTokens, terminatingString);
-            exprTokens.add(scan.currentToken);
+            else
+                exprTokens.add(scan.currentToken);
             scan.getNext();
         }
         exprTokens.add(scan.currentToken);
@@ -275,8 +276,8 @@ public class Expression {
         ResultValue rv = new ResultValue();
         switch(function.tokenStr){
             case "LENGTH":
-                if(parameter.type != SubClassif.STRING)
-                    parser.error("Function 'LENGTH' can only be used on String");
+                //if(parameter.type != SubClassif.STRING)
+                    //parser.error("Function 'LENGTH' can only be used on String");
                 return parameter.arr.stringLength();
             case "SPACES":
                 if(parameter.type != SubClassif.STRING)
