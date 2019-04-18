@@ -38,7 +38,8 @@ public class Parser {
                         System.err.println("User defined functions are not being used in this programming assignment.");
                     } else if (scan.currentToken.tokenStr.equals("for")){
                         //TODO: Handle for loops bruh
-                        forStmt(true);
+                        scan.getNext();
+                        forStmt(true, false);
                         //error("Trying to run a for loop and we havent written code for this");
                     } else if (scan.currentToken.tokenStr.equals("while")){
                         whileStmt(true);
@@ -684,8 +685,9 @@ public class Parser {
         targetRV.arr.arr = (ResultValue[]) rvList.toArray();
         storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
-    public void forStmt(boolean bExec) throws Exception{
-        int colPos = 0, lineNum = 0;
+    public void forStmt(boolean bExec, boolean loopBack) throws Exception{
+        int iColPos = scan.currentToken.iColPos;
+        int iLineNum = scan.currentToken.iSourceLineNr;
         //colPos = scan.currentToken.iColPos;
         //lineNum = scan.currentToken.iSourceLineNr;
         ResultValue rv;
@@ -756,7 +758,7 @@ public class Parser {
                         if (!rvBool.terminatingStr.equals("endfor")) {
                             error("Expected 'endfor' for created for loop");
                         }
-                        scan.setPosition(lineNum, colPos);
+                        scan.setPosition(iLineNum, iColPos);
                     }
                 }
             }

@@ -443,7 +443,10 @@ public class Scanner{
             return SubClassif.STRING;
         if(type.equals("Date"))
             return SubClassif.DATE;
+        if(type.equals("for"))
+            return SubClassif.FLOW;
         throw new Exception();
+
     }
 
     /**
@@ -466,7 +469,7 @@ public class Scanner{
                     primary = Classif.DEBUG;
                     secondary = SubClassif.EMPTY;
                 }
-            } else if (currentToken.subClassif != SubClassif.DECLARE){
+            } else if (currentToken.subClassif != SubClassif.DECLARE && currentToken.subClassif != SubClassif.FLOW){
                 throw new Exception("Variable '" + varName + "' has not been initialized.");
             } else {
                 // add symbol to the symbol table
