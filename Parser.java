@@ -38,6 +38,7 @@ public class Parser {
                         System.err.println("User defined functions are not being used in this programming assignment.");
                     } else if (scan.currentToken.tokenStr.equals("for")){
                         //TODO: Handle for loops bruh
+                        forStmt(true);
                         error("Trying to run a for loop and we havent written code for this");
                     } else if (scan.currentToken.tokenStr.equals("while")){
                         whileStmt(true);
@@ -140,8 +141,10 @@ public class Parser {
                     ifStmt(bExec);
                 } else if (scan.currentToken.tokenStr.equals("while")) {
                     whileStmt(bExec);
+                } else if (scan.currentToken.tokenStr.equals("for")){
+                    forStmt(bExec);
                 } else {
-                    error("Brenda wtf is wrong with you there's only 2 flows:" + scan.currentToken.tokenStr);
+                    error("Brenda wtf is wrong with you there's only 3 flows:" + scan.currentToken.tokenStr);
                 }
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 // This is just declaring a variable
@@ -681,5 +684,91 @@ public class Parser {
         targetRV.arr.arr = (ResultValue[]) rvList.toArray();
         storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
+    public void forStmt(boolean bExec) {
+        int colPos = 0, lineNum = 0;
+        //colPos = scan.currentToken.iColPos;
+        //lineNum = scan.currentToken.iSourceLineNr;
+        ResultValue rv;
 
+        if (!bExec) {
+            skiptTo(":");
+            rv = executeStatements(false);
+        } else {
+
+            if (scan.nextToken.subClassif == SubClassif.IDENTIFIER) {
+            /*
+            Shift the current token to the identifier
+
+            There should be two situations:
+            1. It is an identifier that will be assigned a value (e.g. i = 0)
+               The variable must be an integer.
+            2. It is an identifier within an array (basically a for each)
+             */
+                scan.getNext();
+
+                // This is situation 1
+                if (scan.nextToken.tokenStr.equals("=")) {
+                /*
+                We first need to check if the variable (currentToken) already exists
+                in the StorageManager. If it doesn't, throw an error stating that the
+                variable needs to exist in order to do an assignment on it.
+                */
+                    //ResultValue rv;
+                    String ctrlVar = scan.currentToken.tokenStr;
+                    try {
+                        rv = storageMgr.getVariableValue(scan.currentToken);
+                    } catch (Exception e) {
+                        error(e.getMessage);
+                    }
+
+                    if (rv.subClassif != SubClassif.INTEGER) {
+                        error("Control variable must be an integer if an assignment is done in the for loop."
+                                , scan.currentToken);
+                    }
+
+                    // current Token is now the = and the new value we're assigning ctrlVar to
+                    scan.getNext();
+
+                    rv.value = scan.nextToken.tokenStr;
+                    storageMgr.updateVariable(ctrlVar, rv);
+
+                    // current = new value, next should "to"
+                    scan.getNext();
+
+                    if (!scan.nextToken.tokenStr.equals("to")) {
+                        error("Expected 'to' for constructed for loop", scan.nextToken);
+                    }
+
+                    //So currentToken is the first element of the expression
+                    scan.getNext(); // current = 'to', next = beginning of expr
+                    scan.getNext(); // current = beginning of expr, next = either next part of expr or ':'
+
+                    ResultValue endCond = expr.evaluateExpression(":");
+
+                    // Compare the ctrlVar and endCond values
+                    int ctrl = 0, end = 0;
+                    try {
+                        ctrl = Integer.parseInt(rv.value);
+                        end = Integer.parseInt(endCond.value);
+                    } catch (Exception e) {
+                        error(e.getMessage());
+                    }
+                    ResultValue rvBool;
+                    for (ctrl; ctrl < end; ctrl++) {
+                        rvBool = executeStatements(bExec);
+                        if (!rvBool.terminatingString.equals("endfor")) {
+                            error("Expected 'endfor' for created for loop");
+                        }
+                        scan.setPosition(lineNum, colPos);
+                    }
+                }
+            }
+        }
+
+        if(!rv.terminatingStr.equals("endfor"))
+            error("Expected 'endfor' after while loop");
+        scan.getNext();
+        if(!scan.currentToken.tokenStr.equals(";"))
+            error("Expected ';' after 'endfor'");
+    }
 }
