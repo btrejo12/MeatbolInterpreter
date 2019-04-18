@@ -26,19 +26,21 @@ public class Expression {
 
         // Save expression tokens into an array list
         while (!terminatingToken.contains(scan.currentToken.tokenStr)){
-            if(scan.currentToken.tokenStr.equals("(")){ //embedded parenthesis
-                while (!scan.currentToken.tokenStr.equals(")")){
-                    exprTokens.add(scan.currentToken);
-                    scan.getNext();
-                }
+            if(scan.currentToken.tokenStr.equals("(")) { //embedded parenthesis
+                exprTokens = embeddedParenthesis(exprTokens, ")");
+            } else {
                 exprTokens.add(scan.currentToken);
-            }else
-                exprTokens.add(scan.currentToken);
+            }
             scan.getNext();
         }
-        System.out.println("\nConstructor: " + Arrays.toString(exprTokens.toArray()));
+        //System.out.println("\nConstructor: " + Arrays.toString(exprTokens.toArray()));
         ResultValue res;
-        if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
+        if(exprTokens.size() == 0){
+            // Probably assigning an empty string to a variable
+            res = new ResultValue("", "primitive", SubClassif.STRING);
+            return res;
+        }
+        else if (exprTokens.size() == 1){    // This is only one token, convert to RV and return
             try {
                 Token token = exprTokens.get(0);
                 if(token.subClassif == SubClassif.IDENTIFIER)
@@ -65,7 +67,7 @@ public class Expression {
 
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<ResultValue> stack = new Stack<>();
-        System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
+        //System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
         while(!tokens.isEmpty()){
             Token token = tokens.remove(0);
             //System.out.print(token.tokenStr);
@@ -115,7 +117,7 @@ public class Expression {
                     stack.push(functionReturn);
                     break;
                 default:
-                    parser.error("Invalid token: '", token.tokenStr, "'");
+                    parser.error("Invalid token: '" + token.tokenStr +"'");
                     break;
             }
         }
@@ -130,7 +132,7 @@ public class Expression {
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<Token> stack = new Stack<>();
         ArrayList<Token> out = new ArrayList<>();
-        System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
+        //System.out.print("\nConversion: " + Arrays.toString(tokens.toArray()));
         for (int i = 0; i < tokens.size(); i++){
             Token token = tokens.get(i);
             //System.out.print(token.tokenStr+" ");
@@ -230,6 +232,19 @@ public class Expression {
             out.add(token);
         }
         return out;
+    }
+
+    private ArrayList<Token> embeddedParenthesis(ArrayList<Token> exprTokens, String terminatingString) throws Exception{
+        exprTokens.add(scan.currentToken);
+        scan.getNext();
+        while(!scan.currentToken.tokenStr.equals(terminatingString)){
+            if(scan.currentToken.equals("("))
+                exprTokens = embeddedParenthesis(exprTokens, terminatingString);
+            exprTokens.add(scan.currentToken);
+            scan.getNext();
+        }
+        exprTokens.add(scan.currentToken);
+        return exprTokens;
     }
 
     public boolean isArray(Token token) throws Exception{

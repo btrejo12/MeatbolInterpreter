@@ -428,6 +428,7 @@ public class Parser {
         }
         scan.getNext();
         while(true) {
+            //scan.currentToken.printToken();
             if (scan.currentToken.subClassif == SubClassif.STRING) {
                 //This is a string literal, we should print it
                 System.out.print(scan.currentToken.tokenStr);

@@ -103,12 +103,17 @@ public class Arrayz {
         if(owner.type != SubClassif.STRING)
             throw new Exception("Function 'SPACES' can only be used on Strings");
         String valueString = owner.value;
-        int spaces = 0;
-        for(int i = 0; i < valueString.length(); i++){
-            if(valueString.charAt(i) == ' ')
-                spaces++;
+        String rvBool="T";
+        if(valueString.length() == 0){
+            rvBool = "T";
+        }else {
+            for (int i = 0; i < valueString.length(); i++) {
+                if (valueString.charAt(i) != ' '){
+                    rvBool = "F";
+                }
+            }
         }
-        ResultValue spacesRV = new ResultValue(Integer.toString(spaces), "primitive", SubClassif.INTEGER);
+        ResultValue spacesRV = new ResultValue(rvBool, "primitive", SubClassif.BOOLEAN);
         return spacesRV;
     }
 
