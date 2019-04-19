@@ -90,8 +90,7 @@ public class Parser {
                             scan.nextToken.printToken();
                         }
                     }
-                }
-                else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
+                } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
                     // TODO: This is a variable that should already exist, we are assigning something new to it
                     if(scan.nextToken.tokenStr.equals("[")){        // Updating array value
                         Token target = scan.currentToken;
@@ -128,9 +127,8 @@ public class Parser {
      */
     private ResultValue executeStatements(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
-
         if (!scan.currentToken.tokenStr.equals(":"))
-            error("Expected a ':' currentToken value is " + scan.currentToken.tokenStr);
+            error("Expected a ':' currentToken value is: " + scan.currentToken.tokenStr);
 
         // shift so the currentToken is the first token after the :
         scan.getNext();
@@ -143,50 +141,78 @@ public class Parser {
                 } else if (scan.currentToken.tokenStr.equals("while")) {
                     whileStmt(bExec);
                 } else if (scan.currentToken.tokenStr.equals("for")){
-                    forStmt(bExec);
+                    scan.getNext();
+                    forStmt(bExec, false);
                 } else {
-                    error("Brenda wtf is wrong with you there's only 3 flows:" + scan.currentToken.tokenStr);
+                    error("Cannot recognize flow token: " + scan.currentToken.tokenStr);
+                }
+            } else if (scan.currentToken.subClassif == SubClassif.DECLARE){
+                //System.out.println("Declare is.." + scan.currentToken.tokenStr);
+                scan.getNext();
+                if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
+                    error("Expected identifier after declare " + scan.currentToken.tokenStr);
+                else{
+                    if(scan.nextToken.primClassif == Classif.SEPARATOR){
+                        if(scan.nextToken.tokenStr.equals("[")){
+                            //first find what's inside the brackets
+                            Token array = scan.currentToken;
+                            scan.getNext();
+                            if(scan.nextToken.tokenStr.equals("]")) {
+                                //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
+                                scan.getNext();
+                                if (!scan.nextToken.tokenStr.equals("=")) {
+                                    error("'=' missing. Arrays without initial bounds must have initial values " + scan.nextToken);
+                                }
+                                scan.getNext(); // on equal sign
+                                scan.getNext(); // on values
+                                assignArrayNoSize(array, ";");
+                                //Call expression to get a list of resultValues to initialize array.
+                            } else{
+                                //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
+                                scan.getNext(); // on expr
+                                ResultValue size = expr.evaluateExpression("]");
+                                setSize(array, size);
+                                scan.getNext();
+                                //System.out.println("Just finished setting array to size " + size.value + " current token: " + scan.currentToken.tokenStr);
+                                if(scan.currentToken.tokenStr.equals("=")){
+                                    scan.getNext();
+                                    assignArray(";", array);
+                                } else if (!scan.currentToken.tokenStr.equals(";"))
+                                    error("Expected ';' after array declaration");
+                            }
+                        } else if(!scan.nextToken.tokenStr.equals(";")) {
+                            System.out.println("Mmm..." + scan.nextToken.tokenStr);
+                            error("Must end with ';' to finish variable declaration");
+                        }
+                    } else if (scan.nextToken.primClassif == Classif.OPERATOR){
+                        assignmentStmt(bExec);
+                    } else {
+                        //Not sure here
+                        scan.nextToken.printToken();
+                    }
                 }
             } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
                 // This is just declaring a variable
-                if (scan.nextToken.primClassif == Classif.SEPARATOR) {
-                    // Check if an array variable
-                    if(scan.nextToken.tokenStr.equals("[")){
-                        Token array = scan.currentToken;
-                        scan.getNext();
-                        if(scan.nextToken.tokenStr.equals("]")){
-                            // No size, make sure there's an equal sign
-                            scan.getNext(); // should be on ']'
-                            if(!scan.nextToken.tokenStr.equals("=")){
-                                error("Must declare size when instantiating an array object: ", array.tokenStr);
-                            } else {
-                                // TODO: Call whatever method will get these array variables and save it to Storage manager
-                                scan.getNext(); // Puts us on the equal
-                            }
-                        } else {
-                            ResultValue size = expr.evaluateExpression("]");
-                            // TODO: Put this array in the Storage Manager with this declared size
-                            if(scan.nextToken.primClassif == Classif.OPERATOR){ // Probably an equal sign
-                                // TODO: Do whatever we are going to call to show this datatype.
-                            }
-                        }
-                    } else {
-                        continue;
-                    }
-                } else if (scan.nextToken.primClassif == Classif.OPERATOR) { // assigning a variable to a value
-                    assignmentStmt(bExec);
+                if(scan.nextToken.tokenStr.equals("[")){        // Updating array value
+                    Token target = scan.currentToken;
+                    scan.getNext(); // [
+                    scan.getNext(); // expr
+                    ResultValue index = expr.evaluateExpression("]");
+                    scan.getNext(); // on '=' i think
+                    if(!scan.currentToken.tokenStr.equals("="))
+                        error("Expected '=' with this array assignment");
+                    scan.getNext();
+                    ResultValue value = expr.evaluateExpression(";");
+                    updateArrayValue(target, index, value);
                 } else {
-                    error("");
+                    assignmentStmt(bExec);
                 }
             } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
                 // The only function that should work is print
                 handleFunction(bExec);
             } else if (scan.currentToken.primClassif == Classif.DEBUG) {
                 handleDebug();
-            } else {
-                //error("There's an issue with the currentToken, Clarence why." + scan.currentToken.tokenStr);
             }
-
             // shift
             scan.getNext();
         }
@@ -388,11 +414,13 @@ public class Parser {
         scan.getNext();
         ResultValue result = expr.evaluateExpression(":");
 
-        if(result.value.equals("T"))
+        if(result.value.equals("T")) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
+    
 
     /**
      * <p>Moves current token to the specified string</p>
@@ -446,11 +474,7 @@ public class Parser {
             } */
             else if (scan.currentToken.primClassif == Classif.OPERAND){
                 ResultValue variable;
-                if(expr.isArray(scan.currentToken)){
-                    variable = expr.evaluateExpression(",)");
-                }else {
-                    variable = expr.evaluateExpression(",)");
-                }
+                variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);
                 if(scan.currentToken.primClassif != Classif.SEPARATOR)
                     scan.getNext();
@@ -661,113 +685,33 @@ public class Parser {
         targetRV.value = valueString.toString();
         //System.out.print("Array assignment: " + targetRV);
         storageMgr.updateVariable(tokAssign.tokenStr, targetRV);
-
-
-        /*while (!scan.currentToken.tokenStr.equals(endTerm)) {
-            // in the event that one of the tokens is a float and the array is an int array
-            if (scan.currentToken.subClassif != type) {
-                if (scan.currentToken.subClassif == SubClassif.FLOAT) {
-                    int periodIndex = scan.currentToken.tokenStr.indexOf(".");
-                    String casted = scan.currentToken.tokenStr.substring(0, periodIndex);
-                    ResultValue addRV = new ResultValue(casted, "primitive", type);
-                    rvList.add(addRV);
-                    scan.getNext();
-                    continue;
-                }
-            }
-
-            ResultValue addRV = new ResultValue(scan.currentToken.tokenStr, "primitive", type);
-
-            rvList.add(addRV);
-            scan.getNext();
-        }
-        targetRV.value = rvList.toString();
-        targetRV.arr.arr = (ResultValue[]) rvList.toArray();
-        storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
-    public void forStmt(boolean bExec, boolean loopBack) throws Exception{
-        int iColPos = scan.currentToken.iColPos;
-        int iLineNum = scan.currentToken.iSourceLineNr;
-        //colPos = scan.currentToken.iColPos;
-        //lineNum = scan.currentToken.iSourceLineNr;
-        ResultValue rv;
+    public void forStmt(boolean bExec, boolean loopBack) throws Exception {
 
-        if (!bExec) {
+        ResultValue rv;
+        if(bExec){
+            ForLoopControl forControl = new ForLoopControl(this, scan, storageMgr, expr);
+            forControl.setUpCondition();
+            //scan.currentToken.printToken();
+            int iColPos = scan.currentToken.iColPos;
+            int iLineNum = scan.currentToken.iSourceLineNr;
+            while(forControl.evaluateCondition()){
+                //System.out.println("Entering while in for..." + scan.currentToken.tokenStr);
+                executeStatements(true);
+                scan.setPosition(iLineNum, iColPos);
+            }
             skipTo(":");
             rv = executeStatements(false);
-        } else {
 
-            if (scan.nextToken.subClassif == SubClassif.IDENTIFIER) {
-            /*
-            Shift the current token to the identifier
-
-            There should be two situations:
-            1. It is an identifier that will be assigned a value (e.g. i = 0)
-               The variable must be an integer.
-            2. It is an identifier within an array (basically a for each)
-             */
-                scan.getNext();
-
-                // This is situation 1
-                if (scan.nextToken.tokenStr.equals("=")) {
-                /*
-                We first need to check if the variable (currentToken) already exists
-                in the StorageManager. If it doesn't, throw an error stating that the
-                variable needs to exist in order to do an assignment on it.
-                */
-                    //ResultValue rv;
-                    String ctrlVar = scan.currentToken.tokenStr;
-
-                    rv = storageMgr.getVariableValue(scan.currentToken);
-
-
-                    if (rv.type != SubClassif.INTEGER) {
-                        error("Control variable must be an integer if an assignment is done in the for loop."
-                                , scan.currentToken);
-                    }
-
-                    // current Token is now the = and the new value we're assigning ctrlVar to
-                    scan.getNext();
-
-                    rv.value = scan.nextToken.tokenStr;
-                    storageMgr.updateVariable(ctrlVar, rv);
-
-                    // current = new value, next should "to"
-                    scan.getNext();
-
-                    if (!scan.nextToken.tokenStr.equals("to")) {
-                        error("Expected 'to' for constructed for loop", scan.nextToken);
-                    }
-
-                    //So currentToken is the first element of the expression
-                    scan.getNext(); // current = 'to', next = beginning of expr
-                    scan.getNext(); // current = beginning of expr, next = either next part of expr or ':'
-
-                    ResultValue endCond = expr.evaluateExpression(":");
-
-                    // Compare the ctrlVar and endCond values
-                    int ctrl = 0;
-                    int end = 0;
-
-                    //ctrl = Integer.parseInt(rv.value);
-                    end = Integer.parseInt(endCond.value);
-
-                    ResultValue rvBool;
-                    for (ctrl=Integer.parseInt(rv.value); ctrl < end; ctrl++) {
-                        rvBool = executeStatements(bExec);
-                        if (!rvBool.terminatingStr.equals("endfor")) {
-                            error("Expected 'endfor' for created for loop");
-                        }
-                        scan.setPosition(iLineNum, iColPos);
-                    }
-                }
-            }
+        } else{
+            skipTo(":");
+            rv = executeStatements(false);
         }
-
-        //if(!rv.terminatingStr.equals("endfor"))
-        //    error("Expected 'endfor' after while loop");
+        if(!rv.terminatingStr.equals("endfor"))
+            error("Expected 'endfor' to terminate for loop");
         scan.getNext();
         if(!scan.currentToken.tokenStr.equals(";"))
             error("Expected ';' after 'endfor'");
+
     }
 }

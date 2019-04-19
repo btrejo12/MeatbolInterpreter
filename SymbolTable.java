@@ -44,6 +44,10 @@ public class SymbolTable {
         ht.put("endif", new STControl("endif", Classif.CONTROL, SubClassif.END));
         ht.put("else", new STControl("else", Classif.CONTROL, SubClassif.END));
         ht.put("for", new STControl("for", Classif.CONTROL, SubClassif.FLOW));
+        ht.put("to", new STControl("to", Classif.CONTROL, SubClassif.FLOW));
+        ht.put("by", new STControl("by", Classif.CONTROL, SubClassif.FLOW));
+        ht.put("in", new STControl("in", Classif.CONTROL, SubClassif.FLOW));
+        ht.put("from", new STControl("from", Classif.CONTROL, SubClassif.FLOW));
         ht.put("endfor", new STControl("endfor", Classif.CONTROL, SubClassif.END));
         ht.put("while", new STControl("while", Classif.CONTROL, SubClassif.FLOW));
         ht.put("endwhile", new STControl("endwhile", Classif.CONTROL, SubClassif.END));
@@ -61,7 +65,7 @@ public class SymbolTable {
         ht.put("and", new STEntry("and", Classif.OPERATOR));
         ht.put("or", new STEntry("or", Classif.OPERATOR));
         ht.put("not", new STEntry("not", Classif.OPERATOR));
-        ht.put("in", new STEntry("in", Classif.OPERATOR));
+        //ht.put("in", new STEntry("in", Classif.OPERATOR));
         ht.put("notin", new STEntry("notin", Classif.OPERATOR));
         ht.put("T", new STIdentifier("T", Classif.OPERAND, SubClassif.BOOLEAN));
         ht.put("F", new STIdentifier("F", Classif.OPERAND, SubClassif.BOOLEAN));

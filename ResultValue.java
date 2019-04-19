@@ -24,6 +24,10 @@ public class ResultValue {
         this.value = value;
         this.structure = structure;
         this.type = type;
+
+        if(type == SubClassif.STRING){
+            this.arr.setBounds(value.length());
+        }
     }
 
     /*

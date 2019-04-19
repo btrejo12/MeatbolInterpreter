@@ -102,8 +102,17 @@ public class Expression {
                     ResultValue res2 = stack.pop();
                     ResultValue res1;
                     if(stack.isEmpty()){
-                        res2 = storageMgr.getUnaryVariableValue(res2.value);
-                        stack.push(res2);
+                        if(token.subClassif == SubClassif.UNARY) {
+                            res2 = storageMgr.getUnaryVariableValue(res2.value);
+                            stack.push(res2);
+                        } else if(token.tokenStr.equals("not")){
+                            if(res2.value.equals("T"))
+                                res2.value = "F";
+                            else
+                                res2.value = "T";
+                            stack.push(res2);
+                        }
+
                     } else {
                         res1 = stack.pop();
                         Numeric num1 = new Numeric(parser, res1, token.tokenStr, "First operand");

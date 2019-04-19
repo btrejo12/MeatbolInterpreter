@@ -506,7 +506,7 @@ public class Scanner{
                 STIdentifier stIdentifier = (STIdentifier) sEntry;
                 secondary = stIdentifier.dclType;
             } else { //Other instance should have been caught
-                System.err.println("Woah woah woah whats going on here, variable: " + varName);
+                //System.err.println("Woah woah woah whats going on here, variable: " + varName);
                 secondary = SubClassif.EMPTY;
             }
         }
