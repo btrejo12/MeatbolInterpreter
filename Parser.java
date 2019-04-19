@@ -684,35 +684,98 @@ public class Parser {
         targetRV.arr.arr = (ResultValue[]) rvList.toArray();
         storageMgr.updateVariable(tokAssign.tokenStr, targetRV);*/
     }
-    public void forStmt(boolean bExec) throws Exception{
+    public void forStmt(boolean bExec) throws Exception {
         int colPos = 0, lineNum = 0;
-        //colPos = scan.currentToken.iColPos;
-        //lineNum = scan.currentToken.iSourceLineNr;
-        ResultValue rv;
+        colPos = scan.currentToken.iColPos;
+        lineNum = scan.currentToken.iSourceLineNr;
 
+        ResultValue rv;
+        if (bExec) {
+
+            //initialize ctrl variable. Current is on the operand
+            scan.getNext();
+            rv = setupCtrlVar();
+            while (evalForStmt()) {
+                rv = executeStatements(bExec);
+                if (!rv.terminatingStr.equals("endfor"))
+                    error("Expected endfor after while");
+                scan.setPosition(lineNum, colPos);
+            }
+            rv = executeStatements(false);
+        }
+    }
+
+    public ResultValue setupCtrlVar() throws Exception {
+        ResultValue rv;
+        Token ctrl;
+
+        // variable must be instantiated first before entering for loop
+        ctrl = scan.currentToken;
+        rv = storageMgr.getVariableValue(ctrl);
+
+        if (rv.type != SubClassif.INTEGER) {
+            error("Control variable must be of type int", scan.currentToken);
+        }
+
+        // current token is pointing at token after the operand
+        scan.getNext();
+
+        if (scan.currentToken.tokenStr.equals("=")) {
+
+            // check to see if its a int value
+            try {
+                Integer.parseInt(scan.nextToken);
+            } catch (Exception e) {
+                error("Value must be of type int", scan.nextToken);
+            }
+
+            rv.value = scan.nextToken.tokenStr;
+            storageMgr.updateVariable(ctrl);
+
+            // now, scan.nextToken should be 'to'
+            scan.getNext();
+            if (!scan.nextToken.tokenStr.equals("to")) {
+                error("'to' expected. Syntax error", scan.nextToken);
+            }
+
+            // shift the tokens to where scan.currentToken is now pointing at the beginning of the sentinel value
+            scan.getNext();
+            scan.getNext();
+        } else if (scan.currentToken.tokenStr.equals("in")) {
+            
+        } else if (scan.currentToken.tokenStr.equals("to")) {
+
+        } else {
+            error("Syntax error: token cannot be used in for statement", scan.currentToken);
+        }
+
+        rv = storageMgr.getVariableValue(ctrl);
+        return rv;
+    }
+        /*
         if (!bExec) {
             skipTo(":");
             rv = executeStatements(false);
         } else {
 
             if (scan.nextToken.subClassif == SubClassif.IDENTIFIER) {
-            /*
-            Shift the current token to the identifier
 
-            There should be two situations:
-            1. It is an identifier that will be assigned a value (e.g. i = 0)
-               The variable must be an integer.
-            2. It is an identifier within an array (basically a for each)
-             */
+            //Shift the current token to the identifier
+
+            //There should be two situations:
+            //1. It is an identifier that will be assigned a value (e.g. i = 0)
+            //   The variable must be an integer.
+            //2. It is an identifier within an array (basically a for each)
+             //
                 scan.getNext();
 
                 // This is situation 1
                 if (scan.nextToken.tokenStr.equals("=")) {
-                /*
+                //
                 We first need to check if the variable (currentToken) already exists
                 in the StorageManager. If it doesn't, throw an error stating that the
                 variable needs to exist in order to do an assignment on it.
-                */
+                //
                     //ResultValue rv;
                     String ctrlVar = scan.currentToken.tokenStr;
 
@@ -759,13 +822,68 @@ public class Parser {
                         scan.setPosition(lineNum, colPos);
                     }
                 }
-            }
-        }
+            }*/
 
+
+        /*
         //if(!rv.terminatingStr.equals("endfor"))
         //    error("Expected 'endfor' after while loop");
         scan.getNext();
         if(!scan.currentToken.tokenStr.equals(";"))
-            error("Expected ';' after 'endfor'");
+            error("Expected ';' after 'endfor'");*/
+
+
+    public boolean evalForStmt() throws Exception {
+        boolean bExec;
+        ResultValue rv;
+        Token ctrl;
+
+        // shift current token to be the identifier
+        scan.getNext();
+
+        if (scan.currentToken.subClassif != SubClassif.IDENTIFIER) {
+            error("Identifier expected.", scan.currentToken);
+        }
+
+        // check to see if the variable has already been instantiated and check to see if the variable is an int
+        rv = storageMgr.getVariableValue(scan.currentToken);
+        if (rv.type != SubClassif.INTEGER) {
+            error("Variable in for loop must be of type integer", scan.currentToken, rv.type);
+        }
+
+        if (scan.nextToken.tokenStr.equals("=")) {
+            ctrl = scan.currentToken;
+
+            // move currentToken to be the =
+            scan.getNext();
+
+            try {
+                Integer.parseInt(scan.nextToken);
+            } catch (Exception e) {
+                error("Value being declared must be of type int", scan.nextToken);
+            }
+
+            rv.value = scan.nextToken.tokenStr;
+            storageMgr.updateVariable(ctrl.tokenStr, rv);
+
+            // current token is the value, next token should be 'to'
+            scan.getNext();
+
+            if (!scan.nextToken.tokenStr.equals("to")) {
+                error("Expected 'to' token. Token:", scan.nextToken);
+            }
+
+            // current token is now the 'to'
+            scan.getNext();
+
+            // 3 situations: scan.nextToken can be 3 things
+            // an int value
+            // an identifier (needs to be int)
+            // built-in function
+
+            // if its a plain int
+        }
+
+
     }
 }
