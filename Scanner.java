@@ -154,6 +154,10 @@ public class Scanner{
                     }
                     //Observe what came before, and we will leave this character for the next iteration
                     if (i != 0) {
+                        if(iSourceLineNr > sourceLineM.size()) {
+                            setNextToEmpty();
+                            return "";
+                        }
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
@@ -295,7 +299,9 @@ public class Scanner{
                 textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
                 //iSourceLineNr++;
                 printNextLine();
-            } else {
+            } else if(iSourceLineNr == sourceLineM.size()){
+                iSourceLineNr++;
+            }else {
                 setNextToEmpty();
                 throw new ParserException(iSourceLineNr,"End of File",sourceFileNm);
             }

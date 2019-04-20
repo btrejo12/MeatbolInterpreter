@@ -1,5 +1,7 @@
 package meatbol;
 
+import sun.jvm.hotspot.oops.ExceptionTableElement;
+
 import javax.xml.transform.Result;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +17,11 @@ public class Arrayz {
     public Arrayz(ResultValue owner){
         this.owner = owner;
         this.type = owner.type;
-        bounds = -1; //undeclared size
+        if(owner.type == SubClassif.STRING){
+            bounds = owner.value.length();
+        } else {
+            bounds = -1; //undeclared size
+        }
     }
 
     public void setBounds(ResultValue limit) throws Exception{
@@ -70,6 +76,8 @@ public class Arrayz {
      * @return The index of the highest populated element
      */
     public ResultValue elem(){
+        if(owner.type == SubClassif.STRING && owner.value != null)
+            return new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
         int ret = 0;
         for(int i = arr.length-1; i >=0; i--){
             if(arr[i] != null) {
@@ -143,12 +151,29 @@ public class Arrayz {
         newValue.value = value.value;
         newValue.type = value.type;
         newValue.structure = value.structure;
-        newValue.terminatingStr = newValue.terminatingStr;
+        newValue.terminatingStr = value.terminatingStr;
         newValue.arr = value.arr;
         arr[idx] = newValue;
         //System.err.println("After array update element: " + Arrays.toString(arr));
         if(value.type != SubClassif.STRING)
             updateString();
+    }
+
+    public void copyArray(ResultValue source, int end) throws Exception {
+        if(owner.type == SubClassif.STRING){
+            // Copy the contents of source's string into this string
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i < end; i++){
+                sb.append(source.value.charAt(i));
+            }
+            owner.value = sb.toString();
+        } else {
+            if(owner.type != source.type)
+                throw new Exception("Expected target array and assignment array to be of same type.");
+            for(int i=0; i < end; i++){
+                arr[i] = source.arr.arr[i];
+            }
+        }
     }
 
     public void updateString(){

@@ -128,7 +128,7 @@ public class Parser {
     private ResultValue executeStatements(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
         if (!scan.currentToken.tokenStr.equals(":"))
-            error("Expected a ':' currentToken value is: " + scan.currentToken.tokenStr);
+            error("Expected a ':' currentToken value is: '" + scan.currentToken.tokenStr + "'");
 
         // shift so the currentToken is the first token after the :
         scan.getNext();
@@ -243,7 +243,9 @@ public class Parser {
         }
 
         if(expr.isArray(scan.currentToken)){
-            error("We are trying to copy an existing array into another, we dont have anything to handle it");
+            ResultValue arrayAssignment = arrayToArrayAssignment(scan.currentToken);
+            return arrayAssignment;
+            //error("We are trying to copy an existing array into another, we dont have anything to handle it: " + scan.currentToken.tokenStr);
         }
 
         String targetVariable = scan.currentToken.tokenStr;
@@ -606,6 +608,46 @@ public class Parser {
 
     }
 
+    private ResultValue arrayToArrayAssignment(Token target) throws Exception{
+        /*
+        When assigning one array to another, we have two cases:
+        1) String arrays
+             a) target has the shorter length
+             b) expression has the shorter length
+        2) Arrays
+            a) target has the shorter length
+            b) expression has the shorter length
+         */
+        if(scan.nextToken.primClassif != Classif.OPERATOR)
+            error("Expected assignment operator");
+        scan.getNext(); // puts us on the assignment operator
+        // TODO: For flexible requirements, add other cases for +=, -=, etc
+        ResultValue targetRV = storageMgr.getVariableValue(target);
+
+        scan.getNext(); // Puts us on the expr
+        if(targetRV.type == SubClassif.STRING){
+            // String array assignment
+            ResultValue source = expr.evaluateExpression(";");
+            int targetBounds = targetRV.arr.getBounds();
+            int exprBounds = source.arr.getBounds();
+
+            int end = Math.min(targetBounds, exprBounds);
+            targetRV.arr.copyArray(source, end);
+            storageMgr.updateVariable(target.tokenStr, targetRV);
+            return targetRV;
+        } else {
+            // Regular array assignment
+            ResultValue source = expr.evaluateExpression(";");
+            int targetBounds = targetRV.arr.getBounds();
+            int exprBounds = source.arr.getBounds();
+
+            int end = Math.min(targetBounds, exprBounds);
+            targetRV.arr.copyArray(source, end);
+            storageMgr.updateVariable(target.tokenStr, targetRV);
+            return targetRV;
+        }
+    }
+
     public void setSize(Token target, ResultValue bounds) throws Exception {
         ResultValue targetRV = storageMgr.getVariableValue(target);
         targetRV.arr.setBounds(bounds);
@@ -710,7 +752,6 @@ public class Parser {
             int iColPos = scan.currentToken.iColPos;
             int iLineNum = scan.currentToken.iSourceLineNr;
             while(forControl.evaluateCondition()){
-                //System.out.println("Entering while in for..." + scan.currentToken.tokenStr);
                 executeStatements(true);
                 scan.setPosition(iLineNum, iColPos);
             }
@@ -723,8 +764,7 @@ public class Parser {
         }
         if(!rv.terminatingStr.equals("endfor"))
             error("Expected 'endfor' to terminate for loop");
-        scan.getNext();
-        if(!scan.currentToken.tokenStr.equals(";"))
+        if(!scan.nextToken.tokenStr.equals(";"))
             error("Expected ';' after 'endfor'");
 
     }
