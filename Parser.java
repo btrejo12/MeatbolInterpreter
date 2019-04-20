@@ -608,6 +608,12 @@ public class Parser {
 
     }
 
+    /**
+     * Assigned an array object to an existing array object
+     * @param target The array that is receiving the assignment
+     * @return What was assigned to the array only because this is getting called from assignmentStmt
+     * @throws Exception
+     */
     private ResultValue arrayToArrayAssignment(Token target) throws Exception{
         /*
         When assigning one array to another, we have two cases:
@@ -648,6 +654,12 @@ public class Parser {
         }
     }
 
+    /**
+     * When an array is declared with a size, this method is responsible for saving it.
+     * @param target The array whose size we are declaring
+     * @param bounds The size to declare it to
+     * @throws Exception
+     */
     public void setSize(Token target, ResultValue bounds) throws Exception {
         ResultValue targetRV = storageMgr.getVariableValue(target);
         targetRV.arr.setBounds(bounds);
@@ -658,6 +670,14 @@ public class Parser {
 
     }
 
+    /**
+     * This method is responsible for assigning values to an array who's size was not specified. It also sets the size
+     * once it counts all of the variables in the assignment.
+     * @param target The array receiving the assignment.
+     * @param endTerm Uh...the terminating token of the assignment which should a semicolor, idk why this is here
+     * @param bExec Whether to execute this assignment or not
+     * @throws Exception
+     */
     public void assignArrayNoSize(Token target, String endTerm, boolean bExec) throws Exception{
         ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
         SubClassif type = targetRV.type;
@@ -702,6 +722,13 @@ public class Parser {
 
     }
 
+    /**
+     * A method responsible for assigning variables to an array whose size was previously specified.
+     * @param endTerm The terminating token that shouldn't even be needed
+     * @param tokAssign The token receiving the assignment
+     * @param bExec Whether to run this assignment or not
+     * @throws Exception
+     */
     public void assignArray(String endTerm, Token tokAssign, boolean bExec) throws Exception {
         ResultValue targetRV = storageMgr.getVariableValue(tokAssign.tokenStr);
         SubClassif type = targetRV.type;
@@ -742,6 +769,13 @@ public class Parser {
             skipTo(";");
         }
     }
+
+    /**
+     * A method used for handling for loops
+     * @param bExec Whether to execute this for loop or not
+     * @param loopBack Not needed, felt cute, might delete later
+     * @throws Exception
+     */
     public void forStmt(boolean bExec, boolean loopBack) throws Exception {
 
         ResultValue rv;

@@ -14,6 +14,11 @@ public class Arrayz {
     private SubClassif type;
 
 
+    /**
+     * Arrayz constructor attaches itself to it's ResultValue and sets its bounds to undeclared (-1) or the length
+     * of the String that it is attached to.
+     * @param owner The ResultValue this Arrayz object belongs to
+     */
     public Arrayz(ResultValue owner){
         this.owner = owner;
         this.type = owner.type;
@@ -24,6 +29,12 @@ public class Arrayz {
         }
     }
 
+    /**
+     * A setter used to initialize the array object with a set size, which is why this variable is private, so
+     * DO NOT CHANGE IT TO PUBLIC
+     * @param limit The ResultValue size this array was initialized to be
+     * @throws Exception throws an exception if an the size is not a valid integer
+     */
     public void setBounds(ResultValue limit) throws Exception{
         if (limit.type != SubClassif.INTEGER)
             throw new Exception("Array size must be of type integer, found:" + limit.value);
@@ -31,28 +42,30 @@ public class Arrayz {
         bounds = Integer.parseInt(limit.value);
     }
 
+    /**
+     * A setter used to initialize the array size by changing the bounds, this does not set up the array.
+     * @param bounds The changed size of the array
+     */
     public void setBounds(int bounds){
         arr = new ResultValue[bounds];
         this.bounds = bounds;
     }
 
+    /**
+     * A getter to get the bounds since this variable is private
+     * @return The size of this arrayz object
+     */
     public int getBounds(){
         return bounds;
     }
 
-    public void update(int index, ResultValue addition) throws Exception{
-        if(index >= bounds || index < 0){
-            throw new Exception("Array index out of bounds");
-        }
-        arr[index] = addition;
-        //TODO: Update the RV's value string in StorageManager.
-    }
 
-    public void add(ResultValue value) throws Exception{
-        // ???
-        //TODO: Update the RV's value string in StorageManager
-    }
-
+    /**
+     * Returns the element at the specified index
+     * @param index The ResultValue of the index requested of this arrayz object
+     * @return The ResultValue at the index specified
+     * @throws Exception Throws exception when index is not a valid integer
+     */
     public ResultValue get(ResultValue index) throws Exception{
         if(owner.type == SubClassif.STRING){
             int position = Integer.parseInt(index.value);
@@ -101,13 +114,22 @@ public class Arrayz {
         return res;
     }
 
-    public ResultValue stringLength() throws Exception{
+    /**
+     * If this array object is a string, we return it's length
+     * @return The ResultValue containing this string's length
+     */
+    public ResultValue stringLength(){
         //if(owner.type != SubClassif.STRING)
             //throw new Exception("Function 'LENGTH' can only be used on Strings");
         ResultValue rv = new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
         return rv;
     }
 
+    /**
+     * Returns the number of spaces in this String array object.
+     * @return The ResultValue containing the number of spaces
+     * @throws Exception
+     */
     public ResultValue stringSpaces() throws Exception{
         if(owner.type != SubClassif.STRING)
             throw new Exception("Function 'SPACES' can only be used on Strings");
@@ -126,6 +148,12 @@ public class Arrayz {
         return spacesRV;
     }
 
+    /**
+     * Updates and element of this array and updates the string of it's ResultValue
+     * @param index The index to be changed
+     * @param value The value the index will be changed to
+     * @throws Exception
+     */
     public void updateElement(ResultValue index, ResultValue value) throws Exception{
         if(owner.type == SubClassif.STRING){
             StringBuilder valueString = new StringBuilder(owner.value);
@@ -159,6 +187,12 @@ public class Arrayz {
             updateString();
     }
 
+    /**
+     * Copies an existing array to this array object.
+     * @param source The array to be copied into this one
+     * @param end The ending index of where to stop copying
+     * @throws Exception
+     */
     public void copyArray(ResultValue source, int end) throws Exception {
         if(owner.type == SubClassif.STRING){
             // Copy the contents of source's string into this string
@@ -176,6 +210,9 @@ public class Arrayz {
         }
     }
 
+    /**
+     * Updates the ResultValue's string when the array it changed.
+     */
     public void updateString(){
         StringBuilder sb = new StringBuilder();
         for(ResultValue rv: arr){
@@ -187,6 +224,10 @@ public class Arrayz {
         owner.value = sb.toString();
     }
 
+    /**
+     * This is supposed to be for easy printing but I doubt it works
+     * @return
+     */
     public String toString(){
         return this.arr.toString();
     }

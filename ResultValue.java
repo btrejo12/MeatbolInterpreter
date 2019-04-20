@@ -39,6 +39,10 @@ public class ResultValue {
     }
     */
 
+    /**
+     * Why do i write these if they never work
+     * @return who knows
+     */
     public String toString(){
         if (!structure.equals("fixed-array")){
           return this.value;

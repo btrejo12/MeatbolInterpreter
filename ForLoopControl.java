@@ -19,6 +19,15 @@ public class ForLoopControl {
     private Token target;
     private int bounds;
 
+    /**
+     * ForLoopControls are only declared when we see a for loop, it is responsible for retrieving the control variable,
+     * the limit, and the increment factor of the for loop condition. It updates the control variable in the storage manager
+     * for each iteration.
+     * @param parser
+     * @param scan
+     * @param stoMgr
+     * @param expr
+     */
     public ForLoopControl(Parser parser, Scanner scan, StorageManager stoMgr, Expression expr){
         this.parser = parser;
         this.scan = scan;
@@ -26,6 +35,10 @@ public class ForLoopControl {
         this.expr = expr;
     }
 
+    /**
+     * The initial set up of a for loop condition in order to find the control variable, the limit, and the increment.
+     * @throws Exception
+     */
     public void setUpCondition() throws Exception{
         // Entering this method, we should be on the first token of the for loop
         // condition.
@@ -96,6 +109,11 @@ public class ForLoopControl {
         //        + limit.value + ", incr: " + incr.value + ", bounds: " + bounds);
     }
 
+    /**
+     * Is called during each iteration to decide whether the condition is true or false dependant on the control variable.
+     * @return A boolean specifying whether this for loop should keep running
+     * @throws Exception
+     */
     public boolean evaluateCondition() throws Exception{
 
         int idx = Integer.parseInt(index.value);
@@ -126,6 +144,10 @@ public class ForLoopControl {
         }
     }
 
+    /**
+     * A stupid function to get around Java's by reference variable assignment.
+     * @param assign The ResultValue we're assigning to the control variable
+     */
     private void assignControl(ResultValue assign){
         if(assign.type != null)
             controlVariable.type = assign.type;

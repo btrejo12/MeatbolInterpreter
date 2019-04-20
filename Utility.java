@@ -228,6 +228,15 @@ public class Utility {
         return res;
     }
 
+    /**
+     * A Python like function to support String comparisons in Meatbol
+     * @param parser Parser, duh
+     * @param s1 First string in comparison
+     * @param s2 Second string in comparison
+     * @param operator The operation to be performed on said string
+     * @return uhm, i forget tbh
+     * @throws Exception
+     */
     private boolean stringComparison(Parser parser, Numeric s1, Numeric s2, String operator) throws Exception {
         String first = s1.strValue;
         String second = s2.strValue;

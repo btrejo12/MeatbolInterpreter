@@ -21,6 +21,12 @@ public class Expression {
         this.st = st;
     }
 
+    /**
+     * Evaluates the expression at the correct token
+     * @param terminatingToken The token the expression stops at
+     * @return The result of this expression
+     * @throws Exception
+     */
     public ResultValue evaluateExpression(String terminatingToken) throws Exception{
         ArrayList<Token> exprTokens = new ArrayList<>();
 
@@ -65,6 +71,12 @@ public class Expression {
         return res;
     }
 
+    /**
+     * Evaluates the postfix conversion
+     * @param tokens The tokens of the postfix expression
+     * @return The Result of this expression
+     * @throws Exception
+     */
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<ResultValue> stack = new Stack<>();
         //System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
@@ -139,6 +151,12 @@ public class Expression {
         return finalRes;
     }
 
+    /**
+     * Converts the expression from infix to postfix
+     * @param tokens The tokens to be converted
+     * @return The postfix expression
+     * @throws Exception
+     */
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<Token> stack = new Stack<>();
         ArrayList<Token> out = new ArrayList<>();
@@ -244,6 +262,13 @@ public class Expression {
         return out;
     }
 
+    /**
+     * Used to handle embedded parenthesis within an expression
+     * @param exprTokens The tokens in the expr so far
+     * @param terminatingString The string to stop reading at, usually a closed parenthesis
+     * @return The tokens passed in appended with the tokens seen here
+     * @throws Exception
+     */
     private ArrayList<Token> embeddedParenthesis(ArrayList<Token> exprTokens, String terminatingString) throws Exception{
         exprTokens.add(scan.currentToken);
         scan.getNext();
@@ -258,6 +283,12 @@ public class Expression {
         return exprTokens;
     }
 
+    /**
+     * Checks to see whether this token is an array by checking it's ResultValue
+     * @param token The token to be checked
+     * @return a boolean specifying whether it's an array or not
+     * @throws Exception
+     */
     public boolean isArray(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
         if(rv.structure.equals("fixed-array"))
@@ -266,6 +297,12 @@ public class Expression {
             return false;
     }
 
+    /**
+     * Checks to see whether this token is a string array (versus a string literal)
+     * @param token The token to be checked
+     * @return a boolean specifying whether it's a String array or not
+     * @throws Exception
+     */
     public boolean isString(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
         if(rv.type == SubClassif.STRING)
@@ -274,6 +311,12 @@ public class Expression {
             return false;
     }
 
+    /**
+     * Checks whether to see if this operand is a function or not
+     * @param token The token to be checked
+     * @return a boolean specifying whether it's a function or not
+     * @throws Exception
+     */
     public boolean isFunction(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
         if(rv.type == SubClassif.BUILTIN || rv.type == SubClassif.USER)
@@ -282,6 +325,13 @@ public class Expression {
             return false;
     }
 
+    /**
+     * Performs the operations dependant on the type of function it is
+     * @param function The token that contains the function
+     * @param parameter The token the function will operate on
+     * @return The ResultValue of the operation
+     * @throws Exception
+     */
     private ResultValue handleFunction(Token function, ResultValue parameter) throws Exception{
         ResultValue rv = new ResultValue();
         switch(function.tokenStr){
@@ -308,26 +358,19 @@ public class Expression {
         return rv;
     }
 
+    /**
+     * Get the array and the specified index
+     * @param array The array token
+     * @param index The ResultValue index requested
+     * @return The ResultValue of this array at the specified index
+     * @throws Exception
+     */
     private ResultValue getArrayValue(Token array, ResultValue index) throws Exception{
         ResultValue element = storageMgr.getVariableValue(array.tokenStr);
         //System.out.println("From Storage Manager..." + element.value);
         ResultValue rv = element.arr.get(index);
         //System.out.println("Array value is..." + rv.value + " at " + index.value + " index");
         return rv;
-    }
-
-
-    private ArrayList<Token> getExpression(String delimiter) throws Exception {
-        ArrayList<Token> fullExpression = new ArrayList<>();
-        while(scan.nextToken.tokenStr != delimiter){
-            fullExpression.add(scan.currentToken);
-            //try {
-                scan.getNext();
-            //} catch(Exception e){
-                //throw new ParserException();
-            //}
-        }
-        return fullExpression;
     }
 
     /**
@@ -344,6 +387,12 @@ public class Expression {
         return false;
     }
 
+    /**
+     * Literally what the function about is supposed to be
+     * @param token The token who's precedence we're checking
+     * @return Returns an integer representing the precedence value of this token
+     * @throws Exception
+     */
     private int getPrecedence(Token token) throws Exception{
       String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr[ fun"};
       String tokenStr = token.tokenStr;
@@ -367,70 +416,4 @@ public class Expression {
           parser.error("Invalid operator token", token.tokenStr);
       return index;
     }
-
-
-    //TODO Delete me
-    private ResultValue popOut(ArrayList<Token> fullExpression) {
-        return new ResultValue();
-    }
-    /*
-    private ResultValue expr(String endingDelimiter) throws Exception{
-
-        ResultValue res = new ResultValue();
-        String expr = "... ";
-
-        // Unary minus
-        if(scan.currentToken.primClassif == Classif.OPERATOR && scan.nextToken.subClassif == SubClassif.IDENTIFIER){
-            // Negate the operand
-            if(!scan.currentToken.tokenStr.equals("-")){ error("Unknown operator before operand"); }
-            res = storageMgr.getUnaryVariableValue(scan.nextToken.tokenStr);
-            scan.getNext();
-        }
-        // Single Variable
-        else if (scan.currentToken.primClassif == Classif.OPERAND && endingDelimiter.contains(scan.nextToken.tokenStr)){
-            if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                res = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-            }
-            else {
-                res = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
-            }
-            scan.getNext();
-        }
-        // Simple expression
-        else if(scan.currentToken.primClassif == Classif.OPERAND && scan.nextToken.primClassif == Classif.OPERATOR){
-            //print(scan.currentToken.tokenStr);
-            String firstToken = scan.currentToken.tokenStr;
-            ResultValue res1;
-            ResultValue res2;
-
-            if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
-                res1 = new ResultValue(scan.currentToken.tokenStr, "primitive", scan.currentToken.subClassif);
-            else
-                res1 = storageMgr.getVariableValue(scan.currentToken.tokenStr);
-
-            scan.getNext(); //moves to operator -, +, etc
-            if(scan.nextToken.primClassif != Classif.OPERAND){
-
-                scan.nextToken.printToken();
-                error("Expected second argument to be of type operand");
-            }
-
-            if(scan.nextToken.subClassif != SubClassif.IDENTIFIER)
-                res2 = new ResultValue(scan.nextToken.tokenStr, "primitive", scan.nextToken.subClassif);
-            else
-                res2 = storageMgr.getVariableValue(scan.nextToken.tokenStr);
-            Numeric num1 = new Numeric(this, res1, scan.currentToken.tokenStr, "1st operand");
-            Numeric num2 = new Numeric(this, res2,scan.currentToken.tokenStr, "2nd operand");
-            res = util.doMath(this, num1, num2, scan.currentToken.tokenStr);
-            expr = expr+res1.value+" "+scan.currentToken.tokenStr+" "+res2.value;
-            scan.getNext();
-            showExpr(expr,res);
-        }
-        // Unknown error
-        else {
-            error("Cannot recognize expression statement. Current token: " + scan.currentToken.tokenStr + " on line " + scan.currentToken.iSourceLineNr);
-        }
-        return res;
-    }
-}*/
 }
