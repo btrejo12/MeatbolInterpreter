@@ -85,14 +85,15 @@ public class ForLoopControl {
                 controlVariable = new ResultValue(tokens[0], "primitive", SubClassif.STRING);
                 bounds = tokens.length;
             }else {
-                controlVariable = limit.arr.get(index);
+                ResultValue res = limit.arr.get(index);
+                assignControl(res);
                 ResultValue rv = limit.arr.elem();
                 bounds = Integer.parseInt(rv.value);
             }
         }
         stoMgr.updateVariable(target.tokenStr, controlVariable);
         //System.out.println("End for set up, cv: " + controlVariable.value + ", limit: "
-                //+ limit.value + ", incr: " + incr.value + ", bounds: " + bounds);
+        //        + limit.value + ", incr: " + incr.value + ", bounds: " + bounds);
     }
 
     public boolean evaluateCondition() throws Exception{
@@ -101,24 +102,37 @@ public class ForLoopControl {
         if(idx >= bounds)
             return false;
         if(isArray){
-            controlVariable = limit.arr.get(index);
+            ResultValue rv = limit.arr.get(index);
+            assignControl(rv);
             idx = idx + Integer.parseInt(incr.value);
             index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
             stoMgr.updateVariable(target.tokenStr, controlVariable);
             return true;
         } else if(isSplit){
             String [] tokens = limit.value.split(incr.value);
-            controlVariable = new ResultValue(tokens[idx], "primitive", SubClassif.STRING);
+            ResultValue rv = new ResultValue(tokens[idx], "primitive", SubClassif.STRING);
+            assignControl(rv);
             idx++;
             index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
             stoMgr.updateVariable(target.tokenStr, controlVariable);
             return true;
         } else {
-            controlVariable = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
+            ResultValue rv = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
+            assignControl(rv);
             idx = idx + Integer.parseInt(incr.value);
             index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
             stoMgr.updateVariable(target.tokenStr, controlVariable);
             return true;
         }
+    }
+
+    private void assignControl(ResultValue assign){
+        if(assign.type != null)
+            controlVariable.type = assign.type;
+        controlVariable.value = assign.value;
+        controlVariable.structure = assign.structure;
+        controlVariable.terminatingStr = assign.terminatingStr;
+        controlVariable.arr = assign.arr;
+        //System.err.println("From control assignment: " + controlVariable.value + " at " + index.value);
     }
 }

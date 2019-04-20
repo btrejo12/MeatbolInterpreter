@@ -77,7 +77,8 @@ public class Expression {
                     if(isArray(token)){
                         //System.out.print("..is array\n");
                         if(token.isArray) { // there's a index we need to get for this array
-                            ResultValue value = getArrayValue(token, stack.pop());
+                            ResultValue value = new ResultValue();
+                            value = getArrayValue(token, stack.pop());
                             stack.push(value);
                         } else { // otherwise its just a reference to this array
                             ResultValue rv = storageMgr.getVariableValue(token);
@@ -311,7 +312,7 @@ public class Expression {
         ResultValue element = storageMgr.getVariableValue(array.tokenStr);
         //System.out.println("From Storage Manager..." + element.value);
         ResultValue rv = element.arr.get(index);
-        //System.out.println("Array value is..." + rv.value);
+        //System.out.println("Array value is..." + rv.value + " at " + index.value + " index");
         return rv;
     }
 

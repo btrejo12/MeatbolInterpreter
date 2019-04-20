@@ -2,6 +2,7 @@ package meatbol;
 
 import javax.xml.transform.Result;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Arrayz {
     private int bounds;
@@ -138,7 +139,14 @@ public class Arrayz {
         } catch(Exception e){
             throw new Exception("Invalid index: " + index.value);
         }
-        arr[idx] = value;
+        ResultValue newValue = new ResultValue();
+        newValue.value = value.value;
+        newValue.type = value.type;
+        newValue.structure = value.structure;
+        newValue.terminatingStr = newValue.terminatingStr;
+        newValue.arr = value.arr;
+        arr[idx] = newValue;
+        //System.err.println("After array update element: " + Arrays.toString(arr));
         if(value.type != SubClassif.STRING)
             updateString();
     }
