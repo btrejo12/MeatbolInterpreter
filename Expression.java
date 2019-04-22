@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Stack;
 
+// For date validation
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 public class Expression {
     private Scanner scan;
     private StorageManager storageMgr;
@@ -431,25 +436,69 @@ public class Expression {
 
         // Check the formatting of the date.
         this.checkDateFormatting();
+        rv.type = SubClassif.DATE;
+        rv.value = scan.currentToken.tokenStr;
+        rv.structure = "primitive";
+        return rv;
     }
 
     public void checkDateFormatting() throws Exception {
         String date = scan.currentToken.tokenStr;
+        String format = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        sdf.setLenient(false);
 
+        this.manualDateCheck();
+        try {
+            sdf.parse(date);
+        } catch (Exception e){
+            parser.error("Error: Date does not exist", scan.currentToken);
+        }
+    }
+
+    public void manualDateCheck() throws Exception {
+        String date = scan.currentToken.tokenStr;
+
+        // SANITY CHECK: Manually check the format of the date
         // First, lets make sure the token string is of length 10
         if (date.length() != 10) {
             parser.error("Date value must contain 10 characters", scan.currentToken);
         }
 
-        // Second, make sure it has at least 2 hyphens
         int hyphenCount = 0;
-        for (char c: date) {
-            if (c == '-')
+        for (int i = 0; i < date.length(); i++) {
+            if (date.charAt(i) == '-')
                 hyphenCount++;
         }
 
+        //Check the string to see if it has 2 hyphens
         if (hyphenCount != 2) {
-            parser.error("Error: incorrect date syntax", scan.currentToken);
+            parser.error("Error, invalid date syntax", scan.currentToken);
+        }
+
+        String[] valToChar = date.split("-");
+        try {
+            String year = valToChar[0];
+            String month = valToChar[1];
+            String day = valToChar[2];
+
+            if (year.length() != 4 && month.length() != 2 && day.length() != 2) {
+                throw new Exception();
+            }
+
+            for (int i = 0; i < year.length(); i++) {
+                Integer.parseInt(Character.toString(year.charAt(i)));
+            }
+
+            for (int i = 0; i < month.length(); i++) {
+                Integer.parseInt(Character.toString(month.charAt(i)));
+            }
+
+            for (int i = 0; i < day.length(); i++) {
+                Integer.parseInt(Character.toString(day.charAt(i)));
+            }
+        } catch (Exception e) {
+            parser.error("Error, invalid date syntax", scan.currentToken);
         }
     }
 }
