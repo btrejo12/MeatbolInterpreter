@@ -416,4 +416,40 @@ public class Expression {
           parser.error("Invalid operator token", token.tokenStr);
       return index;
     }
+
+    public ResultValue evaluateDate() throws Exception {
+
+        ResultValue rv = new ResultValue();
+        // Make sure there's only one token, being the actual date value
+        // throw an exception if there's an issue
+        if (!scan.nextToken.tokenStr.equals(";")) {
+            parser.error("Error: Unidentified token: ", scan.nextToken);
+        }
+
+        // Using Java functions, test to see if the date is valid.
+        String dateToValidate = scan.currentToken.tokenStr;
+
+        // Check the formatting of the date.
+        this.checkDateFormatting();
+    }
+
+    public void checkDateFormatting() throws Exception {
+        String date = scan.currentToken.tokenStr;
+
+        // First, lets make sure the token string is of length 10
+        if (date.length() != 10) {
+            parser.error("Date value must contain 10 characters", scan.currentToken);
+        }
+
+        // Second, make sure it has at least 2 hyphens
+        int hyphenCount = 0;
+        for (char c: date) {
+            if (c == '-')
+                hyphenCount++;
+        }
+
+        if (hyphenCount != 2) {
+            parser.error("Error: incorrect date syntax", scan.currentToken);
+        }
+    }
 }

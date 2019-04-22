@@ -25,9 +25,12 @@ public class Parser {
         scan = new Scanner(filename, st);
         scan.sManager = storageMgr;
         this.expr = new Expression(this, scan, storageMgr, st);
+
         try {
             while (scan.trigger){
                 scan.getNext();
+                System.out.println("Token: " + scan.currentToken + ", PrimClassif: " +
+                        scan.currentToken.primClassif + " SubClassif: " + scan.currentToken.subClassif);
                 //scan.currentToken.printToken();
                 //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
@@ -46,11 +49,12 @@ public class Parser {
                     }
                     //scan.currentToken.printToken(); //for debugging
                 } else if (scan.currentToken.subClassif == SubClassif.DECLARE){
+
                     //System.out.println("Declare is.." + scan.currentToken.tokenStr);
                     scan.getNext();
                     if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
                         error("Expected identifier after declare " + scan.currentToken.tokenStr);
-                    else{
+                    else {
                         if(scan.nextToken.primClassif == Classif.SEPARATOR){
                             if(scan.nextToken.tokenStr.equals("[")){
                                 //first find what's inside the brackets
@@ -66,7 +70,7 @@ public class Parser {
                                     scan.getNext(); // on values
                                     assignArrayNoSize(array, ";", true);
                                     //Call expression to get a list of resultValues to initialize array.
-                                } else{
+                                } else {
                                     //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
                                     scan.getNext(); // on expr
                                     ResultValue size = expr.evaluateExpression("]");
@@ -263,8 +267,14 @@ public class Parser {
         switch(scan.currentToken.tokenStr){
             case "=":
                 //print("Equal sign assignment");
+                res1 = storageMgr.getVariableValue(targetVariable);
                 scan.getNext();
-                res2 = expr.evaluateExpression(";");
+
+                if (res1.type == SubClassif.DATE) {
+                    res2 = expr.evaluateDate();
+                } else {
+                    res2 = expr.evaluateExpression(";");
+                }
                 //System.out.println("From assignment>>>" + res2);
                 res = assign(targetVariable, res2);
                 break;
@@ -398,6 +408,7 @@ public class Parser {
                 result.value = Float.toString(Float.parseFloat(result.value));
                 target.value = result.value;
             } else{
+                System.out.println("Target: " + target.type + " Result: " + result.type);
                 error("Not sure why we're here");
             }
         }
