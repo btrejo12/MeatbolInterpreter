@@ -1,11 +1,5 @@
 package meatbol;
 
-import sun.jvm.hotspot.oops.ExceptionTableElement;
-
-import javax.xml.transform.Result;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Arrayz {
     private int bounds;
     //public String name;
