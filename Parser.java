@@ -29,8 +29,8 @@ public class Parser {
         try {
             while (scan.trigger){
                 scan.getNext();
-                System.out.println("Token: " + scan.currentToken + ", PrimClassif: " +
-                        scan.currentToken.primClassif + " SubClassif: " + scan.currentToken.subClassif);
+                //System.out.println("Token: " + scan.currentToken + ", PrimClassif: " +
+                  //      scan.currentToken.primClassif + " SubClassif: " + scan.currentToken.subClassif);
                 //scan.currentToken.printToken();
                 //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
@@ -496,6 +496,16 @@ public class Parser {
                 // We're going to concatenate it anyway, just skip this token and go to what is being added
                 scan.getNext();
                 continue;
+            } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
+                ResultValue variable = expr.evaluateExpression(")");
+                System.out.print(variable.value);
+                if(scan.currentToken.tokenStr.equals(")")){
+                    scan.getNext();
+                    System.out.println();
+                    break;
+                }
+
+                scan.getNext();
             }
             else {
                 //System.out.print("From print function: " + scan.currentToken.tokenStr);

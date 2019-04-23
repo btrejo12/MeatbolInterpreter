@@ -9,6 +9,7 @@ import java.util.Stack;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Date;
 
 public class Expression {
     private Scanner scan;
@@ -140,7 +141,27 @@ public class Expression {
                     }
                     break;
                 case FUNCTION:
-                    ResultValue functionReturn = handleFunction(token, stack.pop());
+                    ArrayList<ResultValue> args = new ArrayList<ResultValue>();
+                    STEntry sEntry = st.getSymbol(token.tokenStr);
+                    if (sEntry == null) {
+                        parser.error("Internal Error: Function does not exists", token);
+                    }
+                    STFunction sFunction = null;
+
+                    if (sEntry instanceof STFunction) {
+                        sFunction = (STFunction) sEntry;
+                    } else {
+                        parser.error("Internal error: Incorrect cast");
+                    }
+
+                    if (sFunction == null) {
+                        parser.error("Symbol does not exist");
+                    }
+                    for (int i = 0; i < sFunction.numArgs; i++) {
+                        args.add(stack.pop());
+                    }
+
+                    ResultValue functionReturn = handleFunction(token, args);
                     stack.push(functionReturn);
                     break;
                 default:
@@ -245,6 +266,8 @@ public class Expression {
                         //case "-":
                             //if()
                           //  stack.push(token);
+                        case ",":
+                            break;
                         default:
                             token.printToken();
                             parser.error("Invalid separator within expression: '"+token.tokenStr +"' ");
@@ -337,25 +360,37 @@ public class Expression {
      * @return The ResultValue of the operation
      * @throws Exception
      */
-    private ResultValue handleFunction(Token function, ResultValue parameter) throws Exception{
+    private ResultValue handleFunction(Token function, ArrayList<ResultValue> args) throws Exception{
         ResultValue rv = new ResultValue();
+        STEntry sEntry = st.getSymbol(function.tokenStr);
+        STFunction sFunction;
+
+        if (sEntry instanceof STFunction) {
+            sFunction = (STFunction) sEntry;
+        }
         switch(function.tokenStr){
             case "LENGTH":
                 //if(parameter.type != SubClassif.STRING)
                     //parser.error("Function 'LENGTH' can only be used on String");
-                return parameter.arr.stringLength();
+                return args.remove(0).arr.stringLength();
             case "SPACES":
-                if(parameter.type != SubClassif.STRING)
+                if(args.get(0).type != SubClassif.STRING)
                     parser.error("Function'SPACES' can only be used on String");
-                return parameter.arr.stringSpaces();
+                return args.remove(0).arr.stringSpaces();
             case "ELEM":
-                if(!parameter.structure.equals("fixed-array"))
+                if(!args.get(0).structure.equals("fixed-array"))
                     parser.error("ELEM can only be used on arrays");
-                return parameter.arr.elem();
+                return args.remove(0).arr.elem();
             case "MAXELEM":
-                if(!parameter.structure.equals("fixed-array"))
+                if(!args.get(0).structure.equals("fixed-array"))
                     parser.error("MAXELEM can only be ued on arrays");
-                return parameter.arr.maxelem();
+                return args.remove(0).arr.maxelem();
+            case "dateDiff":
+                rv = handleDateFunction(function.tokenStr.toUpperCase(), args.get(0), args.get(1));
+                return rv;
+            case "dateAdj":
+                rv = handleDateFunction(function.tokenStr.toUpperCase(), args.get(0), args.get(1));
+                return rv;
             default:
                 parser.error("Unknown function defined");
                 break;
@@ -500,5 +535,49 @@ public class Expression {
         } catch (Exception e) {
             parser.error("Error, invalid date syntax", scan.currentToken);
         }
+    }
+
+    public ResultValue handleDateFunction(String func, ResultValue arg1, ResultValue arg2) throws Exception{
+        ResultValue rv = new ResultValue();
+        rv.structure = "primitive";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date d1 = null, d2 = null;
+        int adjust = 0;
+        int toDaysConst = (24 * 60 * 60 * 1000);
+
+        try {
+            System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
+            d2 = sdf.parse(arg2.value);
+            if (!func.equals("DATEADJ"))
+                d1 = sdf.parse(arg1.value);
+            else
+                adjust = Integer.parseInt(arg1.value);
+        } catch (Exception e) {
+            parser.error("Internal Error: Value of date is incorrect in storage manager");
+        }
+        if (d1 == null) {
+            if (d2 == null && !func.equals("DATEADJ"))
+            parser.error("Error: Dates are null");
+        }
+        switch(func){
+            case "DATEDIFF":
+                long diff = (d2.getTime() - d1.getTime()) / toDaysConst;
+                rv.structure = "primitive";
+                rv.value = Long.toString(diff);
+                rv.type = SubClassif.INTEGER;
+                return rv;
+            case "DATEAGE":
+                return rv;
+            case "DATEADJ":
+                System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
+                return rv;
+            default:
+                parser.error("In HandleDateFunction: HOW ARE YOU HERE?");
+        }
+        return rv;
+    }
+
+    public void handleDateFunction() {
+
     }
 }
