@@ -1,7 +1,6 @@
 package meatbol;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Parser {
     private Scanner scan;
@@ -32,17 +31,29 @@ public class Parser {
                 //debug();
                 if (scan.currentToken.subClassif == SubClassif.FLOW){
                     //def, if, for, while,
-                    if (scan.currentToken.tokenStr.equals("if")){
-                        ifStmt(true);
-                    } else if (scan.currentToken.tokenStr.equals("def")){
-                        System.err.println("User defined functions are not being used in this programming assignment.");
-                    } else if (scan.currentToken.tokenStr.equals("for")){
-                        //TODO: Handle for loops bruh
-                        scan.getNext();
-                        forStmt(true, false);
-                        //error("Trying to run a for loop and we havent written code for this");
-                    } else if (scan.currentToken.tokenStr.equals("while")){
-                        whileStmt(true);
+                    switch(scan.currentToken.tokenStr) {
+                        case "if":
+                            ifStmt(true);//If break or continue is found here, it should break
+                            if (scan.currentToken.tokenStr.equals("break") || scan.currentToken.tokenStr.equals("continue")) {
+                                //Yell at them for using break or continue at the wrong place
+                                error("Incorrect usage of %s", scan.currentToken.tokenStr);
+                            }
+                            break;
+                        case "def":
+                            System.err.println("User defined functions are not being used in this programming assignment.");
+                            break;
+                        case "for":
+                            //TODO: Handle for loops bruh
+                            scan.getNext();
+                            forStmt(true, false);
+                            //error("Trying to run a for loop and we havent written code for this");
+                            break;
+                        case "while":
+                            whileStmt(true);
+                            break;
+                        default:
+                            error("Found something we don't know what to do with: %s\n",scan.currentToken.tokenStr);
+
                     }
                     //scan.currentToken.printToken(); //for debugging
                 } else if (scan.currentToken.subClassif == SubClassif.DECLARE){
@@ -123,8 +134,9 @@ public class Parser {
      * <p>Used inside of 'if/while', the embedded statements to be executed are run here</p>
      * @param bExec     The boolean that decides whether the embedded statements should be executed
      * @return          The endflow statement that terminated the statement execution
-     * @throws Exception
+     * @throws Exception Rethrows whatever it's given
      */
+    //TODO: Figure out how to send breaks and continues all the way to for and while loops. They are both SsubClassif.END and should force the statements to return
     private ResultValue executeStatements(Boolean bExec) throws Exception{
         ResultValue res = new ResultValue();
         if (!scan.currentToken.tokenStr.equals(":"))
@@ -132,104 +144,116 @@ public class Parser {
 
         // shift so the currentToken is the first token after the :
         scan.getNext();
+        while(true) {
+            while (scan.currentToken.subClassif != SubClassif.END) {
+                // Nested if/while
+                if (scan.currentToken.subClassif == SubClassif.FLOW) {
+                    switch(scan.currentToken.tokenStr){
+                        case "if":
+                            ifStmt(bExec);//TODO figure out what to do if break or continue is found here
+                            //ifStmt should return from a break after finding the endif then execute statements will return the break
 
-        while (scan.currentToken.subClassif != SubClassif.END) {
-            // Nested if/while
-            if (scan.currentToken.subClassif == SubClassif.FLOW) {
-                if (scan.currentToken.tokenStr.equals("if")) {
-                    ifStmt(bExec);
-                } else if (scan.currentToken.tokenStr.equals("while")) {
-                    whileStmt(bExec);
-                } else if (scan.currentToken.tokenStr.equals("for")){
-                    scan.getNext();
-                    forStmt(bExec, false);
-                } else {
-                    error("Cannot recognize flow token: " + scan.currentToken.tokenStr);
-                }
-            } else if (scan.currentToken.subClassif == SubClassif.DECLARE){
-                //System.out.println("Declare is.." + scan.currentToken.tokenStr);
-                scan.getNext();
-                if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
-                    error("Expected identifier after declare " + scan.currentToken.tokenStr);
-                else{
-                    if(scan.nextToken.primClassif == Classif.SEPARATOR){
-                        if(scan.nextToken.tokenStr.equals("[")){
-                            //first find what's inside the brackets
-                            Token array = scan.currentToken;
+                            break;
+                        case "while":
+                            whileStmt(bExec);
+                            break;
+                        case "for":
                             scan.getNext();
-                            if(scan.nextToken.tokenStr.equals("]")) {
-                                //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
-                                scan.getNext();
-                                if (!scan.nextToken.tokenStr.equals("=")) {
-                                    error("'=' missing. Arrays without initial bounds must have initial values " + scan.nextToken);
-                                }
-                                scan.getNext(); // on equal sign
-                                scan.getNext(); // on values
-                                assignArrayNoSize(array, ";", bExec);
-                                //Call expression to get a list of resultValues to initialize array.
-                            } else{
-                                //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
-                                scan.getNext(); // on expr
-                                ResultValue size = expr.evaluateExpression("]");
-                                setSize(array, size);
-                                scan.getNext();
-                                //System.out.println("Just finished setting array to size " + size.value + " current token: " + scan.currentToken.tokenStr);
-                                if(scan.currentToken.tokenStr.equals("=")){
-                                    scan.getNext();
-                                    assignArray(";", array, bExec);
-                                } else if (!scan.currentToken.tokenStr.equals(";"))
-                                    error("Expected ';' after array declaration");
-                            }
-                        } else if(!scan.nextToken.tokenStr.equals(";")) {
-                            System.out.println("Mmm..." + scan.nextToken.tokenStr);
-                            error("Must end with ';' to finish variable declaration");
-                        }
-                    } else if (scan.nextToken.primClassif == Classif.OPERATOR){
-                        assignmentStmt(bExec);
-                    } else {
-                        //Not sure here
-                        scan.nextToken.printToken();
+                            forStmt(bExec, false);
+                            break;
+                        default:
+                            error("Cannot recofnize flow token: %s", scan.currentToken.tokenStr );
+                            break;
                     }
-                }
-            } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
-                // This is just declaring a variable
-                if(scan.nextToken.tokenStr.equals("[")){        // Updating array value
-                    Token target = scan.currentToken;
-                    scan.getNext(); // [
-                    scan.getNext(); // expr
-                    ResultValue index = expr.evaluateExpression("]");
-                    scan.getNext(); // on '=' i think
-                    if(!scan.currentToken.tokenStr.equals("="))
-                        error("Expected '=' with this array assignment");
+                } else if (scan.currentToken.subClassif == SubClassif.DECLARE) {
+                    //System.out.println("Declare is.." + scan.currentToken.tokenStr);
                     scan.getNext();
-                    ResultValue value = new ResultValue();
-                    value = expr.evaluateExpression(";");
-                    updateArrayValue(target, index, value, bExec);
-                } else {
-                    assignmentStmt(bExec);
+                    if (scan.currentToken.subClassif != SubClassif.IDENTIFIER)
+                        error("Expected identifier after declare " + scan.currentToken.tokenStr);
+                    else {
+                        if (scan.nextToken.primClassif == Classif.SEPARATOR) {
+                            if (scan.nextToken.tokenStr.equals("[")) {
+                                //first find what's inside the brackets
+                                Token array = scan.currentToken;
+                                scan.getNext();
+                                if (scan.nextToken.tokenStr.equals("]")) {
+                                    //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
+                                    scan.getNext();
+                                    if (!scan.nextToken.tokenStr.equals("=")) {
+                                        error("'=' missing. Arrays without initial bounds must have initial values " + scan.nextToken);
+                                    }
+                                    scan.getNext(); // on equal sign
+                                    scan.getNext(); // on values
+                                    assignArrayNoSize(array, ";", bExec);
+                                    //Call expression to get a list of resultValues to initialize array.
+                                } else {
+                                    //Do an expression to get the size of the array. If array already instantiated, then do expression to get location for assignment
+                                    scan.getNext(); // on expr
+                                    ResultValue size = expr.evaluateExpression("]");
+                                    setSize(array, size);
+                                    scan.getNext();
+                                    //System.out.println("Just finished setting array to size " + size.value + " current token: " + scan.currentToken.tokenStr);
+                                    if (scan.currentToken.tokenStr.equals("=")) {
+                                        scan.getNext();
+                                        assignArray(";", array, bExec);
+                                    } else if (!scan.currentToken.tokenStr.equals(";"))
+                                        error("Expected ';' after array declaration");
+                                }
+                            } else if (!scan.nextToken.tokenStr.equals(";")) {
+                                System.out.println("Mmm..." + scan.nextToken.tokenStr);
+                                error("Must end with ';' to finish variable declaration");
+                            }
+                        } else if (scan.nextToken.primClassif == Classif.OPERATOR) {
+                            assignmentStmt(bExec);
+                        } else {
+                            //Not sure here
+                            scan.nextToken.printToken();
+                        }
+                    }
+                } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
+                    // This is just declaring a variable
+                    if (scan.nextToken.tokenStr.equals("[")) {        // Updating array value
+                        Token target = scan.currentToken;
+                        scan.getNext(); // [
+                        scan.getNext(); // expr
+                        ResultValue index = expr.evaluateExpression("]");
+                        scan.getNext(); // on '=' i think
+                        if (!scan.currentToken.tokenStr.equals("="))
+                            error("Expected '=' with this array assignment");
+                        scan.getNext();
+                        ResultValue value = new ResultValue();
+                        value = expr.evaluateExpression(";");
+                        updateArrayValue(target, index, value, bExec);
+                    } else {
+                        assignmentStmt(bExec);
+                    }
+                } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
+                    // The only function that should work is print
+                    handleFunction(bExec);
+                } else if (scan.currentToken.primClassif == Classif.DEBUG) {
+                    handleDebug();
                 }
-            } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
-                // The only function that should work is print
-                handleFunction(bExec);
-            } else if (scan.currentToken.primClassif == Classif.DEBUG) {
-                handleDebug();
+                // shift
+                scan.getNext();
             }
-            // shift
-            scan.getNext();
+            //If we're not executing the code already, then we shouldn't be doing anything for a break or continue
+            if(!bExec)
+                if(scan.currentToken.tokenStr.equals("break") || scan.currentToken.tokenStr.equals("continue"))
+                    continue;
+                //If we are executing the code, then whoever called execute statements should know how to handle the break and continue
+            // lets see what the end flow statement is lmaooo
+            res.terminatingStr = scan.currentToken.tokenStr;
+            res.type = SubClassif.END;
+            res.structure = "";
+            return res;
         }
-
-        // lets see what the end flow statement is lmaooo
-        res.terminatingStr = scan.currentToken.tokenStr;
-        res.type = SubClassif.END;
-        res.structure = "";
-        return res;
     }
 
     /**
      * <p>This method is used when an assignment to a variable must be done.</p>
      * @param bExec The boolean that decied whether we apply this assignment or not
      * @return  The ResultValue that was assigned to the variable
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
     private ResultValue assignmentStmt(Boolean bExec) throws Exception{
         //System.out.println("....Enter assignment...");
@@ -243,8 +267,9 @@ public class Parser {
         }
 
         if(expr.isArray(scan.currentToken)){
-            ResultValue arrayAssignment = arrayToArrayAssignment(scan.currentToken);
-            return arrayAssignment;
+            //ResultValue arrayAssignment = arrayToArrayAssignment(scan.currentToken);
+            //return arrayAssignment;
+            return arrayToArrayAssignment(scan.currentToken);
             //error("We are trying to copy an existing array into another, we dont have anything to handle it: " + scan.currentToken.tokenStr);
         }
 
@@ -293,8 +318,9 @@ public class Parser {
     /**
      * <p>This method is used to parse through an if statement code block</p>
      * @param bExec  The boolean that decides whether the statements in the code block should be executed
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
+    //TODO: figure out how to handle break and continue
     private void ifStmt(boolean bExec) throws Exception {
 
 
@@ -305,7 +331,7 @@ public class Parser {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(true);
 
-                // Once the 'if' returns, we should either be on an else or an endif;
+                // Once the 'if' returns, we should either be on an else, break, continue or an endif;
                 if (res.terminatingStr.equals("else")) {
                     scan.getNext();     // Move to the ':'
                     if (!scan.currentToken.tokenStr.equals(":"))
@@ -313,6 +339,9 @@ public class Parser {
 
                     // Finish the else block but dont execute them
                     res = executeStatements(false);
+                } // Handle if we receive a break or continue inside the if
+                else if(res.terminatingStr.equals("break") || res.terminatingStr.equals("continue")){
+                    //Move to the endif, but return that we received break and continue
                 }
 
                 if (!res.terminatingStr.equals("endif")) {
@@ -328,14 +357,20 @@ public class Parser {
                     scan.getNext();
                     if (!scan.currentToken.tokenStr.equals(":"))
                         error("Expected ':' after 'else'");
-                    res = executeStatements(true);
+                    res = executeStatements(true);//TODO true
+                    if(res.terminatingStr.equals("break") || res.terminatingStr.equals("continue")){
+                        //handle receiving break or continue at the proper time
+                        //should get outside of the if statement before returning to calling function
+                        //ummm, are they allowed to have code after a break or continue after inside an if statemtent? I feel like that should throw an unreachable code error
+                        //I'm going to try saving the location at the start so we can return to the beginning of the if statement and call if statement again with bExec as false
+                    }
                 }
                 if (!res.terminatingStr.equals("endif"))
                     error("Expected 'endif' after 'if'");
             }
         } else{     // Do not execute this ifStmt, but traverse through the statements
             skipTo(":");
-            ResultValue res = executeStatements(false);
+            ResultValue res = executeStatements(false); //Should not receive break or continue
             if(res.terminatingStr.equals("else")){
                 scan.getNext(); // go to ':'
                 if(!scan.currentToken.tokenStr.equals(":"))
@@ -345,14 +380,14 @@ public class Parser {
             if(!res.terminatingStr.equals("endif"))
                 error("Expected 'endif' after 'if'");
         }
-        return;
     }
 
     /**
      * <p>This method is executed when a while statement code block is found</p>
      * @param bExec The boolean that decides whether the statements in the code block should be executed
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
+    //TODO: Handle break and continue here
     private void whileStmt(Boolean bExec) throws Exception{
         int colPos, lineNum;
         colPos = scan.currentToken.iColPos;
@@ -361,7 +396,14 @@ public class Parser {
         ResultValue rv;
         if(bExec) {
             while (evalCond()) {
-                rv = executeStatements(bExec);
+                rv = executeStatements(true);
+                if(rv.terminatingStr.equals("break")){
+                    scan.setPosition(lineNum,colPos);
+                    break;
+                } else if(rv.terminatingStr.equals("continue")){
+                    scan.setPosition(lineNum,colPos);
+                    continue;
+                }
                 if (!rv.terminatingStr.equals("endwhile"))
                     error("Expected endwhile after while");
                 scan.setPosition(lineNum, colPos);
@@ -410,18 +452,14 @@ public class Parser {
     /**
      * <p>Evaluated the value of a condition for flow statements and returns it's boolean value</p>
      * @return  The boolean value dependent on the condition
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
     private boolean evalCond() throws Exception{
         // Move off the if or while
         scan.getNext();
         ResultValue result = expr.evaluateExpression(":");
 
-        if(result.value.equals("T")) {
-            return true;
-        } else {
-            return false;
-        }
+        return result.value.equals("T");
     }
     
 
@@ -504,7 +542,6 @@ public class Parser {
                 continue;
             }
             if(scan.currentToken.tokenStr.equals(")")){
-                //TODO find out why the parentheses and comma are lost when unary minus is given
                 System.out.println();
                 scan.getNext();
                 break;
@@ -519,7 +556,7 @@ public class Parser {
      * <p>Throws a ParserException when an error in the code is found</p>
      * @param fmt   The string to specify what caused the error
      * @param varArgs   I don't know why you made me include this parameter, Clark
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
     public void error(String fmt, Object...varArgs) throws Exception{
         String diagnosticTxt = String.format(fmt, varArgs);
@@ -534,44 +571,50 @@ public class Parser {
         //current token is on debug
         scan.getNext();
         String command = scan.nextToken.tokenStr;
-        if (scan.currentToken.tokenStr.equals("Expr")){
-            if(command.equals("on")){
-                bShowExpr = true;
-            } else if(command.equals("off")){
-                bShowExpr = false;
-            } else {
-                error("Unknown trigger for Expr, should be 'on' or 'off'");
-            }
-            scan.getNext(); //sits on trigger
-        } else if (scan.currentToken.tokenStr.equals("Token")){
-            if (command.equals("on")){
-                scan.bShowToken = true;
-            } else if (command.equals("off")){
-                scan.bShowToken = false;
-            } else {
-                error("Unknown trigger for Token, should be 'on' or 'off'");
-            }
-            scan.getNext(); //sits on trigger
-        } else if (scan.currentToken.tokenStr.equals("Assign")) {
-            if (command.equals("on")) {
-                bShowAssign = true;
-            } else if (command.equals("off")) {
-                bShowAssign = false;
-            } else {
-                error("Unknown trigger for Assign, should be 'on' or 'off'");
-            }
-            scan.getNext(); //sits on trigger
-        }else if (scan.currentToken.tokenStr.equals("Stmt")){
-            if (command.equals("on")){
-                scan.bPrintLines = true;
-            } else if (command.equals("off")){
-                scan.bPrintLines = false;
-            } else {
-                error("Unknown trigger for Stmt, should be 'on' or 'off'");
-            }
-            scan.getNext(); //sits on trigger
-        } else {
-            error("Unknown Debug Command");
+        switch(scan.currentToken.tokenStr){
+            case "Expr":
+                if(command.equals("on")){
+                    bShowExpr = true;
+                } else if(command.equals("off")){
+                    bShowExpr = false;
+                } else {
+                    error("Unknown trigger for Expr, should be 'on' or 'off'");
+                }
+                scan.getNext(); //sits on trigger
+                    break;
+            case "Token":
+                if (command.equals("on")){
+                    scan.bShowToken = true;
+                } else if (command.equals("off")){
+                    scan.bShowToken = false;
+                } else {
+                    error("Unknown trigger for Token, should be 'on' or 'off'");
+                }
+                scan.getNext(); //sits on trigger
+                break;
+            case "Assign":
+                if (command.equals("on")) {
+                    bShowAssign = true;
+                } else if (command.equals("off")) {
+                    bShowAssign = false;
+                } else {
+                    error("Unknown trigger for Assign, should be 'on' or 'off'");
+                }
+                scan.getNext(); //sits on trigger
+                break;
+            case "Stmt":
+                if (command.equals("on")){
+                    scan.bPrintLines = true;
+                } else if (command.equals("off")){
+                    scan.bPrintLines = false;
+                } else {
+                    error("Unknown trigger for Stmt, should be 'on' or 'off'");
+                }
+                scan.getNext(); //sits on trigger
+                break;
+            default:
+                error("Unknown Debug Command");
+                break;
         }
         if(!scan.nextToken.tokenStr.equals(";")){
             error("Expected semicolon after debugging assignment");
@@ -593,11 +636,11 @@ public class Parser {
      * @param variable  The variable that is receiving the new assignment
      * @param result    The ResultValue that is being assigned to the variable
      */
-    public void showAssign(String variable, ResultValue result){
+    private void showAssign(String variable, ResultValue result){
         if (bShowAssign){ System.out.println("... Assign result into '" +variable + "' is '" + result.value + "'");}
     }
 
-    public void updateArrayValue(Token target, ResultValue index, ResultValue value, boolean bExec) throws Exception{
+    private void updateArrayValue(Token target, ResultValue index, ResultValue value, boolean bExec) throws Exception{
         if(bExec) {
             ResultValue targetRV = storageMgr.getVariableValue(target);
             targetRV.arr.updateElement(index, value);
@@ -612,7 +655,7 @@ public class Parser {
      * Assigned an array object to an existing array object
      * @param target The array that is receiving the assignment
      * @return What was assigned to the array only because this is getting called from assignmentStmt
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
     private ResultValue arrayToArrayAssignment(Token target) throws Exception{
         /*
@@ -631,7 +674,7 @@ public class Parser {
         ResultValue targetRV = storageMgr.getVariableValue(target);
 
         scan.getNext(); // Puts us on the expr
-        if(targetRV.type == SubClassif.STRING){
+        if(targetRV.type == SubClassif.STRING){ //TODO What's different here?
             // String array assignment
             ResultValue source = expr.evaluateExpression(";");
             int targetBounds = targetRV.arr.getBounds();
@@ -676,7 +719,7 @@ public class Parser {
      * @param target The array receiving the assignment.
      * @param endTerm Uh...the terminating token of the assignment which should a semicolor, idk why this is here
      * @param bExec Whether to execute this assignment or not
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception it is given
      */
     public void assignArrayNoSize(Token target, String endTerm, boolean bExec) throws Exception{
         ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
@@ -743,6 +786,7 @@ public class Parser {
                     error("Number of variables assigned to " + tokAssign.tokenStr +
                             " exceeds " + bounds + " found " + index);
                 }
+                //TODO move this into another method to remove duplicate code
                 if (scan.currentToken.primClassif == Classif.SEPARATOR) {
                     valueString.append(scan.currentToken.tokenStr);
                     scan.getNext();
@@ -774,8 +818,9 @@ public class Parser {
      * A method used for handling for loops
      * @param bExec Whether to execute this for loop or not
      * @param loopBack Not needed, felt cute, might delete later
-     * @throws Exception
+     * @throws Exception Rethrows whatever error is given to it
      */
+    //TODO: Handle break and continue here
     public void forStmt(boolean bExec, boolean loopBack) throws Exception {
 
         ResultValue rv;
