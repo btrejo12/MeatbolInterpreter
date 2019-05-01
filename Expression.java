@@ -481,6 +481,11 @@ public class Expression {
 
     public void checkDateFormatting() throws Exception {
         String date = scan.currentToken.tokenStr;
+        checkDateFormatting(date);
+    }
+
+    public void checkDateFormatting(String date) throws Exception {
+        //String date = scan.currentToken.tokenStr;
         String format = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         sdf.setLenient(false);
@@ -495,6 +500,36 @@ public class Expression {
 
     public void manualDateCheck() throws Exception {
         String date = scan.currentToken.tokenStr;
+        this.manualDateCheck(date);
+    }
+
+    public void checkIfDateVar(String date) throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // loose checking
+        ResultValue varDate = null;
+        try {
+            varDate = storageMgr.getVariableValue(date);
+            if (varDate.type != SubClassif.DATE) {
+                System.out.println("Bad");
+                throw new Exception("Error: invalid data type");
+            }
+            return; // if it was successfully saved as a variable, this should be fine.
+        } catch (Exception e) {
+            try {
+                sdf.parse(date);
+            } catch (Exception f){
+                throw new Exception("Input is not a date");
+            }
+        }
+    }
+    public void manualDateCheck(String date) throws Exception {
+        int year=0, month=0, day=0;
+        checkIfDateVar(date);
+        int[] daysOftheYear = {
+                0, 31, 29, 31
+                , 30, 31, 30
+                , 31, 31, 30
+                , 31, 30, 31
+        };
 
         // SANITY CHECK: Manually check the format of the date
         // First, lets make sure the token string is of length 10
@@ -514,38 +549,55 @@ public class Expression {
         }
 
         String[] valToChar = date.split("-");
+        //validate that the input is of type int
         try {
-            String year = valToChar[0];
-            String month = valToChar[1];
-            String day = valToChar[2];
-
-            if (year.length() != 4 && month.length() != 2 && day.length() != 2) {
-                throw new Exception();
-            }
-
-            for (int i = 0; i < year.length(); i++) {
-                Integer.parseInt(Character.toString(year.charAt(i)));
-            }
-
-            for (int i = 0; i < month.length(); i++) {
-                Integer.parseInt(Character.toString(month.charAt(i)));
-            }
-
-            for (int i = 0; i < day.length(); i++) {
-                Integer.parseInt(Character.toString(day.charAt(i)));
-            }
+            year = Integer.parseInt(valToChar[0]);
+            month = Integer.parseInt(valToChar[1]);
+            day = Integer.parseInt(valToChar[2]);
         } catch (Exception e) {
             parser.error("Error, invalid date syntax", scan.currentToken);
+        }
+
+        // Check to make sure each value is of a correct length
+        if (valToChar[0].length() != 4) {
+            parser.error("1Error, invalid date syntax", date);
+        }
+
+        if (valToChar[1].length() != 2) {
+            parser.error("2Error, invalid date syntax", date);
+        }
+
+        if (valToChar[2].length() != 2) {
+            parser.error("3Error, invalid date syntax", date);
+        }
+
+        // Test the months
+        if (month < 1 || month > 12)
+            parser.error("Error, date does not exist: ", date);
+
+        // Test the days. Each month has a specific day, specified by daysOfTheYear[]
+        if (day < 1 || day > daysOftheYear[month])
+            parser.error("Error, date does not exist: ", date);
+
+        // if the month is Feb and the day is the 29th, make sure its a leap year
+        if (day == 29 && month == 2) {
+            if (!(year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)))
+                parser.error("Error, date does not exist: ", date);
         }
     }
 
     public ResultValue handleDateFunction(String func, ResultValue arg1, ResultValue arg2) throws Exception{
         ResultValue rv = new ResultValue();
+
+        checkDateFormatting(arg1.value);
+        checkDateFormatting(arg2.value);
+
         switch(func){
             case "dateDiff":
                 rv = dateDiff(arg2, arg1);
                 return rv;
-            case "DATEAGE":
+            case "dateAge":
+                rv = yearDiff(arg1, arg2);
                 return rv;
             case "dateAdj":
                 //System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
@@ -556,6 +608,7 @@ public class Expression {
         }
         return rv;
     }
+
     public ResultValue dateDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception{
         // [0] -> year; [1] -> month; [2] -> day
         ResultValue rv = new ResultValue();
@@ -567,8 +620,45 @@ public class Expression {
         rv.value = Integer.toString(diff);
         rv.type = SubClassif.INTEGER;
         return rv;
-
     }
+
+    public ResultValue yearDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception {
+
+        ResultValue rv = new ResultValue();
+        rv.type = SubClassif.INTEGER;
+        rv.structure = "primitive";
+
+        // Configure our formatter
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        sdf.setLenient(false);
+
+        // Configure our calendars
+        Calendar a = Calendar.getInstance();
+        Calendar b = Calendar.getInstance();
+
+        a.setLenient(false);
+        b.setLenient(false);
+
+        try {
+            Date d1 = sdf.parse(earlyDt.value);
+            Date d2 = sdf.parse(laterDt.value);
+
+            a.setTime(d1);
+            b.setTime(d2);
+        } catch (Exception e) {
+            parser.error("Error in date data");
+        }
+
+        int diff = b.YEAR - a.YEAR;
+        if (a.MONTH > b.MONTH ||
+                (a.MONTH == b.MONTH && a.MONTH > b.MONTH)) {
+            diff--;
+        }
+
+        rv.value = String.valueOf(diff);
+        return rv;
+    }
+
     public ResultValue adjustDate(ResultValue adjust, ResultValue dateToAdjust) throws Exception {
 
         String format = "yyyy-MM-dd";
