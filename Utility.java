@@ -304,7 +304,7 @@ public class Utility {
      * @throws Exception
      */
     public ResultValue compareNums(Parser parser, Numeric n1, Numeric n2, String operator) throws Exception {
-        String[] operators = {"==", "!=", "<", "<=", ">", ">="};
+        String[] operators = {"==", "!=", "<", "<=", ">", ">=", "or", "and", "not"};
         ResultValue rv = new ResultValue();
         boolean compare;
 
@@ -360,6 +360,15 @@ public class Utility {
                 break;
             case ">=":
                 compare = (num1 >= num2);
+                break;
+            case "or":
+                compare = n1.boolValue || n2.boolValue;
+                break;
+            case "and":
+                compare = n1.boolValue && n2.boolValue;
+                break;
+            case "not":
+                compare = !n1.boolValue;
                 break;
             default:
                 throw new Exception("Error in operator identity: " + operator);

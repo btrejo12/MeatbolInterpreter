@@ -8,7 +8,7 @@ public class Numeric {
     public String strValue;
     public SubClassif type;
     public String title;
-
+    public Boolean boolValue;
     /**
      * <p>Numberic constructor that doesn't need to be used right now.</p>
      */
@@ -20,7 +20,7 @@ public class Numeric {
      * @param res   The ResultValue used to convert into a Numeric type.
      * @param operator   The operator symbol used for error throwing (maybe)
      * @param title     The title, order of operand, to be used in error throwing
-     * @throws Exception
+     * @throws Exception Throws a new exception if the primitive type cannot be found
      */
     public Numeric(Parser parse, ResultValue res, String operator, String title) throws Exception{
         this.strValue = res.value;
@@ -34,6 +34,8 @@ public class Numeric {
             this.floatValue = Float.parseFloat(this.strValue);
         } else if(res.type == SubClassif.STRING) {
             return;
+        } else if(res.type == SubClassif.BOOLEAN){
+            boolValue = this.strValue.equals("F")?false:this.strValue.equals("T")?true:false;//Will automatically assign false if we receive a boolean value other than T or F somehow
         } else {
             parse.error("Cannot recognize primitive type of " + this.title);
         }

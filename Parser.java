@@ -34,8 +34,8 @@ public class Parser {
                     //def, if, for, while,
                     switch(scan.currentToken.tokenStr) {
                         case "if":
-                            rv = ifStmt(ExecMode.EXECUTE);//If break or continue is found here, it should break
-                            if (scan.currentToken.tokenStr.equals("break") || scan.currentToken.tokenStr.equals("continue")) {
+                            rv = ifStmt(ExecMode.EXECUTE);//IfStmt should get to the endif, but save any found breaks or continues in the rv ExecMode
+                            if (rv.iExecMode == ExecMode.BREAK_EXEC || rv.iExecMode == ExecMode.CONTINUE_EXEC) {
                                 //Yell at them for using break or continue at the wrong place
                                 error("Incorrect usage of %s", scan.currentToken.tokenStr);
                             }
@@ -136,9 +136,9 @@ public class Parser {
      * <p>Used inside of 'if/while', the embedded statements to be executed are run here</p>
      * @param bExec     The boolean that decides whether the embedded statements should be executed
      * @return          The endflow statement that terminated the statement execution
-     * @throws Exception Rethrows whatever it's given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
-    //TODO: Figure out how to send breaks and continues all the way to for and while loops. They are both SsubClassif.END and should force the statements to return
+    //TODO: Figure out how to send breaks and continues all the way to for and while loops. They are both SubClassif.END and should force the statements to return
     private ResultValue executeStatements(ExecMode bExec) throws Exception{
         ResultValue res = new ResultValue();
         if (!scan.currentToken.tokenStr.equals(":"))
@@ -146,7 +146,6 @@ public class Parser {
 
         // shift so the currentToken is the first token after the :
         scan.getNext();
-        while(true) {
             while (scan.currentToken.subClassif != SubClassif.END) {
                 // Nested if/while
                 if (scan.currentToken.subClassif == SubClassif.FLOW) {
@@ -154,7 +153,10 @@ public class Parser {
                         case "if":
                             res = ifStmt(bExec);//TODO figure out what to do if break or continue is found here
                             //ifStmt should return from a break after finding the endif then execute statements will return the break
-
+                            if(res.iExecMode == ExecMode.CONTINUE_EXEC || res.iExecMode == ExecMode.BREAK_EXEC){
+                                //We should handle if and stop executing, but still look for an END token. ifStmt should still be at the right place for us to find it
+                                bExec = res.iExecMode;
+                            }
                             break;
                         case "while":
                             whileStmt(bExec);
@@ -237,8 +239,14 @@ public class Parser {
                 }
                 // shift
                 scan.getNext();
+                if(scan.currentToken.subClassif == SubClassif.END){
+                    //If we find a break or continue here, it will affect bExec on the next round until we get to a different end token
+                    bExec = handleFlow(bExec);
+                    //scan.getNext();//We should not return because of a break or continue here
+                }
             }
             //If we're not executing the code already, then we shouldn't be doing anything for a break or continue
+                res.iExecMode = bExec;
                 if(scan.currentToken.tokenStr.equals("break") || scan.currentToken.tokenStr.equals("continue"))
                     res.iExecMode = handleFlow(bExec);
                 //If we are executing the code, then whoever called execute statements should know how to handle the break and continue
@@ -247,14 +255,13 @@ public class Parser {
             res.type = SubClassif.END;
             res.structure = "";
             return res;
-        }
     }
 
     /**
      * <p>This method is used when an assignment to a variable must be done.</p>
      * @param bExec The boolean that decied whether we apply this assignment or not
      * @return  The ResultValue that was assigned to the variable
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue assignmentStmt(ExecMode bExec) throws Exception{
         //System.out.println("....Enter assignment...");
@@ -319,16 +326,23 @@ public class Parser {
      * <p> This method is used to handle breaks and continues according to the state of the execution</p>
      * @param bExec bExec is the given scenario that handleFlow uses to determine proper flow
      * @return This methos returns the proper ExecMode for the scenario
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ExecMode handleFlow(ExecMode bExec) throws Exception{
         if(bExec == ExecMode.EXECUTE){
-            if(scan.currentToken.tokenStr.equals("Break"))
+            if(scan.currentToken.tokenStr.equals("break")) {
                 bExec = ExecMode.BREAK_EXEC;
-            else if(scan.currentToken.tokenStr.equals("Continue"))
+                scan.getNext();
+            }else if(scan.currentToken.tokenStr.equals("continue")){
                 bExec = ExecMode.CONTINUE_EXEC;
+                scan.getNext();
+            }
+        } else {
+            if (scan.currentToken.tokenStr.equals("break") || scan.currentToken.tokenStr.equals("continue")) {
+                scan.getNext();
+            }
         }
-        scan.getNext();
+        //scan.getNext();//Move on from the break or continue because we should not be doing anything else with it
         return bExec;
     }
 
@@ -347,8 +361,9 @@ public class Parser {
             if (testIfCond) {
                 // Cond returned true, execute the statements below it
                 ResultValue res = executeStatements(ExecMode.EXECUTE);
-
-                // Once the 'if' returns, we should either be on an else, break, continue or an endif;
+                if(bExec != ExecMode.IGNORE_EXEC)
+                    bExec = res.iExecMode;
+                // Once the 'if' returns, we should either be on an else or an endif;
                 if (res.terminatingStr.equals("else")) {
                     scan.getNext();     // Move to the ':'
                     if (!scan.currentToken.tokenStr.equals(":"))
@@ -357,7 +372,7 @@ public class Parser {
                     // Finish the else block but dont execute them
                     res = executeStatements(ExecMode.IGNORE_EXEC);
                 } // Handle if we receive a break or continue inside the if. Just pushing it up
-                bExec = res.iExecMode;
+                //bExec = res.iExecMode;
 
 
                 if (!res.terminatingStr.equals("endif")) {
@@ -397,7 +412,7 @@ public class Parser {
     /**
      * <p>This method is executed when a while statement code block is found</p>
      * @param bExec The boolean that decides whether the statements in the code block should be executed
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private void whileStmt(ExecMode bExec) throws Exception{
         int colPos, lineNum;
@@ -436,7 +451,7 @@ public class Parser {
      * @param variableString    The variable that will be assigned a new value
      * @param result    The ResultValue to be assigned to the variable
      * @return The ResultValue that was assigned to the variable
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue assign(String variableString, ResultValue result) throws Exception{
         ResultValue target = storageMgr.getVariableValue(variableString);
@@ -463,7 +478,7 @@ public class Parser {
     /**
      * <p>Evaluated the value of a condition for flow statements and returns it's boolean value</p>
      * @return  The boolean value dependent on the condition
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private boolean evalCond() throws Exception{
         // Move off the if or while
@@ -477,7 +492,7 @@ public class Parser {
     /**
      * <p>Moves current token to the specified string</p>
      * @param endingDelimiter   The String to stop the current token at
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private void skipTo(String endingDelimiter) throws Exception{
         while(!scan.currentToken.tokenStr.equals(endingDelimiter))
@@ -487,7 +502,7 @@ public class Parser {
     /**
      * <p>This method is responsible for handling functions the parser comes across</p>
      * @param bExec Decides whether the function should be executed or not
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private void handleFunction(ExecMode bExec) throws Exception{
         if(bExec == ExecMode.EXECUTE) {
@@ -500,7 +515,7 @@ public class Parser {
 
     /**
      * <p>Prints the parameters in the function</p>
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private void printFunction() throws Exception{
         int counter=0;
@@ -567,7 +582,7 @@ public class Parser {
      * <p>Throws a ParserException when an error in the code is found</p>
      * @param fmt   The string to specify what caused the error
      * @param varArgs   I don't know why you made me include this parameter, Clark
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Throws a new ParserException based on the argument string it is given and where we are in the given program
      */
     public void error(String fmt, Object...varArgs) throws Exception{
         String diagnosticTxt = String.format(fmt, varArgs);
@@ -576,7 +591,7 @@ public class Parser {
 
     /**
      * <p>This method is responsible for triggering the debug statements requested by the programmer</p>
-     * @throws Exception Rethrows whatever it is handed
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public void handleDebug() throws Exception{
         //current token is on debug
@@ -666,7 +681,7 @@ public class Parser {
      * Assigned an array object to an existing array object
      * @param target The array that is receiving the assignment
      * @return What was assigned to the array only because this is getting called from assignmentStmt
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue arrayToArrayAssignment(Token target) throws Exception{
         /*
@@ -712,7 +727,7 @@ public class Parser {
      * When an array is declared with a size, this method is responsible for saving it.
      * @param target The array whose size we are declaring
      * @param bounds The size to declare it to
-     * @throws Exception Rethrows whatever it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public void setSize(Token target, ResultValue bounds) throws Exception {
         ResultValue targetRV = storageMgr.getVariableValue(target);
@@ -730,7 +745,7 @@ public class Parser {
      * @param target The array receiving the assignment.
      * @param endTerm Uh...the terminating token of the assignment which should a semicolor, idk why this is here
      * @param bExec Whether to execute this assignment or not
-     * @throws Exception Rethrows whatever exception it is given
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public void assignArrayNoSize(Token target, String endTerm, ExecMode bExec) throws Exception{
         ResultValue targetRV = storageMgr.getVariableValue(target.tokenStr);
@@ -828,7 +843,7 @@ public class Parser {
     /**
      * A method used for handling for loops
      * @param bExec Whether to execute this for loop or not
-     * @throws Exception Rethrows whatever error is given to it
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     //TODO: Handle break and continue here
     public void forStmt(ExecMode bExec) throws Exception {
