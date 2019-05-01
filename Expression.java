@@ -393,6 +393,9 @@ public class Expression {
             case "dateAdj":
                 rv = handleDateFunction(function.tokenStr, args.get(0), args.get(1));
                 return rv;
+            case "dateAge":
+                rv = handleDateFunction(function.tokenStr, args.get(0), args.get(1));
+                return rv;
             default:
                 parser.error("Unknown function defined");
                 break;
