@@ -120,6 +120,8 @@ public class Expression {
                 case OPERATOR:
                     ResultValue res2 = stack.pop();
                     ResultValue res1;
+                    //System.out.println("Value: " + token.tokenStr + " SubClass: " + token.subClassif);
+                    //System.out.println("res2: " + res2.value);
                     if(stack.isEmpty()){
                         if(token.subClassif == SubClassif.UNARY) {
                             res2 = storageMgr.getUnaryVariableValue(res2.value);
@@ -386,10 +388,10 @@ public class Expression {
                     parser.error("MAXELEM can only be ued on arrays");
                 return args.remove(0).arr.maxelem();
             case "dateDiff":
-                rv = handleDateFunction(function.tokenStr.toUpperCase(), args.get(0), args.get(1));
+                rv = handleDateFunction(function.tokenStr, args.get(0), args.get(1));
                 return rv;
             case "dateAdj":
-                rv = handleDateFunction(function.tokenStr.toUpperCase(), args.get(0), args.get(1));
+                rv = handleDateFunction(function.tokenStr, args.get(0), args.get(1));
                 return rv;
             default:
                 parser.error("Unknown function defined");
@@ -539,45 +541,87 @@ public class Expression {
 
     public ResultValue handleDateFunction(String func, ResultValue arg1, ResultValue arg2) throws Exception{
         ResultValue rv = new ResultValue();
-        rv.structure = "primitive";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        Date d1 = null, d2 = null;
-        int adjust = 0;
-        int toDaysConst = (24 * 60 * 60 * 1000);
-
-        try {
-            System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
-            d2 = sdf.parse(arg2.value);
-            if (!func.equals("DATEADJ"))
-                d1 = sdf.parse(arg1.value);
-            else
-                adjust = Integer.parseInt(arg1.value);
-        } catch (Exception e) {
-            parser.error("Internal Error: Value of date is incorrect in storage manager");
-        }
-        if (d1 == null) {
-            if (d2 == null && !func.equals("DATEADJ"))
-            parser.error("Error: Dates are null");
-        }
         switch(func){
-            case "DATEDIFF":
-                long diff = (d2.getTime() - d1.getTime()) / toDaysConst;
-                rv.structure = "primitive";
-                rv.value = Long.toString(diff);
-                rv.type = SubClassif.INTEGER;
+            case "dateDiff":
+                rv = dateDiff(arg2, arg1);
                 return rv;
             case "DATEAGE":
                 return rv;
-            case "DATEADJ":
-                System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
+            case "dateAdj":
+                //System.out.println("arg1: " + arg1.value + " arg2: " + arg2.value);
+                rv = this.adjustDate(arg1, arg2);
                 return rv;
             default:
                 parser.error("In HandleDateFunction: HOW ARE YOU HERE?");
         }
         return rv;
     }
+    public ResultValue dateDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception{
+        // [0] -> year; [1] -> month; [2] -> day
+        ResultValue rv = new ResultValue();
+        int days1 = this.convertTotalDays(earlyDt);
+        int days2 = this.convertTotalDays(laterDt);
+        int diff = days2 - days1;
 
-    public void handleDateFunction() {
+        rv.structure = "primitive";
+        rv.value = Integer.toString(diff);
+        rv.type = SubClassif.INTEGER;
+        return rv;
 
+    }
+    public ResultValue adjustDate(ResultValue adjust, ResultValue dateToAdjust) throws Exception {
+
+        String format = "yyyy-MM-dd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format);
+        String[] valueDt = dateToAdjust.value.split("-");
+        Calendar cal = null;
+        int adjDays = 0;
+
+        try {
+
+            // setup Calendar
+            cal = new GregorianCalendar();
+            cal.setTime(sdf.parse(dateToAdjust.value));
+
+            // parse adjust's value into type Int
+            adjDays = Integer.parseInt(adjust.value);
+
+        } catch (Exception e) {
+            throw e;
+        }
+
+        //adjust the date
+        cal.add(Calendar.DAY_OF_MONTH, adjDays);
+        dateToAdjust.value = sdf.format(cal.getTime());
+
+        return dateToAdjust;
+    }
+
+    public int convertTotalDays(ResultValue date) throws Exception {
+        // [0] -> year; [1] -> month; [2] -> day
+        String[] dateTokens = date.value.split("-");
+        int day = 0;
+        int year = 0;
+        int month = 0;
+        int toDays = 0;
+
+        try {
+            year = Integer.parseInt(dateTokens[0]);
+            month = Integer.parseInt(dateTokens[1]);
+            day = Integer.parseInt(dateTokens[2]);
+        } catch (Exception e) {
+            throw new Exception("You shan't be here");
+        }
+
+        if (day > 2) {
+            day -= 3;
+        } else {
+            day += 9;
+            year--;
+        }
+
+        toDays = 365 * year + year / 4 - year / 100 + year / 400
+                + (month * 306 + 5) / 10 + day;
+        return toDays;
     }
 }

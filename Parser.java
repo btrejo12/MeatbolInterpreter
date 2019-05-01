@@ -113,6 +113,7 @@ public class Parser {
 
                 } else if(scan.currentToken.primClassif == Classif.FUNCTION){
                         handleFunction(true);
+                        //System.out.println("Here " + scan.nextToken.tokenStr);
                         //System.out.println("Coming back from function..." + scan.currentToken.tokenStr);
                 } else if (scan.currentToken.primClassif == Classif.DEBUG){
                         handleDebug();

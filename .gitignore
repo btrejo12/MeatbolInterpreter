@@ -1,3 +1,6 @@
 *.class
 *.txt
 .DS_Store
+run-scripts
+*.bat
+test-files
