@@ -463,7 +463,16 @@ public class Expression {
         // Make sure there's only one token, being the actual date value
         // throw an exception if there's an issue
         if (!scan.nextToken.tokenStr.equals(";")) {
-            parser.error("Error: Unidentified token: ", scan.nextToken);
+            if (scan.currentToken.primClassif == Classif.FUNCTION) {
+                // evaluate
+                rv = evaluateExpression(";");
+                if (rv.type != SubClassif.DATE) {
+                    parser.error("Error: Value is not of type DATE");
+                }
+                return rv;
+            } else {
+                parser.error("Error: Unidentified token: ", scan.nextToken);
+            }
         }
 
         // Using Java functions, test to see if the date is valid.

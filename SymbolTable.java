@@ -66,7 +66,7 @@ public class SymbolTable {
         ht.put("MAXELEM", new STFunction("MAXELEM", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 1));
         ht.put("dateDiff", new STFunction("dateDiff", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2));
         ht.put("dateAdj", new STFunction("dateAdj", Classif.FUNCTION, SubClassif.DATE, SubClassif.BUILTIN, 2));
-        ht.put("dateAge", new STFunction("dateAge", Classif.FUNCTION, SubClassif.DATE, SubClassif.BUILTIN, 2));
+        ht.put("dateAge", new STFunction("dateAge", Classif.FUNCTION, SubClassif.INTEGER, SubClassif.BUILTIN, 2));
         ht.put("and", new STEntry("and", Classif.OPERATOR));
         ht.put("or", new STEntry("or", Classif.OPERATOR));
         ht.put("not", new STEntry("not", Classif.OPERATOR));
