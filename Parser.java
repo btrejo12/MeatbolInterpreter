@@ -300,7 +300,6 @@ public class Parser {
         return res;
     }
 
-
     /**
      * <p>This method is used to parse through an if statement code block</p>
      * @param bExec  The boolean that decides whether the statements in the code block should be executed

@@ -88,6 +88,7 @@ public class Expression {
         //System.out.print("\nEval:" + Arrays.toString(tokens.toArray()));
         while(!tokens.isEmpty()){
             Token token = tokens.remove(0);
+            //token.printToken();
             //System.out.print(token.tokenStr);
             switch(token.primClassif){
                 case OPERAND:
@@ -123,11 +124,12 @@ public class Expression {
                     //System.out.println("Value: " + token.tokenStr + " SubClass: " + token.subClassif);
                     //System.out.println("res2: " + res2.value);
                     if(stack.isEmpty()){
+
                         if(token.subClassif == SubClassif.UNARY) {
                             res2 = storageMgr.getUnaryVariableValue(res2.value);
                             stack.push(res2);
                         } else if(token.tokenStr.equals("not")){
-                            if(res2.value.equals("T"))
+                             if(res2.value.equals("T"))
                                 res2.value = "F";
                             else
                                 res2.value = "T";
@@ -135,11 +137,21 @@ public class Expression {
                         }
 
                     } else {
-                        res1 = stack.pop();
-                        Numeric num1 = new Numeric(parser, res1, token.tokenStr, "First operand");
-                        Numeric num2 = new Numeric(parser, res2, token.tokenStr, "Second operand");
-                        ResultValue res3 = parser.util.doMath(parser, num1, num2, token.tokenStr);
-                        stack.push(res3);
+
+                        if (token.subClassif == SubClassif.UNARY) {
+                            //System.out.println("Top of stack: " + stack.peek());
+                            ResultValue temp2 = storageMgr.getUnaryVariableValue(res2.value);
+                            stack.push(temp2);
+                        } else {
+
+                            res1 = stack.pop();
+                            //System.out.println(res1);
+                            //System.out.println(res2);
+                            Numeric num1 = new Numeric(parser, res1, token.tokenStr, "First operand");
+                            Numeric num2 = new Numeric(parser, res2, token.tokenStr, "Second operand");
+                            ResultValue res3 = parser.util.doMath(parser, num1, num2, token.tokenStr);
+                            stack.push(res3);
+                        }
                     }
                     break;
                 case FUNCTION:
@@ -484,6 +496,7 @@ public class Expression {
 
     public void checkDateFormatting() throws Exception {
         String date = scan.currentToken.tokenStr;
+        //System.out.println(date);
         checkDateFormatting(date);
     }
 
@@ -493,7 +506,7 @@ public class Expression {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         sdf.setLenient(false);
 
-        this.manualDateCheck();
+        this.manualDateCheck(date);
         try {
             sdf.parse(date);
         } catch (Exception e){
@@ -512,7 +525,7 @@ public class Expression {
         try {
             varDate = storageMgr.getVariableValue(date);
             if (varDate.type != SubClassif.DATE) {
-                System.out.println("Bad");
+                System.out.println(varDate.type);
                 throw new Exception("Error: invalid data type");
             }
             return; // if it was successfully saved as a variable, this should be fine.
@@ -520,7 +533,7 @@ public class Expression {
             try {
                 sdf.parse(date);
             } catch (Exception f){
-                throw new Exception("Input is not a date");
+                parser.error("Input is not a date");
             }
         }
     }
@@ -591,15 +604,15 @@ public class Expression {
 
     public ResultValue handleDateFunction(String func, ResultValue arg1, ResultValue arg2) throws Exception{
         ResultValue rv = new ResultValue();
-
-        checkDateFormatting(arg1.value);
+        //checkDateFormatting(arg1.value);
         checkDateFormatting(arg2.value);
-
         switch(func){
             case "dateDiff":
+                checkDateFormatting(arg1.value);
                 rv = dateDiff(arg2, arg1);
                 return rv;
             case "dateAge":
+                checkDateFormatting(arg1.value);
                 rv = yearDiff(arg1, arg2);
                 return rv;
             case "dateAdj":
@@ -626,7 +639,6 @@ public class Expression {
     }
 
     public ResultValue yearDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception {
-
         ResultValue rv = new ResultValue();
         rv.type = SubClassif.INTEGER;
         rv.structure = "primitive";
@@ -652,14 +664,15 @@ public class Expression {
             parser.error("Error in date data");
         }
 
-        int diff = b.YEAR - a.YEAR;
-        if (a.MONTH > b.MONTH ||
-                (a.MONTH == b.MONTH && a.MONTH > b.MONTH)) {
+        int diff = a.get(Calendar.YEAR) - b.get(Calendar.YEAR);
+        if (b.get(Calendar.MONTH) > a.get(Calendar.MONTH) ||
+                (b.get(Calendar.MONTH) == a.get(Calendar.MONTH) && b.get(Calendar.MONTH) > a.get(Calendar.MONTH))) {
             diff--;
         }
 
         rv.value = String.valueOf(diff);
         return rv;
+
     }
 
     public ResultValue adjustDate(ResultValue adjust, ResultValue dateToAdjust) throws Exception {
@@ -680,7 +693,7 @@ public class Expression {
             adjDays = Integer.parseInt(adjust.value);
 
         } catch (Exception e) {
-            throw e;
+            parser.error("Error: First parameter in dateAdj must be of type int");
         }
 
         //adjust the date
