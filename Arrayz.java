@@ -95,17 +95,15 @@ public class Arrayz {
         }
         if(ret != 0)
             ret++; // Cause clark said plus one for some odd reason
-        ResultValue res = new ResultValue(Integer.toString(ret), "primitive", SubClassif.INTEGER);
-        return res;
+        return new ResultValue(Integer.toString(ret), "primitive", SubClassif.INTEGER);
     }
 
     /**
      * Returns the number of populated elements.
-     * @return
+     * @return Returns a new ResultValue reflecting the current bounds of the array
      */
     public ResultValue maxelem(){
-        ResultValue res = new ResultValue(Integer.toString(bounds), "primitive", SubClassif.INTEGER);
-        return res;
+        return new ResultValue(Integer.toString(bounds), "primitive", SubClassif.INTEGER);
     }
 
     /**
@@ -115,14 +113,13 @@ public class Arrayz {
     public ResultValue stringLength(){
         //if(owner.type != SubClassif.STRING)
             //throw new Exception("Function 'LENGTH' can only be used on Strings");
-        ResultValue rv = new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
-        return rv;
+        return new ResultValue(Integer.toString(owner.value.length()), "primitive", SubClassif.INTEGER);
     }
 
     /**
      * Returns the number of spaces in this String array object.
      * @return The ResultValue containing the number of spaces
-     * @throws Exception
+     * @throws Exception Throws a new exception if the owner is not of type string
      */
     public ResultValue stringSpaces() throws Exception{
         if(owner.type != SubClassif.STRING)
@@ -138,15 +135,14 @@ public class Arrayz {
                 }
             }
         }
-        ResultValue spacesRV = new ResultValue(rvBool, "primitive", SubClassif.BOOLEAN);
-        return spacesRV;
+        return new ResultValue(rvBool, "primitive", SubClassif.BOOLEAN);
     }
 
     /**
      * Updates and element of this array and updates the string of it's ResultValue
      * @param index The index to be changed
      * @param value The value the index will be changed to
-     * @throws Exception
+     * @throws Exception Throws a new Exception if the element cannot be converted to the proper type
      */
     public void updateElement(ResultValue index, ResultValue value) throws Exception{
         if(owner.type == SubClassif.STRING){
@@ -185,7 +181,7 @@ public class Arrayz {
      * Copies an existing array to this array object.
      * @param source The array to be copied into this one
      * @param end The ending index of where to stop copying
-     * @throws Exception
+     * @throws Exception Throws an exception if the two arrays are not of the same type
      */
     public void copyArray(ResultValue source, int end) throws Exception {
         if(owner.type == SubClassif.STRING){
@@ -220,7 +216,7 @@ public class Arrayz {
 
     /**
      * This is supposed to be for easy printing but I doubt it works
-     * @return
+     * @return Returns a string of the array characters
      */
     public String toString(){
         return this.arr.toString();

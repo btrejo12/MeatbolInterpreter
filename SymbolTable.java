@@ -51,6 +51,8 @@ public class SymbolTable {
         ht.put("endfor", new STControl("endfor", Classif.CONTROL, SubClassif.END));
         ht.put("while", new STControl("while", Classif.CONTROL, SubClassif.FLOW));
         ht.put("endwhile", new STControl("endwhile", Classif.CONTROL, SubClassif.END));
+        ht.put("break", new STControl("break", Classif.CONTROL, SubClassif.END));
+        ht.put("continue", new STControl("continue", Classif.CONTROL, SubClassif.END));
         ht.put("print", new STFunction("print", Classif.FUNCTION, SubClassif.VOID, SubClassif.BUILTIN, VAR_ARGS));
         ht.put("Int", new STControl("Int", Classif.CONTROL, SubClassif.DECLARE));
         ht.put("Float", new STControl("Float", Classif.CONTROL, SubClassif.DECLARE));

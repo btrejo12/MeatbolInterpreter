@@ -51,7 +51,7 @@ public class StorageManager {
      * <p>Return a variable's value from the global hashmap</p>
      * @param variable      The variable to be grabbed from the global hashmap
      * @return     The ResultValue that corresponds to the variable being asked for
-     * @throws Exception
+     * @throws Exception Rethrows whatever it is handed
      */
     public ResultValue getVariableValue(String variable) throws Exception {
 
@@ -114,7 +114,7 @@ public class StorageManager {
      * <p>Return the requested variable's value in unary minus form</p>
      * @param variable      The variable requested from the global hashmap
      * @return              The ResultValue in unary minus form
-     * @throws Exception
+     * @throws Exception    Rethrows whatever is handed to it
      */
     public ResultValue getUnaryVariableValue(String variable) throws Exception {
 

@@ -1,8 +1,6 @@
 package meatbol;
 
-import javax.xml.transform.Result;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Stack;
 
 // For date validation
@@ -16,9 +14,6 @@ public class Expression {
     private StorageManager storageMgr;
     private SymbolTable st;
     private Parser parser;
-    private Utility util;
-    private final static String operators = "+-*/<>=!#^";
-    private ArrayList<Token> out;
 
     public Expression(Parser parse, Scanner scanner, StorageManager storageMgr, SymbolTable st) {
         this.parser = parse;
@@ -31,7 +26,7 @@ public class Expression {
      * Evaluates the expression at the correct token
      * @param terminatingToken The token the expression stops at
      * @return The result of this expression
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public ResultValue evaluateExpression(String terminatingToken) throws Exception{
         ArrayList<Token> exprTokens = new ArrayList<>();
@@ -81,7 +76,7 @@ public class Expression {
      * Evaluates the postfix conversion
      * @param tokens The tokens of the postfix expression
      * @return The Result of this expression
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue evalPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<ResultValue> stack = new Stack<>();
@@ -195,7 +190,7 @@ public class Expression {
      * Converts the expression from infix to postfix
      * @param tokens The tokens to be converted
      * @return The postfix expression
-     * @throws Exception
+     * @throws Exception Throws new exceptions if the postfix array is not created properly
      */
     private ArrayList<Token> convertToPostfix(ArrayList<Token> tokens) throws Exception{
         Stack<Token> stack = new Stack<>();
@@ -309,7 +304,7 @@ public class Expression {
      * @param exprTokens The tokens in the expr so far
      * @param terminatingString The string to stop reading at, usually a closed parenthesis
      * @return The tokens passed in appended with the tokens seen here
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ArrayList<Token> embeddedParenthesis(ArrayList<Token> exprTokens, String terminatingString) throws Exception{
         exprTokens.add(scan.currentToken);
@@ -329,42 +324,33 @@ public class Expression {
      * Checks to see whether this token is an array by checking it's ResultValue
      * @param token The token to be checked
      * @return a boolean specifying whether it's an array or not
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public boolean isArray(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
-        if(rv.structure.equals("fixed-array"))
-            return true;
-        else
-            return false;
+        return rv.structure.equals("fixed-array");
     }
 
     /**
      * Checks to see whether this token is a string array (versus a string literal)
      * @param token The token to be checked
      * @return a boolean specifying whether it's a String array or not
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public boolean isString(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
-        if(rv.type == SubClassif.STRING)
-            return true;
-        else
-            return false;
+        return rv.type == SubClassif.STRING;
     }
 
     /**
      * Checks whether to see if this operand is a function or not
      * @param token The token to be checked
      * @return a boolean specifying whether it's a function or not
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     public boolean isFunction(Token token) throws Exception{
         ResultValue rv = storageMgr.getVariableValue(token);
-        if(rv.type == SubClassif.BUILTIN || rv.type == SubClassif.USER)
-            return true;
-        else
-            return false;
+        return rv.type == SubClassif.BUILTIN || rv.type == SubClassif.USER;
     }
 
     /**
@@ -372,7 +358,7 @@ public class Expression {
      * @param function The token that contains the function
      * @param parameter The token the function will operate on
      * @return The ResultValue of the operation
-     * @throws Exception
+     * @throws Exception Throws a new error if the array is being accessed improperly
      */
     private ResultValue handleFunction(Token function, ArrayList<ResultValue> args) throws Exception{
         ResultValue rv = new ResultValue();
@@ -420,14 +406,13 @@ public class Expression {
      * @param array The array token
      * @param index The ResultValue index requested
      * @return The ResultValue of this array at the specified index
-     * @throws Exception
+     * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue getArrayValue(Token array, ResultValue index) throws Exception{
         ResultValue element = storageMgr.getVariableValue(array.tokenStr);
         //System.out.println("From Storage Manager..." + element.value);
-        ResultValue rv = element.arr.get(index);
+        return element.arr.get(index);
         //System.out.println("Array value is..." + rv.value + " at " + index.value + " index");
-        return rv;
     }
 
     /**
@@ -439,16 +424,14 @@ public class Expression {
     private boolean checkPrecedence(Token first, Token second) throws Exception {
         if(first.primClassif == Classif.SEPARATOR)
             return false;
-        if(getPrecedence(first) >= getPrecedence(second))
-            return true;
-        return false;
+        return getPrecedence(first) >= getPrecedence(second);
     }
 
     /**
      * Literally what the function about is supposed to be
      * @param token The token who's precedence we're checking
      * @return Returns an integer representing the precedence value of this token
-     * @throws Exception
+     * @throws Exception Throws a new error if we are given a token that does not exist in operators
      */
     private int getPrecedence(Token token) throws Exception{
       String [] precedence = {"and or", "not", "in notin", "<= >= != < > ==", "#", "+ -", "* /", "^", "U-", "(", "arr[ fun"};

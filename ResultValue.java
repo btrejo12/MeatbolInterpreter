@@ -6,11 +6,15 @@ public class ResultValue {
     public String structure; // Structure of this ResultValue (fixed array, primitive, etc)
     public String terminatingStr = ""; // Terminating Statement (endwhile, endfor, etc)
     public Arrayz arr;
+    public ExecMode iExecMode; //IGNORE_EXEC,EXECUTE,BREAK_EXEC,CONTINUE_EXEC
     /**
      * Declared an empty ResultValue
      */
     public ResultValue() {
         arr = new Arrayz(this);
+    }
+    public ResultValue(ExecMode bExec){
+        iExecMode = bExec;
     }
 
     /**
@@ -24,7 +28,7 @@ public class ResultValue {
         this.value = value;
         this.structure = structure;
         this.type = type;
-
+        iExecMode = ExecMode.EXECUTE;
         if(type == SubClassif.STRING){
             this.arr.setBounds(value.length());
         }
