@@ -1,13 +1,9 @@
 package meatbol;
 
-import java.util.ArrayList;
-import java.util.Stack;
+import java.util.*;
 
 // For date validation
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Date;
 
 public class Expression {
     private Scanner scan;

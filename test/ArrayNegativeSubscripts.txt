@@ -1,0 +1,10 @@
+Int arrM[] = 10, 20, 30, 40, 50;
+print("Accessing array with negative subscripts");
+
+Int j=1;
+for i=0 to ELEM(arrM) by 1:
+    print("\tElement", arrM[ELEM(arrM)-j], "at", ELEM(arrM)-j););
+    j += 1;
+endfor;
+
+print("Done.");

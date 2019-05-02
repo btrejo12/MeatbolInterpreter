@@ -63,6 +63,14 @@ public class Arrayz {
     public ResultValue get(ResultValue index) throws Exception{
         if(owner.type == SubClassif.STRING){
             int position = Integer.parseInt(index.value);
+            if (position < 0) { // negative subscript
+                ResultValue length = elem();
+                int iLength = Integer.parseInt(length.value);
+                position = position - iLength;
+                if (position < 0) { // out of index, negative too big
+                    throw new Exception("Index " + position + " is out of bounds for length: " + owner.value.length());
+                }
+            }
             String element = Character.toString(owner.value.charAt(position));
             return new ResultValue(element, "primitive", owner.type);
         }
@@ -71,6 +79,14 @@ public class Arrayz {
         int ind;
         try{
             ind = Integer.parseInt(index.value);
+            if(ind < 0) {
+                ResultValue length = elem();
+                int iLength = Integer.parseInt(length.value);
+                ind = ind - iLength;
+                if (ind < 0){
+                    throw new Exception("Index " + ind + " is out of bounds for length: " + bounds);
+                }
+            }
         } catch (Exception e){
             throw new Exception("Invalid index");
         }

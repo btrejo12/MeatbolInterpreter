@@ -386,14 +386,15 @@ public class Scanner{
             printNextLine();
             i = 0;
         }
-        if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
+        //if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
             if(op == '-' && (currentToken.primClassif != Classif.OPERAND && !"])".contains(currentToken.tokenStr)) ) {
                 assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.UNARY);
-            } else {
+                iColPos=i;
+                return;
+            /* else {
                 assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
-            }
-            iColPos=i;
-            return;
+            }*/
+
         } else{
             while(true){
                 char next = textCharM[i];

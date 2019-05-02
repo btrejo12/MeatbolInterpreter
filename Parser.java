@@ -306,6 +306,7 @@ public class Parser {
                 res = assign(targetVariable, res2);
                 break;
             case "-=": // x -= 5+1;
+                scan.getNext();
                 res2 = expr.evaluateExpression(";");
                 num2 = new Numeric(this, res2, "-=", "2nd operator");
                 res1 = storageMgr.getVariableValue(targetVariable);
@@ -313,6 +314,7 @@ public class Parser {
                 res = assign(targetVariable, util.subtract(this, num1, num2));
                 break;
             case "+=":
+                scan.getNext();
                 res2 = expr.evaluateExpression(";");
                 num2 = new Numeric(this, res2, "+=", "2nd operator");
                 res1 = storageMgr.getVariableValue(targetVariable);
@@ -321,7 +323,7 @@ public class Parser {
                 break;
             default:
 
-                error("Expected an assignment operator token after variable");
+                error("Expected an assignment operator token after variable, saw " + scan.currentToken.tokenStr);
         }
         return res;
     }
