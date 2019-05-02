@@ -35,7 +35,7 @@ public class Scanner{
      * @param fileName The file to be read in
      * @param symbolTable A table of symbols to be used later
      */
-    public Scanner(String fileName, SymbolTable symbolTable){
+    public Scanner(String fileName, SymbolTable symbolTable) throws Exception{
         BufferedReader reader;
         sourceFileNm = fileName;
         this.symbolTable = symbolTable;
@@ -95,6 +95,8 @@ public class Scanner{
             skipEmptyLines();
 
             for (int i = 0; i <= textCharM.length; i++) {
+                if (!trigger)
+                    return "";
                 int index = iColPos + i;
 
                 if (index >= textCharM.length) {
@@ -124,7 +126,7 @@ public class Scanner{
                             continue;
                         } //This character and the next are the start of a comment, go to the next line
                         else if (currentChar == '/' && textCharM.length > index && textCharM[index + 1] == '/') {
-                            incrementColumnPosition(textCharM.length);
+                            incrementColumnPosition(textCharM.length-1);
                             i = -1;
                             continue;
                         }//This is a operator token, assign it and update iCol
@@ -288,19 +290,19 @@ public class Scanner{
      *<p>IncrementColumnPosition updates the iColPos whenever we are moving between tokens.</p>
      * @param relativeIndex is the relative index within the for loop which must be added to iColPos
      */
-    private void incrementColumnPosition(int relativeIndex) throws ParserException{
+    private void incrementColumnPosition(int relativeIndex) throws ParserException, Exception{
         iColPos += (relativeIndex+1);
         //System.out.print(" ColPos: " + iColPos);
         if(iColPos >= textCharM.length){
             //System.out.print(" Reset iCol\n");
             iColPos = 0;
-            if (iSourceLineNr != sourceLineM.size()) {
+            if (iSourceLineNr < sourceLineM.size()) {
                 //System.out.println(iSourceLineNr+1 + " " + sourceLineM.get(iSourceLineNr));
                 textCharM = sourceLineM.get(iSourceLineNr).toCharArray();
                 //iSourceLineNr++;
                 printNextLine();
-            } else if(iSourceLineNr == sourceLineM.size()){
-                iSourceLineNr++;
+            } else if(iSourceLineNr >= sourceLineM.size()){
+                printNextLine();
             }else {
                 setNextToEmpty();
                 throw new ParserException(iSourceLineNr,"End of File",sourceFileNm);
@@ -358,7 +360,11 @@ public class Scanner{
     /**
      * <p>PrintNextLine is responsible for printing the current line when Scanner increments to the next line.</p>
      */
-    private void printNextLine(){
+    private void printNextLine() throws Exception{
+        //System.out.println("Increment source line number which is currently at " + iSourceLineNr + " on token " + currentToken.tokenStr + " " + sourceLineM.size());
+        if (iSourceLineNr > sourceLineM.size()){
+            setNextToEmpty();
+        }
         iSourceLineNr++;
         skipEmptyLines();
         if (bPrintLines) {
@@ -371,7 +377,7 @@ public class Scanner{
      * accordingly and populates nextToken.
      * @param index the index of the first operator</p>
      */
-    private void checkOperator(int index){
+    private void checkOperator(int index) throws Exception{
         int i = index;
         char op = textCharM[index];
         i++;
@@ -381,7 +387,7 @@ public class Scanner{
             i = 0;
         }
         if(op == '+' || op == '-' || op == '*' || op == '/' || op == '#' || op == '^'){
-            if(op == '-' && currentToken.primClassif != Classif.OPERAND) {
+            if(op == '-' && (currentToken.primClassif != Classif.OPERAND && !"])".contains(currentToken.tokenStr)) ) {
                 assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.UNARY);
             } else {
                 assignNextToken(Character.toString(op), Classif.OPERATOR, SubClassif.EMPTY);
