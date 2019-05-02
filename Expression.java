@@ -659,7 +659,9 @@ public class Expression {
     }
 
     public ResultValue adjustDate(ResultValue adjust, ResultValue dateToAdjust) throws Exception {
-
+        ResultValue rv = new ResultValue();
+        rv.structure = "primitive";
+        rv.type = SubClassif.DATE;
         String format = "yyyy-MM-dd";
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         String[] valueDt = dateToAdjust.value.split("-");
@@ -681,9 +683,8 @@ public class Expression {
 
         //adjust the date
         cal.add(Calendar.DAY_OF_MONTH, adjDays);
-        dateToAdjust.value = sdf.format(cal.getTime());
-
-        return dateToAdjust;
+        rv.value = sdf.format(cal.getTime());
+        return rv;
     }
 
     public int convertTotalDays(ResultValue date) throws Exception {
