@@ -200,6 +200,8 @@ public class Arrayz {
      * @throws Exception Throws an exception if the two arrays are not of the same type
      */
     public void copyArray(ResultValue source, int end) throws Exception {
+        if(owner.type != source.type)
+            throw new Exception("Expected target array and assignment array to be of same type.");
         if(owner.type == SubClassif.STRING){
             // Copy the contents of source's string into this string
             StringBuilder sb = new StringBuilder();
@@ -208,8 +210,6 @@ public class Arrayz {
             }
             owner.value = sb.toString();
         } else {
-            if(owner.type != source.type)
-                throw new Exception("Expected target array and assignment array to be of same type.");
             for(int i=0; i < end; i++){
                 arr[i] = source.arr.arr[i];
             }

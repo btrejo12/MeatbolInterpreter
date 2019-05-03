@@ -722,27 +722,20 @@ public class Parser {
         ResultValue targetRV = storageMgr.getVariableValue(target);
 
         scan.getNext(); // Puts us on the expr
-        if(targetRV.type == SubClassif.STRING){ //TODO What's different here?
-            // String array assignment
-            ResultValue source = expr.evaluateExpression(";");
-            int targetBounds = targetRV.arr.getBounds();
-            int exprBounds = source.arr.getBounds();
 
+        ResultValue source = expr.evaluateExpression(";");
+        int targetBounds = targetRV.arr.getBounds();
+        int exprBounds = source.arr.getBounds();
+
+        try {
             int end = Math.min(targetBounds, exprBounds);
             targetRV.arr.copyArray(source, end);
             storageMgr.updateVariable(target.tokenStr, targetRV);
-            return targetRV;
-        } else {
-            // Regular array assignment
-            ResultValue source = expr.evaluateExpression(";");
-            int targetBounds = targetRV.arr.getBounds();
-            int exprBounds = source.arr.getBounds();
-
-            int end = Math.min(targetBounds, exprBounds);
-            targetRV.arr.copyArray(source, end);
-            storageMgr.updateVariable(target.tokenStr, targetRV);
-            return targetRV;
+        } catch(Exception e){
+            error(target.tokenStr + " of type " + targetRV.type + " expected same type. Found:" + source.type);
         }
+        return targetRV;
+
     }
 
     /**

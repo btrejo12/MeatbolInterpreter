@@ -101,7 +101,12 @@ public class ForLoopControl {
                 controlVariable = new ResultValue(tokens[0], "primitive", SubClassif.STRING);
                 bounds = tokens.length;
             }else {
-                ResultValue res = limit.arr.get(index);
+                ResultValue res = new ResultValue();
+                try {
+                    res = limit.arr.get(index);
+                } catch (Exception e){
+                    parser.error("Invalid index " + index.value + " for array of size: " + limit.arr.getBounds());
+                }
                 assignControl(res);
                 ResultValue rv = limit.arr.elem();
                 bounds = Integer.parseInt(rv.value);
@@ -123,7 +128,12 @@ public class ForLoopControl {
         if(idx >= bounds)
             return false;
         if(isArray){
-            ResultValue rv = limit.arr.get(index);
+            ResultValue rv = new ResultValue();
+            try {
+                rv = limit.arr.get(index);
+            } catch(Exception e){
+                parser.error("Invalid index " + index.value + " for array of size: " + limit.arr.getBounds());
+            }
             assignControl(rv);
             idx = idx + Integer.parseInt(incr.value);
             index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
@@ -146,7 +156,7 @@ public class ForLoopControl {
             } else
                 firstIter = false;
             // Check again since we changed it just not
-            if (idx > bounds)
+            if (idx >= bounds)
                 return false;
             assignControl(index);
             stoMgr.updateVariable(target.tokenStr, controlVariable);

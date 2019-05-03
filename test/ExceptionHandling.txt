@@ -1,0 +1,46 @@
+print(“ExceptionHandling.txt”);
+print(“Semicolon check”);
+Int x
+Int y = 5
+print("hi")
+debug bShowExpr on
+debug bShowExpr yeet;
+
+print("\nFunction errors);
+print "Hello";
+Int x = SPACES(5);
+Int x = ELEM(5);
+Int x = MAXELEM("rand");
+
+print("\nOperatorCheck");
+Int x * 5;
+Float if T:
+   print("\tShould not print");
+endif;
+
+print("\nExpression errors");
+Int x = 5 - 3+1) * 2;
+Int x = 5 - if + 7;
+
+print("\nErrors with arrays.");
+Int arr[];
+Int arr[5] = 10, 20, 30, 40, 50, 60, 70;
+Int arr[] = 1, 2, 3;
+print(arr[5]);
+
+print("\nFlow control errors");
+if T:
+   print("\tInside if");
+endwhile;
+for i=0 to 2
+   print("\tShould not print");
+endfor;
+for i=0 to 2:
+   print("\tHello Clark");
+endfor
+if T:
+   print("\tUsing a 'continue' in an if statement");
+   continue;
+endif;
+
+
