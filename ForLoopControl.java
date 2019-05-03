@@ -15,6 +15,7 @@ public class ForLoopControl {
     private boolean isRange = false;
     private boolean isSplit = false;
     private boolean isArray = false;
+    private boolean firstIter = true;
     private ResultValue index;
     private Token target;
     private int bounds;
@@ -33,6 +34,8 @@ public class ForLoopControl {
         this.scan = scan;
         this.stoMgr = stoMgr;
         this.expr = expr;
+        limit = new ResultValue();
+        incr = new ResultValue();
     }
 
     /**
@@ -67,32 +70,32 @@ public class ForLoopControl {
             // Integer range
             index = controlVariable;
             isRange = true;
-            limit = expr.evaluateExpression("by :"); //by is optional
+            assignRV(limit, expr.evaluateExpression("by :"));
             bounds = Integer.parseInt(limit.value);
             if(scan.currentToken.primClassif == Classif.CONTROL){ //next token is 'by'
                 incrExists = true;
                 scan.getNext();
-                incr = expr.evaluateExpression(":");
+                assignRV(incr, expr.evaluateExpression(":"));
             } else if (!scan.currentToken.tokenStr.equals(":")) {
                 parser.error("Expected colon following 'for' condition: " + scan.currentToken.tokenStr);
             } else
                 incr = new ResultValue("1", "primitive", SubClassif.INTEGER);
         } else if (flow.equals("in")){
             isArray = true;
-            limit = expr.evaluateExpression(":");
+            assignRV(limit, expr.evaluateExpression(":"));
             incr = new ResultValue("1", "primitive", SubClassif.INTEGER);
         } else if (flow.equals("from")){
             isSplit = true;
-            limit = expr.evaluateExpression("by");
+            assignRV(limit, expr.evaluateExpression("by"));
             if(!scan.currentToken.tokenStr.equals("by"))
                 parser.error("Expected 'by' following 'for' condition: " + scan.currentToken.tokenStr);
             scan.getNext(); // get on the 'by' variable
-            incr = expr.evaluateExpression(":");
+            assignRV(incr, expr.evaluateExpression(":"));
         } else
             parser.error("Invalid flow statement following 'for' loop control variable: " + flow);
 
-        index = new ResultValue("0", "primitive", SubClassif.INTEGER);
         if(!isRange){
+            index = new ResultValue("0", "primitive", SubClassif.INTEGER);
             if(isSplit){
                 String [] tokens = limit.value.split(incr.value);
                 controlVariable = new ResultValue(tokens[0], "primitive", SubClassif.STRING);
@@ -135,10 +138,17 @@ public class ForLoopControl {
             stoMgr.updateVariable(target.tokenStr, controlVariable);
             return true;
         } else {
-            ResultValue rv = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
-            assignControl(rv);
-            idx = idx + Integer.parseInt(incr.value);
-            index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
+            //ResultValue rv = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
+            ResultValue tmp = stoMgr.getVariableValue(target.tokenStr);
+            if(!firstIter) {
+                idx = Integer.parseInt(tmp.value) + Integer.parseInt(incr.value);
+                index = new ResultValue(Integer.toString(idx), "primitive", SubClassif.INTEGER);
+            } else
+                firstIter = false;
+            // Check again since we changed it just not
+            if (idx > bounds)
+                return false;
+            assignControl(index);
             stoMgr.updateVariable(target.tokenStr, controlVariable);
             return true;
         }
@@ -156,5 +166,14 @@ public class ForLoopControl {
         controlVariable.terminatingStr = assign.terminatingStr;
         controlVariable.arr = assign.arr;
         //System.err.println("From control assignment: " + controlVariable.value + " at " + index.value);
+    }
+
+    private void assignRV(ResultValue destination, ResultValue source){
+        if(source.type != null)
+            destination.type = source.type;
+        destination.value = source.value;
+        destination.structure = source.structure;
+        destination.terminatingStr = source.terminatingStr;
+        destination.arr = source.arr;
     }
 }

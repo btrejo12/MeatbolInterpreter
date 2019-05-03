@@ -32,40 +32,53 @@ while control < 10:
     endif;
 endwhile;
 
-print("\nArray of varying booleans");
-Bool bTest[] = T, T, F, T, F, T, T, F, F, F;
-for tmp in bTest:
-   print("\t", tmp);
+print("\nFor loop with control variable, start variable, limit, and incr");
+Int limit = 10;
+Int incr = 2;
+print("\tLoop should only run 5 times when limit=", limit, ", incr=", incr);
+
+for k=1 to limit by incr:
+   print("\tcv=", k);
 endfor;
 
-print("\nMake all booleans false using infinite while loop. Use break.");
-control = 0;
-while T:
-   if control >= ELEM(bTest):
-      print("\tFinished traversing through array");
-      break;
-      print("No");
-   else:
-      print("Rando");
-   endif;
-
-   if bTest[control]:
-      bTest[control] = not bTest[control];
-      control += 1;
-      continue;
-   else:
-      control += 1;
-      continue;
-   endif;
-endwhile;
-
-print("\nAn array of all false booleans");
-for tmp in bTest:
-   print("\t",tmp);
+print("\nFor loop with cv, sv, limit and incr with a change in cv");
+print("\tLoop should run 10 times when limit=", limit, ", incr=", incr, "and cv -=1 each iteration");
+for k=1 to limit by incr:
+    print("\tcv=", k);
+    k -= 1;
 endfor;
 
+print("\nIn Meatbol, only cv can change. For loop with changing limit and incr.");
+print("\tLoop should run 10 times with limit=", limit, ", incr=", incr);
+for k=1 to limit by incr:
+    limit += 1;
+    print("\t\tlimit=", limit, "should be local");
+    incr += 5;
+    print("\t\tincr=", incr, "should be local only");
+    print("\tcv=", k);
+endfor;
 
-print("For loop with control variable, start variable, limit, and incr");
-print("For loop with char in string");
-print("For loop with item in array");
-print("For loop with String control variable from String by delimiter(tokenizer)");
+print("\nFor loop with char in string");
+String printMe = "So many looooops and hoops";
+for c in printMe:
+    print("\t", c);
+endfor;
+
+Float nums[] = 1, 2, 3, 4, 5, 6;
+print("\nFor loop with item in array");
+for tmp in nums:
+    print("\t", tmp);
+endfor;
+
+print("\nFor loop with String tokenizer");
+String delimiter = ' ';
+print("\tDelimiter is=", delimiter);
+for tmp from printMe by delimiter:
+    print("\t", tmp);
+endfor;
+
+delimiter='o';
+print("\tDelimiter is=", delimiter);
+for tmp from printMe by delimiter:
+    print("\t", tmp);
+endfor;
