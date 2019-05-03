@@ -352,7 +352,7 @@ public class Expression {
     /**
      * Performs the operations dependant on the type of function it is
      * @param function The token that contains the function
-     * @param parameter The token the function will operate on
+     * @param args The token the function will operate on
      * @return The ResultValue of the operation
      * @throws Exception Throws a new error if the array is being accessed improperly
      */
@@ -405,10 +405,16 @@ public class Expression {
      * @throws Exception Rethrows whatever exception is handed to it
      */
     private ResultValue getArrayValue(Token array, ResultValue index) throws Exception{
+        ResultValue res = new ResultValue();
         ResultValue element = storageMgr.getVariableValue(array.tokenStr);
         //System.out.println("From Storage Manager..." + element.value);
-        return element.arr.get(index);
-        //System.out.println("Array value is..." + rv.value + " at " + index.value + " index");
+        try {
+            res = element.arr.get(index);
+            //System.out.println("Array value is..." + rv.value + " at " + index.value + " index");
+        } catch (Exception e){
+            parser.error("Invalid index for array '" + array.tokenStr + "' at index: " + index.value);
+        }
+        return res;
     }
 
     /**

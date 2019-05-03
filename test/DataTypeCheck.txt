@@ -1,0 +1,18 @@
+Int a = 10;
+Float b = 20.0;
+Bool c = T;
+String d = "I am a string";
+
+print("Explicit type integer a=", a);
+print("Explicit type float b=", b);
+print("Explicit type boolean c=", c);
+print("Explicit type string d=", d);
+
+print("\nImplementing variable coercions");
+
+Int tmp = a;
+a=b;
+b=tmp;
+
+print("Integer a taking the value of b. a=", a);
+print("Float b taking the value of a. b=", b);

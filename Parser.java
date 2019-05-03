@@ -465,7 +465,13 @@ public class Parser {
             target.value = result.value;
         } else {
             if(target.type == SubClassif.INTEGER){
-                result.value = Integer.toString(Integer.parseInt(result.value));
+                if(result.type == SubClassif.FLOAT){
+                    float tmp = Float.parseFloat(result.value);
+                    int tmp2 = (int) tmp;
+                    result.value = Integer.toString(tmp2);
+                } else {
+                    result.value = Integer.toString(Integer.parseInt(result.value));
+                }
                 target.value = result.value;
             } else if (target.type == SubClassif.FLOAT){
                 result.value = Float.toString(Float.parseFloat(result.value));

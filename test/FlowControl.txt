@@ -1,0 +1,71 @@
+print("FlowControl.txt");
+
+print("\nIf-else statement with basic integers");
+if 5 > 10:
+    print("\tIf branch: False. 5 is not greater than 10");
+else:
+    print("\tElse branch: True. 5 is not greater than 10");
+endif;
+
+print("If-else statement with string comparisons");
+if "hello" > "hi":
+    print("\tIf branch: False. 'hello' is not greater than 'hi'");
+else:
+    print("\tElse branch: True. 'hello' is not greater than 'hi'");
+endif;
+
+print("If-else statement with equality comparison between integers");
+if 5 == 5:
+    print("\tIf branch: True. 5==5");
+else:
+    print("\tElse branch: False. 5==5");
+endif;
+
+Int control = 0;
+print("\nWhile loop with integer control");
+
+while control < 10:
+    control += 3;
+    print("\tControl with a 3 increment=", control);
+    if control >= 10:
+        print("\t\tWe should be leaving the while loop now.");
+    endif;
+endwhile;
+
+print("\nArray of varying booleans");
+Bool bTest[] = T, T, F, T, F, T, T, F, F, F;
+for tmp in bTest:
+   print("\t", tmp);
+endfor;
+
+print("\nMake all booleans false using infinite while loop. Use break.");
+control = 0;
+while T:
+   if control >= ELEM(bTest):
+      print("\tFinished traversing through array");
+      break;
+      print("No");
+   else:
+      print("Rando");
+   endif;
+
+   if bTest[control]:
+      bTest[control] = not bTest[control];
+      control += 1;
+      continue;
+   else:
+      control += 1;
+      continue;
+   endif;
+endwhile;
+
+print("\nAn array of all false booleans");
+for tmp in bTest:
+   print("\t",tmp);
+endfor;
+
+
+print("For loop with control variable, start variable, limit, and incr");
+print("For loop with char in string");
+print("For loop with item in array");
+print("For loop with String control variable from String by delimiter(tokenizer)");

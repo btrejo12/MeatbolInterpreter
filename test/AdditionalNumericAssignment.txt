@@ -1,0 +1,14 @@
+print("AdditionalNumericAssignment.txt");
+
+print("Basic operations have been demonstrated in previous test cases.");
+
+print("\nUsing += and -= within a for loop with 10 iterations.");
+Int a = 1;
+Int b = 500;
+print("Initial set up:\n\tA=", a, "\n\tB=", b, "\n");
+
+for k=0 to 10:
+    a += 1;
+    b -= 10;
+    print("\tIteration=", k, "Adding 1, A=", a, "Subtracting 10, B=", b);
+endfor;

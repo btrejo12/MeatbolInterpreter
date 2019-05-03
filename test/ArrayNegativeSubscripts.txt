@@ -1,10 +1,23 @@
+print("ArrayNegativeSubscripts");
 Int arrM[] = 10, 20, 30, 40, 50;
-print("Accessing array with negative subscripts");
+print("Accessing integer array with negative subscripts");
 
 Int j=1;
 for i=0 to ELEM(arrM) by 1:
     print("\tElement", arrM[ELEM(arrM)-j], "at", ELEM(arrM)-j););
     j += 1;
 endfor;
+
+String test = "Reverse me";
+print("\nReversing a string using negative subscripts");
+
+Int k=1;
+String revStr = "";
+print("\tOriginal string=", test);
+for m=0 to LENGTH(test):
+    revStr = revStr # test[LENGTH(test)-k];
+    k += 1;
+endfor;
+print("\tReversed string=", revStr);
 
 print("Done.");

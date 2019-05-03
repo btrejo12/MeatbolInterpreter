@@ -1,0 +1,26 @@
+print("Array Definitions and Coercions");
+
+print("Defining an array without a size and explicit variables.");
+Int nosize[] = 100, 200, 400, 500;
+for a in nosize:
+    print("\t", a);
+endfor;
+
+print("\nDefining an array with a size of 10 and only one element populated.");
+Int lonely[10];
+lonely[5] = 5000;
+
+print("\tSingle element=", lonely[5]);
+
+print("\nAssigning floats to an integer array.");
+Int intArr[] = 1.0, 2.0, 3.0, 4.0, 5.0;
+
+for k=0 to ELEM(intArr):
+    print("\t", intArr[k]);
+endfor;
+
+print("\nAssigning integers to a float array");
+Float flArr[] = 6, 7, 8, 9, 10;
+for k=0 to ELEM(flArr):
+    print("\t", flArr[k]);
+endfor;
