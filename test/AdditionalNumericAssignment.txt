@@ -12,3 +12,23 @@ for k=0 to 10:
     b -= 10;
     print("\tIteration=", k, "Adding 1, A=", a, "Subtracting 10, B=", b);
 endfor;
+
+print("\nComparing String literals. Should be 6 total correct statements");
+if "hello" < "hi":
+   print("Correct 1");
+endif;
+if "hi" > "hello":
+   print("correct 2");
+endif;
+if "hi" >= "hello":
+   print("correct 3");
+endif;
+if "hello" <= "hi":
+   print("correct 4");
+endif;
+if "hello" <= "hello":
+   print("correct 5");
+endif;
+if "hello" >= "hello":
+   print("correct 6");
+endif;
