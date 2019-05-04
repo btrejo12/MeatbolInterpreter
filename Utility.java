@@ -290,8 +290,7 @@ public class Utility {
             }
 
         }
-
-        return false;
+        return true;
     }
 
     /**
