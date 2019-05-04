@@ -246,7 +246,7 @@ public class Scanner{
             if(currentChar == endingDelimiter && textCharM[i-1] != '\\'){
                 String variableName = sourceLineM.get(iSourceLineNr-1).substring(startingIndex+1, i);
                 String escapedName = convertEscaped(variableName);
-                if(escapedName.equals(""))
+                if(escapedName == (""))
                     parser.error("Unrecognized escape character");
                 assignNextToken(escapedName, Classif.OPERAND, SubClassif.STRING);
                 incrementColumnPosition(i-startingIndex);

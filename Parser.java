@@ -562,7 +562,7 @@ public class Parser {
                 scan.getNext();
                 continue;
             } else if (scan.currentToken.primClassif == Classif.FUNCTION) {
-                ResultValue variable = expr.evaluateExpression(")");
+                ResultValue variable = expr.evaluateExpression(",)");
                 System.out.print(variable.value);
                 if(scan.currentToken.tokenStr.equals(")")){
                     scan.getNext();
