@@ -1,0 +1,25 @@
+print("BuiltInFunctions");
+
+print("\nThe fact that you can see this means print is working.");
+
+print("\n Expressions within the print function");
+print("\tHere are some random expr ints. First=", 5^(1+1), "Second=", 4-2*9, "Third=", 10.0/3);
+print("\tHere are some random expr strings. First=", "This is the first", "Second=", "sec" # "ond", "Third(some boolean)=", 10 > 5);
+
+print("\nTesting LENGTH with simple and complex expressions");
+print("\tLENGTH with a simple string", LENGTH("hello"));
+print("\tLENGTH with complex expr", LENGTH("hello" # "goodbye"));
+
+print("\nTesting SPACES");
+print("\tSPACES with an empty string=", SPACES(""));
+print("\tSPACES with a string of only spaces=", SPACES("    "));
+print("\tSPACES with a string that contains letters=", SPACES("hi hello bye"));
+
+Int max[30];
+max[12] = 10;
+max[2] = 5;
+max[7] = 10;
+print("\nTesting MAXELEM");
+print("\tLarge mostly empty array with three elemets=", MAXELEM(max));
+print("\nTesting ELEM");
+print("\tLarge mostly empty array with three elements=", ELEM(max));
