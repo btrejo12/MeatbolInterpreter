@@ -24,3 +24,22 @@ Float flArr[] = 6, 7, 8, 9, 10;
 for k=0 to ELEM(flArr):
     print("\t", flArr[k]);
 endfor;
+
+print("\nAssigning an array to another array with a smaller length");
+Int big[] = 10, 20, 40, 50, 70, 80;
+Int small[3];
+print("\tLarger array");
+for tmp in big:
+   print("\t\t", tmp);
+endfor;
+small = big;
+print("\tSmall array");
+for tmp in small:
+   print("\t\t", tmp);
+endfor;
+Int smaller[] = 1, 2;
+print("\nBig array with first two elements replaced from a smaller array");
+big = smaller;
+for tmp in big:
+   print("\t\t", tmp);
+endfor;
