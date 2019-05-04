@@ -793,7 +793,7 @@ public class Expression {
 
     /**
      * Converts an input into an int value representing days.
-     * 
+     *
      * @param date
      * @return
      * @throws Exception
