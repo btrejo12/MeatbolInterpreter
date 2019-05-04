@@ -133,7 +133,7 @@ public class Arrayz {
     }
 
     /**
-     * Returns the number of spaces in this String array object.
+     * Returns true if the passed in string contains only spaced or is empty, false otherwise
      * @return The ResultValue containing the number of spaces
      * @throws Exception Throws a new exception if the owner is not of type string
      */
