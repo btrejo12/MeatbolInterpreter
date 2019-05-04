@@ -120,3 +120,22 @@ while T:
     break;
 endwhile;
 print("Left the loop at: ", control);
+
+
+k = 0;
+limit = 10;
+incr = 1;
+for k=1 to limit by incr:
+    print("Inside for loop. K: ", k);
+    break;
+endfor;
+print("Outisde of for loop. K: ",k);
+
+for k=1 to limit by incr:
+    print("Inside for loop. K: ",k);
+    if k > 5:
+        k+=1;
+        continue;
+    endif;
+    print("At the end of the loop");
+endfor;
