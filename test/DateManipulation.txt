@@ -1,0 +1,63 @@
+print("DateManipulation.txt");
+print();
+
+Date date = "2018-03-13";
+Int i = 30;
+Int arr[] = 365;
+Date date2 = "2014-03-13";
+
+print("Testing dateAdj with a constant date and constant days value");
+print("Original date(constant): 2017-03-23", "Adjusted date by 130 days", dateAdj("2017-03-23", 130));
+print();
+
+print("Testing dateAdj with a positive constant");
+print("Original date:", date, "Adjusted date by 130 days", dateAdj(date, 130));
+print();
+
+print("Testing dateAdj with a negative constant");
+print("Original date:", date, "Adjusted date by -130 days", dateAdj(date, -130));
+print();
+
+print("Testing dateAdj with an Int variable with a positive value");
+print("Original date:", date, "| i =", i, "| Adjusted date by i days", dateAdj(date, i));
+print();
+
+i = -35;
+print("Testing dateAdj with an Int variable with a negative value");
+print("Original date:", date, "| i is now equal to", i, "| Adjusted date by i days", dateAdj(date, i));
+print();
+
+print("Testing dateAdj with a value from a value from an array");
+print("Original date:", date, "| arr[0] =", arr[0], "| Adjusted date by arr[0] days", dateAdj(date, arr[0]));
+print();
+
+print("Testing dateAdj with a leap year");
+date = "2016-03-01";
+i = -3;
+print("Original leap year date:", date, "| i =", i, "| Adjusted date by i days", dateAdj(date, i));
+date = "2015-03-01";
+print("Original nonleap year date:", date, "| i =", i, "| Adjusted date by i days", dateAdj(date, i));
+print();
+
+print("Testing dateAge with two date constants");
+print("Date 1: 2009-08-13, Date 2: 2010-08-13 | Years between both dates", dateAge("2009-08-13", "2010-08-13"));
+print();
+
+print("Testing dateAge with two date variables");
+print("Date 1:", date, "Date 2:" date2, "| Years between both dates", dateAge(date, date2));
+print();
+
+print("Testing dateAge with no years between them");
+date = "2015-03-01";
+date2 = "2015-02-28";
+print("Date 1:", date, "Date 2:" date2, "| Years between both dates", dateAge(date, date2));
+print();
+
+print("Testing dateDiff with two dates");
+print("Date 1:", date, "Date 2:" date2, "| Days between both dates", dateDiff(date2, date));
+print();
+
+date = "2016-03-01";
+date2 = "2016-02-28";
+print("Testing dateDiff with two dates with a leap year");
+print("Date 1:", date, "Date 2:" date2, "| Days between both dates", dateDiff(date2, date));

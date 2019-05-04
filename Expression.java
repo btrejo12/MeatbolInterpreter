@@ -662,7 +662,7 @@ public class Expression {
                 (b.get(Calendar.MONTH) == a.get(Calendar.MONTH) && b.get(Calendar.MONTH) > a.get(Calendar.MONTH))) {
             diff--;
         }
-
+        diff = Math.abs(diff);
         rv.value = String.valueOf(diff);
         return rv;
 
