@@ -82,3 +82,41 @@ print("\tDelimiter is=", delimiter);
 for tmp from printMe by delimiter:
     print("\t", tmp);
 endfor;
+
+control = 0;
+while T:
+    print("Control is currently: ", control);
+    if control >= 100:
+        print("\t\tWe should be leaving the while loop now.");
+        break;
+        endif;
+        if control <= 10:
+            print("We're going to slowly increase control here");
+            control += 1;
+        else:
+            print("Now we're going to speed it up");
+            control += 10;
+        endif;
+        print("Restarting the loop");
+    endwhile;
+print("Left the loop at: ", control);
+
+
+
+control = 0;
+incr = 1;
+while T:
+    print("control is currently: ", control);
+    if incr < 10:
+        print("We're going to slowly increase incr here.\n incr is: ", incr);
+        incr += 1;
+    endif;
+
+    if control < 200:
+        control += incr;
+        continue;
+    endif;
+    print("Once we're here we will stop the loop");
+    break;
+endwhile;
+print("Left the loop at: ", control);
