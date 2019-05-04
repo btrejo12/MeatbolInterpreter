@@ -8,6 +8,9 @@ print("Explicit type float b=", b);
 print("Explicit type boolean c=", c);
 print("Explicit type string d=", d);
 
+print("Coercion to the leftmost type, a*b: ", a*b);
+print("Coercion to the leftmost type, b*a: ", b*a);
+
 print("\nImplementing variable coercions");
 
 Int tmp = a;
