@@ -7,12 +7,14 @@ import java.util.Map;
 public class StorageManager {
 
     private HashMap<String, ResultValue> variables = null;
+    private Parser parser;
 
     /**
      * <p>StorageManager is responsible for holding declared variables and their value</p>
      */
-    public StorageManager() {
+    public StorageManager(Parser parser) {
         this.variables = new HashMap<String, ResultValue>();
+        this.parser = parser;
     }
 
     /**
@@ -23,9 +25,8 @@ public class StorageManager {
      */
     public void addVariable(String variable, ResultValue value) throws Exception {
         if (variables.containsKey(variable)) {
-            throw new Exception("Error: Variable '" + variable + "' has already been instantiated");
+            parser.error("Variable '" + variable + "' has already been instantiated");
         }
-
         variables.put(variable, value);
     }
 
@@ -40,7 +41,7 @@ public class StorageManager {
             try {
                 addVariable(variable, value);
             } catch (Exception e) {
-                throw e;
+                parser.error("Variable '" + variable + "' has already been instantiated");
             }
         }
         variables.put(variable, value);
@@ -80,7 +81,7 @@ public class StorageManager {
             } catch (Exception f) {
                 // if the variable passed through "variable" is not found in the SM
                 if (!variables.containsKey(variable)) {
-                    throw new Exception("Error: Variable '" + variable + "' does not exist");
+                    parser.error("Error: Variable '" + variable + "' does not exist");
                 } else {
                     // TODO: Delete this later
                     rv = variables.get(variable);
@@ -103,7 +104,7 @@ public class StorageManager {
         }
         else
             if(!variables.containsKey(token.tokenStr)) {
-                throw new Exception("Error: Variable '" + token.tokenStr + "' does not exist");
+                parser.error("Error: Variable '" + token.tokenStr + "' does not exist");
             } else {
                 rv = variables.get(token.tokenStr);
             }

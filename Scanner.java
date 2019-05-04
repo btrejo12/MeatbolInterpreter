@@ -25,6 +25,7 @@ public class Scanner{
     private final static String operators = "+-*/<>=!#^";
     private final static String digits = "0123456789";
     private final static String separators = "(),:;[]";
+    public Parser parser;
     public StorageManager sManager;
     private Numeric numeric;
 
@@ -35,9 +36,10 @@ public class Scanner{
      * @param fileName The file to be read in
      * @param symbolTable A table of symbols to be used later
      */
-    public Scanner(String fileName, SymbolTable symbolTable) throws Exception{
+    public Scanner(Parser parser, String fileName, SymbolTable symbolTable) throws Exception{
         BufferedReader reader;
         sourceFileNm = fileName;
+        this.parser = parser;
         this.symbolTable = symbolTable;
         this.numeric = new Numeric();
         //this.sManager = new StorageManager();
@@ -101,6 +103,18 @@ public class Scanner{
 
                 if (index >= textCharM.length) {
                     String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
+                    if (digits.indexOf(variableName.charAt(0)) >= 0) {
+                        SubClassif sClassif=SubClassif.EMPTY;
+                        try {
+                            sClassif = numeric.checkNumType(variableName);
+                        } catch (Exception e) {
+                            parser.error("Invalid number format");
+                        }
+                        assignNextToken(variableName, Classif.OPERAND, sClassif);
+                        incrementColumnPosition(i - 1);
+                        break;
+
+                    }
                     attemptNewSymbolSave(variableName);
                     //System.out.println(variableName);
                     //assignNextToken(variableName, Classif.OPERAND, SubClassif.IDENTIFIER);
@@ -163,11 +177,11 @@ public class Scanner{
                         String variableName = sourceLineM.get(iSourceLineNr - 1).substring(iColPos, (iColPos + i));
                         // Digits
                         if (digits.indexOf(variableName.charAt(0)) >= 0) {
-                            SubClassif sClassif;
+                            SubClassif sClassif = SubClassif.EMPTY;
                             try {
                                 sClassif = numeric.checkNumType(variableName);
                             } catch (Exception e) {
-                                throw new Exception("Line " + iSourceLineNr + ": Invalid number format, File: " + sourceFileNm);
+                                parser.error("Invalid number format");
                             }
                             assignNextToken(variableName, Classif.OPERAND, sClassif);
                             incrementColumnPosition(i - 1);
@@ -232,14 +246,14 @@ public class Scanner{
             if(currentChar == endingDelimiter && textCharM[i-1] != '\\'){
                 String variableName = sourceLineM.get(iSourceLineNr-1).substring(startingIndex+1, i);
                 String escapedName = convertEscaped(variableName);
-                if(escapedName == "")
-                    throw new Exception("Line " + iSourceLineNr + ": Unrecognized escape character, File: " + sourceFileNm);
+                if(escapedName.equals(""))
+                    parser.error("Unrecognized escape character");
                 assignNextToken(escapedName, Classif.OPERAND, SubClassif.STRING);
                 incrementColumnPosition(i-startingIndex);
                 return;
             }
         }
-        throw new Exception("Line " + iSourceLineNr + ": String literal must terminate on same line, File: " + sourceFileNm);
+        parser.error("String literal must terminate on same line");
     }
 
     /**
@@ -305,7 +319,7 @@ public class Scanner{
                 printNextLine();
             }else {
                 setNextToEmpty();
-                throw new ParserException(iSourceLineNr,"End of File",sourceFileNm);
+                parser.error("End of File");
             }
 
         }
@@ -481,9 +495,11 @@ public class Scanner{
                 if(varName.equals("on") || varName.equals("off")){
                     primary = Classif.DEBUG;
                     secondary = SubClassif.EMPTY;
+                } else {
+                    parser.error("Invalid trigger for debug statement: " + varName);
                 }
             } else if (currentToken.subClassif != SubClassif.DECLARE && currentToken.subClassif != SubClassif.FLOW){
-                throw new Exception("Variable '" + varName + "' has not been initialized.");
+                parser.error("Variable '" + varName + "' has not been initialized.");
             } else {
                 // add symbol to the symbol table
                 symbolTable.putSymbol(varName, newEntry);
@@ -502,7 +518,7 @@ public class Scanner{
                     sManager.addVariable(varName, rv);
                 } catch (Exception e) {
                     // Variable already exists
-                    throw new Exception("Variable already exists in Storage Manager.");
+                    parser.error("Variable already exists in Storage Manager.");
                     //System.out.println(e.getMessage());
                 }
             }

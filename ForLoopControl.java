@@ -53,7 +53,7 @@ public class ForLoopControl {
                 scan.getNext(); //put us on the expr
                 controlVariable = expr.evaluateExpression("to in from");
             } else {
-                scan.currentToken.printToken();
+                //scan.currentToken.printToken();
                 parser.error("Expected '=' in control variable assignment for 'for' loop: "
                         + scan.currentToken.tokenStr);
             }

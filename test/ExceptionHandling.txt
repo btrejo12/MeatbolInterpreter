@@ -1,46 +1,99 @@
-print(“ExceptionHandling.txt”);
-print(“Semicolon check”);
-Int x
-Int y = 5
-print("hi")
-debug bShowExpr on
-debug bShowExpr yeet;
+print("ExceptionHandling.txt");
+   print("Semicolon check");
+   //print("\tVariable declaration");
+   //Int x
 
-print("\nFunction errors);
-print "Hello";
-Int x = SPACES(5);
-Int x = ELEM(5);
-Int x = MAXELEM("rand");
+   //print("\tVariable initialization");
+   //Int x = 5
+   //print("\tShould not be printed.");
+
+   //print("\tPrint statement");
+   //print("\thi")
+
+   //print("\tDebug statement");
+   //debug Expr on
+
+   //print("\tInvalid trigger for debug statement");
+   //debug Expr yeet;
+   
+print("\nVariable errors");
+   //print("\tMulti-line string literal");
+   //String test = "I cannot span
+   //               multiple lines";
+
+   //print("\tInvalid variable name after declaration");
+   //Float if=5.0;
+
+   //print("\tUndefined variable");
+   //hi="hello";
+
+   //print("\tInvalid variable coercion");
+   //Int I = "hello";
+
+   //print("\nInvalid date types");
+   //Date badDate;  
+   //badDate = '2015-02-29';   
+   //badDate = '2016-06-31';  
+   //badDate = '2016-12-31A';  
+   //badDate = '2016-12-3100';  
+   //badDate = '2016-1212-31';
+
+print("\nFunction errors");
+   //print("\tPrint function without parenthesis");
+   //print "Hello";
+
+   //print("\tUsing SPACES function on an integer");
+   //Int x = SPACES(5);
+
+   //print("\tUsing ELEM function on an integer");
+   //Int x = ELEM(5);
+
+   //print("\tUsing MAXELEM function on a string");
+   //Int x = MAXELEM("rand");
 
 print("\nOperatorCheck");
-Int x * 5;
-Float if T:
-   print("\tShould not print");
-endif;
+   //print("\tInvalid operand after declaration");
+   //Int x * 5;
+
 
 print("\nExpression errors");
-Int x = 5 - 3+1) * 2;
-Int x = 5 - if + 7;
+   //print("\tMissing parenthesis match");
+   //Int x = 5 - 3+1) * 2;
+   
+   //print("\tInvalid operand/operator within expression");
+   //Int x = 5 - if + 7;
+
 
 print("\nErrors with arrays.");
-Int arr[];
-Int arr[5] = 10, 20, 30, 40, 50, 60, 70;
-Int arr[] = 1, 2, 3;
-print(arr[5]);
+   //print("\tArrays must be declared with either a set size or explicit variables");
+   //Int arr[];
+
+   //print("\tAdding more elements to an array past specified bounds");
+   //Int arr[5] = 10, 20, 30, 40, 50, 60, 70;
+
+   //print("\tReferencing an index greater than array size");
+   //Int arr[] = 1, 2, 3;
+   //print(arr[5]);
+
+   //print("\tAssigning an array size with a float");
+   //Float arrF[5.0];
+
 
 print("\nFlow control errors");
-if T:
-   print("\tInside if");
-endwhile;
-for i=0 to 2
-   print("\tShould not print");
-endfor;
-for i=0 to 2:
-   print("\tHello Clark");
-endfor
-if T:
-   print("\tUsing a 'continue' in an if statement");
-   continue;
-endif;
-
-
+   //print("\tInvalid ending statement");
+   //if T:
+   //   print("\t\tInside if");
+   //endwhile;
+   //print("\tNo colon following condition results in infinite condition");
+   //for i=0 to 2
+   //   print("\tShould not print");
+   //endfor;
+   //print("\tNo semicolon following end statement");
+   //for i=0 to 1:
+   //   print("\t\tHello Clark");
+   //endfor
+   //print("\tUsing a break/continue within an invalid flow statement");
+   //if T:
+   //   print("\tUsing a 'continue' in an if statement");
+   //   continue;
+   //endif;

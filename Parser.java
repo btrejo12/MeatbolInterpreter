@@ -18,10 +18,10 @@ public class Parser {
      * @param st        The global symbol table used for the Parser
      */
     public Parser(String filename, SymbolTable st) throws Exception{
-        storageMgr = new StorageManager();
+        storageMgr = new StorageManager(this);
         util = new Utility();
         this.st = st;
-        scan = new Scanner(filename, st);
+        scan = new Scanner(this, filename, st);
         scan.sManager = storageMgr;
         ResultValue rv;
         this.expr = new Expression(this, scan, storageMgr, st);
@@ -37,7 +37,7 @@ public class Parser {
                             rv = ifStmt(ExecMode.EXECUTE);//IfStmt should get to the endif, but save any found breaks or continues in the rv ExecMode
                             if (rv.iExecMode == ExecMode.BREAK_EXEC || rv.iExecMode == ExecMode.CONTINUE_EXEC) {
                                 //Yell at them for using break or continue at the wrong place
-                                error("Incorrect usage of %s", scan.currentToken.tokenStr);
+                                error("Incorrect usage of " + rv.iExecMode);
                             }
                             break;
                         case "def":
@@ -61,7 +61,7 @@ public class Parser {
                     //System.out.println("Declare is.." + scan.currentToken.tokenStr);
                     scan.getNext();
                     if(scan.currentToken.subClassif != SubClassif.IDENTIFIER)
-                        error("Expected identifier after declare " + scan.currentToken.tokenStr);
+                        error("Expected identifier after declare: " + scan.currentToken.tokenStr);
                     else{
                         if(scan.nextToken.primClassif == Classif.SEPARATOR){
                             if(scan.nextToken.tokenStr.equals("[")){
@@ -72,7 +72,7 @@ public class Parser {
                                     //Do a thing to take in comma separated values into array. Brackets can only be empty if assigning the array in declaration The brackets cannot be empty if not assigning.
                                     scan.getNext();
                                     if (!scan.nextToken.tokenStr.equals("=")) {
-                                        error("'=' missing. Arrays without initial bounds must have initial values " + scan.nextToken);
+                                        error("'=' missing. Arrays without initial bounds must have initial values " + array.tokenStr);
                                     }
                                     scan.getNext(); // on equal sign
                                     scan.getNext(); // on values
@@ -98,8 +98,7 @@ public class Parser {
                         } else if (scan.nextToken.primClassif == Classif.OPERATOR){
                             assignmentStmt(ExecMode.EXECUTE);
                         } else {
-                            //Not sure here
-                            scan.nextToken.printToken();
+                            error("Expected either semi-colon or operator following variable declaration. Saw: " + scan.nextToken.tokenStr);
                         }
                     }
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER){
@@ -207,9 +206,6 @@ public class Parser {
                             }
                         } else if (scan.nextToken.primClassif == Classif.OPERATOR) {
                             assignmentStmt(bExec);
-                        } else {
-                            //Not sure here
-                            scan.nextToken.printToken();
                         }
                     }
                 } else if (scan.currentToken.subClassif == SubClassif.IDENTIFIER) {
@@ -470,7 +466,11 @@ public class Parser {
                     int tmp2 = (int) tmp;
                     result.value = Integer.toString(tmp2);
                 } else {
-                    result.value = Integer.toString(Integer.parseInt(result.value));
+                    try {
+                        result.value = Integer.toString(Integer.parseInt(result.value));
+                    } catch(Exception e){
+                        error("Invalid type for " + target.type + " type variable. Saw: " + result.type);
+                    }
                 }
                 target.value = result.value;
             } else if (target.type == SubClassif.FLOAT){
@@ -592,6 +592,8 @@ public class Parser {
             if(scan.currentToken.tokenStr.equals(")")){
                 System.out.println();
                 scan.getNext();
+                if(!scan.currentToken.tokenStr.equals(";"))
+                    error("Expected semicolon following print statement.");
                 break;
             }
             counter++;
@@ -825,7 +827,7 @@ public class Parser {
             while (!scan.currentToken.tokenStr.equals(endTerm)) {
                 if (index >= bounds) {
                     error("Number of variables assigned to " + tokAssign.tokenStr +
-                            " exceeds " + bounds + " found " + index);
+                            " exceeds " + bounds);
                 }
                 if (scan.currentToken.primClassif == Classif.SEPARATOR) {
                     valueString.append(scan.currentToken.tokenStr);

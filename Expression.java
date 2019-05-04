@@ -274,7 +274,6 @@ public class Expression {
                         case ",":
                             break;
                         default:
-                            token.printToken();
                             parser.error("Invalid separator within expression: '"+token.tokenStr +"' ");
                             break;
                     } // seperator switch
@@ -283,7 +282,7 @@ public class Expression {
                     stack.push(token);
                     break;
                 default:
-                    parser.error("Invalid token within expression: ", token.tokenStr);
+                    parser.error("Invalid token within expression: " + token.tokenStr);
                     break;
             } // postfix switch
         } // for loop
@@ -371,7 +370,7 @@ public class Expression {
                 return args.remove(0).arr.stringLength();
             case "SPACES":
                 if(args.get(0).type != SubClassif.STRING)
-                    parser.error("Function'SPACES' can only be used on String");
+                    parser.error("Function 'SPACES' can only be used on String");
                 return args.remove(0).arr.stringSpaces();
             case "ELEM":
                 if(!args.get(0).structure.equals("fixed-array"))
@@ -391,7 +390,7 @@ public class Expression {
                 rv = handleDateFunction(function.tokenStr, args.get(0), args.get(1));
                 return rv;
             default:
-                parser.error("Unknown function defined");
+                parser.error("Invalid function call, " + function.tokenStr + ", within expression");
                 break;
         }
         return rv;
