@@ -458,6 +458,12 @@ public class Expression {
       return index;
     }
 
+    /**
+     * evaluateDate evaluates the current date and parses it to make sure
+     * that the date is formatted correctly.
+     * @return a ResultValue with the correctly formatted Date
+     * @throws Exception
+     */
     public ResultValue evaluateDate() throws Exception {
 
         ResultValue rv = new ResultValue();
@@ -487,12 +493,27 @@ public class Expression {
         return rv;
     }
 
+    /**
+     * See checkDateFormatting(String date)
+     * @param scan.currentToken.tokenStr
+     * @throws Exception
+     */
     public void checkDateFormatting() throws Exception {
         String date = scan.currentToken.tokenStr;
         //System.out.println(date);
         checkDateFormatting(date);
     }
 
+    /**
+     * checkDateFormatting takes in a String value and validates the value to see if it follows
+     * the correct formatting. The format should be the following:
+     *
+     * "yyyy-MM-dd"
+     *
+     * (year-Month-day)
+     * @param date
+     * @throws Exception
+     */
     public void checkDateFormatting(String date) throws Exception {
         //String date = scan.currentToken.tokenStr;
         String format = "yyyy-MM-dd";
@@ -507,11 +528,22 @@ public class Expression {
         }
     }
 
+    /**
+     * See manualDateCheck(String date)
+     * @throws Exception
+     */
     public void manualDateCheck() throws Exception {
         String date = scan.currentToken.tokenStr;
         this.manualDateCheck(date);
     }
 
+    /**
+     * checkIfDateVar checks to make sure the following string param is either a physical
+     * date or is a variable that is holding a date.
+     *
+     * @param date
+     * @throws Exception
+     */
     public void checkIfDateVar(String date) throws Exception {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // loose checking
         ResultValue varDate = null;
@@ -530,6 +562,15 @@ public class Expression {
             }
         }
     }
+
+    /**
+     * manualDateCheck manually parses through the passed in String date.
+     * This function tokenizes the passed in date and makes sure that the following
+     * attributes of the date are correct
+     *
+     * @param date
+     * @throws Exception
+     */
     public void manualDateCheck(String date) throws Exception {
         int year=0, month=0, day=0;
         checkIfDateVar(date);
@@ -546,6 +587,7 @@ public class Expression {
             parser.error("Date value must contain 10 characters", scan.currentToken);
         }
 
+        // Check hyphens and makes sure there is only two
         int hyphenCount = 0;
         for (int i = 0; i < date.length(); i++) {
             if (date.charAt(i) == '-')
@@ -595,6 +637,18 @@ public class Expression {
         }
     }
 
+    /**
+     * handleDateFunction is the mini driver function that passes the arguments into their respective
+     * date function. String func has the literal date function name and the args are the arguments to that
+     * function. handleDateFunction will call its respective functions to create the wanted output based
+     * on the value of func.
+     *
+     * @param func
+     * @param arg1
+     * @param arg2
+     * @return ResultValue depending on the date function called
+     * @throws Exception
+     */
     public ResultValue handleDateFunction(String func, ResultValue arg1, ResultValue arg2) throws Exception{
         ResultValue rv = new ResultValue();
         //checkDateFormatting(arg1.value);
@@ -618,6 +672,15 @@ public class Expression {
         return rv;
     }
 
+    /**
+     * dateDiff returns the arguments into days and returns the difference between the
+     * two dates.
+     *
+     * @param laterDt
+     * @param earlyDt
+     * @return the difference of of the two dates in days
+     * @throws Exception
+     */
     public ResultValue dateDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception{
         // [0] -> year; [1] -> month; [2] -> day
         ResultValue rv = new ResultValue();
@@ -631,7 +694,16 @@ public class Expression {
         return rv;
     }
 
+    /**
+     * yearDiff takes in two different dates and figures out the difference between the two dates in years.
+     *
+     * @param laterDt
+     * @param earlyDt
+     * @return
+     * @throws Exception
+     */
     public ResultValue yearDiff(ResultValue laterDt, ResultValue earlyDt) throws Exception {
+        // our return ResultValue uwu
         ResultValue rv = new ResultValue();
         rv.type = SubClassif.INTEGER;
         rv.structure = "primitive";
@@ -644,30 +716,52 @@ public class Expression {
         Calendar a = Calendar.getInstance();
         Calendar b = Calendar.getInstance();
 
+        /*
+        This is to make sure that the Calendar don't accept false Date values:
+        For example:
+        2018-04-35
+        is a date accepted by the Calendar, but is not a real date.
+         */
         a.setLenient(false);
         b.setLenient(false);
 
+        // Sanity Check - make sure the dates are correctly formatted for
+        // extra security
         try {
             Date d1 = sdf.parse(earlyDt.value);
             Date d2 = sdf.parse(laterDt.value);
 
+            // set the Dates in their respective Calendars
             a.setTime(d1);
             b.setTime(d2);
         } catch (Exception e) {
             parser.error("Error in date data");
         }
 
+        // The actual math
+        // this solves the difference in years.
         int diff = a.get(Calendar.YEAR) - b.get(Calendar.YEAR);
         if (b.get(Calendar.MONTH) > a.get(Calendar.MONTH) ||
                 (b.get(Calendar.MONTH) == a.get(Calendar.MONTH) && b.get(Calendar.MONTH) > a.get(Calendar.MONTH))) {
             diff--;
         }
+
+        // takes the absolute value of the output
         diff = Math.abs(diff);
         rv.value = String.valueOf(diff);
         return rv;
 
     }
 
+    /**
+     * adjustDate takes in a date and an int value representing the amount of days that is wanted to
+     * change the date. adjust can be positive or negative.
+     *
+     * @param adjust
+     * @param dateToAdjust
+     * @return
+     * @throws Exception
+     */
     public ResultValue adjustDate(ResultValue adjust, ResultValue dateToAdjust) throws Exception {
         ResultValue rv = new ResultValue();
         rv.structure = "primitive";
@@ -697,6 +791,13 @@ public class Expression {
         return rv;
     }
 
+    /**
+     * Converts an input into an int value representing days.
+     * 
+     * @param date
+     * @return
+     * @throws Exception
+     */
     public int convertTotalDays(ResultValue date) throws Exception {
         // [0] -> year; [1] -> month; [2] -> day
         String[] dateTokens = date.value.split("-");
