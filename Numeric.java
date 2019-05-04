@@ -60,7 +60,7 @@ public class Numeric {
                 throw new Exception("Letter instead of number");
             }
         }
-        if (decCounter > 1) {
+        if (1 < decCounter) {
             throw new Exception("Incorrect number formatting");
         }
         else if (decCounter == 0) {
